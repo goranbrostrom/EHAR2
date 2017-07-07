@@ -4,6 +4,15 @@
 
 \usepackage{natbib}
 
+\usepackage{hyperref}
+
+\hypersetup{
+  colorlinks   = true, %Colours links instead of ugly boxes
+  urlcolor     = blue, %Colour for external hyperlinks
+  linkcolor    = blue, %Colour of internal links
+  citecolor   = black %Colour of citations
+}
+
 \bibliographystyle{apalike}
 
 \title{Proposal for the Second Edition of \\
@@ -72,6 +81,12 @@ to a fixed-dimension data set (a table). This will speed up compilation consider
 given that certain conditions are met. This is something to implement in the eha
 package in the first place, but a description of how it works will be included 
 in the book as well.
+
+\subsection{The weird bootstrap}
+
+\emph{The weird bootstrap} \citep[p. 323]{abgk93} is implemented in the package eha, but 
+not explained in the first edition of the book. It will now be introduced.
+
 \subsection{Presentation}
 
 Presentation refers to how to present the results of a statistical
@@ -80,6 +95,11 @@ presentations should be promoted and tables kept to a minimum, so I will
 investigate how certain kinds of table content can be translated into a graph.
 
 \subsubsection{The Hauck-Donner effect, $p$-values, and contrasts}
+
+Traditional ways of presenting the results a Cox or AFT regression (or any 
+regression) are neglecting the multiple testing problem, which is especially 
+serious in connection with contrasts for categorical covariates. I will show 
+the correct way(s) of doing things.
 
 See \url{http://capa.ddb.umu.se/ds/contrasts.html} for a hint of what I have in 
 mind here.
@@ -92,19 +112,30 @@ interpretation of a $p$-value is that it is just another statistic,
 computable from data. That is fine, but problem arises when the $p$-value is
 interpreted as a probability and statements about ``significance'' are made.
 
-\subsection{Parametric survival models}
+\subsection{Cox regression}
 
 This is more about a changing focus of the eha package: The non-parametric
 approach (Cox regression) is well covered by the survival package
 \citep{survival}, and the corresponding parts of the eha package will be
-toned down. This will also be reflected in the second edition of the book. 
+toned down. Instead, things that eha can do but survival cannot will be emphasized.
+
+However, this is more about changes in the package eha, and it will not change the
+presentation in the book significantly.
+
+
+
+This will also be reflected in the second edition of the book. 
+
+\subsection{Parametric survival models}
+
 
 \subsubsection{The Gompertz baseline distribution}
 
 The Gompertz distribution is traditionally used in modeling human adult
-mortality, by good reasons. However, a ``common knowledge'' that the
-Gompertz distribution does not lend itself to be used in AFT modeling is
-not true. On the contrary, the Gompertz distribution can be used both in PH
+mortality, by good reasons. However, a ``common knowledge'' that \emph{the
+Gompertz distribution does not lend itself to be used in AFT modeling} 
+\citep[p. 285]{klekle} is
+\emph{not true}. On the contrary, the Gompertz distribution can be used both in PH
 and AFT modeling. This will be explained in the book, and the benefits from
 this will be pointed out. It includes the possibility to perform mediation
 analysis in a simple way because the AFT model is log-linear.
@@ -133,7 +164,8 @@ given, especially in the accelerated failure time framework.
 
 The first edition was written using Sweave \citep{sweave02} and \LaTeX\
 \citep{lamport}, but I consider 
-switching to either knitr \citep{knitr15} and \LaTeX\ or bookdown \citep{bookdown16}.
+switching to either knitr \citep{knitr15} and \LaTeX\ or bookdown 
+\citep{bookdown16}. For now, I will go with \emph{bookdown}.
 
 \subsubsection{Graphics}
 
@@ -158,7 +190,7 @@ the years. Will of course be dealt with.
 The data used in the examples of the first edition will be checked. Old
 examples may be replaced by new.  
 
-\section{Contents} \label{sec:contents}
+\section{Contents of the Second edition} \label{sec:contents}
 
 \subsection*{Chapter 1: Event history and survival data}
 
