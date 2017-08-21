@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+EHAR2.Rproj
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc

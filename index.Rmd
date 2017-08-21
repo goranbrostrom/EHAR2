@@ -1,0 +1,316 @@
+--- 
+title: "Event History Analysis with R, Second Edition"
+author: "Göran Broström"
+date: "`r Sys.Date()`"
+knit: "bookdown::render_book"
+documentclass: krantz
+bibliography: [surv2.bib]
+biblio-style: apalike
+link-citations: yes
+colorlinks: yes
+lot: yes
+lof: yes
+fontsize: 12pt
+monofont: "Source Code Pro"
+monofontoptions: "Scale=0.7"
+site: bookdown::bookdown_site
+description: "Event history analysis for demographers."
+github-repo: goranbrostrom/EHAR2
+cover-image: images/cover.jpg
+---
+
+```{r setup, include=FALSE}
+options(
+  htmltools.dir.version = FALSE, formatR.indent = 2,
+  width = 55, digits = 4, warnPartialMatchAttr = FALSE, warnPartialMatchDollar = FALSE
+)
+
+lapply(c('DT', 'citr', 'formatR', 'svglite'), function(pkg) {
+  if (system.file(package = pkg) == '') install.packages(pkg)
+})
+```
+
+# Preface {-}
+
+# Preface to the First Edition {-}
+
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='https://www.crcpress.com/product/isbn/9781138700109'}
+knitr::include_graphics('images/cover.jpg', dpi = NA)
+```
+
+This book is about the analysis of event history and survival data, with
+special emphasis on how to do it in the statistical computing environment
+R [@cran]. The main applications in mind are
+demography and epidemiology, but also other applications, where durations
+are of primary interest, fit in to this framework.
+Ideally, the reader has a first 
+course in statistics, but some necessary basics may be found in Appendix A.
+The basis for this book is courses in event history and survival analysis
+that I have given and developed over the years since the mid-eighties, and
+the development of software for the analysis of this kind of data. This
+development has during the last ten to fifteen years taken place in the
+environment of R  in the package **eha** [@eha]. 
+
+There are already several good text books in the field of survival and event
+history analysis on the market,
+ \cite{abg08}, \cite{abgk93},
+\cite{coxoakes84}, \cite{ph00}, 
+\cite{kp02}, and \cite{jl03} to mention a few. Some of these are already
+classical, but they all are aimed at an audience with solid mathematical
+and statistical background. On the other hand, the  \cite{pm95},
+\cite{pa84}, \cite{pasas95}, 
+\cite{km03},
+\cite{collett}, and
+\cite{ejj99} books are all more basic but lack the special treatment
+demographic applications needs today, and also the connection to R.
+
+In the late seventies, large databases with individual life histories began
+to appear. One of the 
+absolutely first was \emph{The Demographic Data Base} (DDB) at Umeå 
+University. I started working there as a researcher in 1980, and at that
+time the data base contained individual data for seven Swedish
+parishes scattered all over the country. Statistical software for Cox
+regression [@cox72] did not exist at that time, so we began a
+development, with the handling of large data sets in mind, of $\sc Fortran$
+programs for analyzing censored survival data. The starting point was Appendix 3 of
+@kp80. It contained ``Fortran programs for the proportional hazards
+model''.  
+
+The beginning of the eighties was also important because then the first
+text books on survival analysis 
+began to appear. Of special importance (for me) was the books by
+@kp80, and, four years later, @coxoakes84. 
+ 
+The time period covered by the DDB data is approximately the $19^{th}$
+century. Today the geographical content is expanded to cover four large
+regions, with more than 60 parishes in total.
+
+This book is closely tied to the _R Environment for Statistics and
+Computing_ [@cran]. This fact has one specific advantage: Software and
+this book can be totally synchronized, not only by adapting the book to the
+software, but also vice versa. This is possible because R and its packages
+are \emph{open source}, and one of the survival analysis packages [@eha]
+in R and this book have the author in common. The **eha** package
+contains some research results not found in other software
+[@brli08; @gb02; @gb87]. However, it is important to emphasize that the real
+work horse in survival analysis in R is the recommended package **survival** 
+[@survival].
+
+The mathematical and
+statistical theory underlying the content of this book is exposed to a
+minimum; the main target audience is social 
+science researchers and students who are interested in studying
+demographically oriented research questions. 
+However, the apparent limitation to demographic applications in this book is not
+really a limitation, because the methods
+described here are equally useful whenever durations are of primary
+interest, for instance in epidemiology and econometrics.
+
+In Chapter 1 event history and survival data are exemplified, and the
+specific problems data of this kind poses on the statistical analysis. 
+Of special importance are the concepts of censoring and truncation, or in
+other words, incomplete observations. The dynamic nature of this kind of
+data is emphasized. The data sets used throughout the book are presented
+here for the first time.
+
+How to analyze homogeneous data is discussed in Chapter 2. The concept of a
+survival distribution is introduced, including the hazard function, which is
+the fundamental concept in survival analysis. The functions that can be
+derived from the hazard function, the survival and the cumulative hazard
+functions, are introduced. Then the methods for estimating the fundamental
+functions non-parametrically are introduced, most important the
+Kaplan-Meier and Nelson-Aalen estimators. By ``nonparametric'' is meant
+that in the estimation procedures, no restrictions are put on the class of
+allowed distributions, except that it must consist of distributions on the
+positive real line; a life length cannot 
+be negative. Some effort is put into giving an understanding of the
+intuitive reasoning behind the estimators, and the goal is to show that the
+ideas are really simple and elementary.    
+
+Cox regression is introduced in Chapter 3 and expanded on in Chapter 5. It
+is based on the property of proportional hazards, which makes it possible
+to analyze the effects of covariates on survival without specifying a
+family of survival distributions. Cox regression is in this sense a
+non-parametric method, but correct is perhaps to call it semi-parametric,
+because the proportionality constant is parametrically determined. The
+introduction to Cox regression goes via the log-rank test, which can be
+regarded as a special case of Cox regression.A fairly detailed discussion of
+different kinds of covariates are given, together with an explanation of
+how to interpret regression parameters connected to these
+covariates. Discrete time versions of the proportional hazards assumption
+is introduced.
+
+In Chapter 4, a break from Cox regression is taken, and Poisson regression
+is introduced. The real purpose of this, however, is to show the equivalence
+(in some sense) between Poisson and Cox regression. For tabular data, the
+proportional hazards model can be fitted via Poisson regression. This is
+also true for the continuous time piecewise constant hazards model, which
+is explored in more detail in Chapter 6.
+
+The Cox regression thread is taken up again in Chapter 5. Time-varying
+and so-called communal covariates are introduced, and it is
+shown how to prepare a data set for these possibilities. The important
+distinction between internal and external covariates is
+discussed. Stratification as a tool to handle non-proportionality is
+introduced. How to check model assumptions, in particular the proportional
+hazards one, is discussed, and finally some less common features, like
+sampling of risk sets and fixed study period,  are introduced.
+
+Chapter 6 introduces fully parametric survival models. They come in three
+flavors, proportional hazards, accelerated failure time, and discrete time
+models. The parametric proportional hazards models have the advantages
+compared to Cox regression that the estimation of the baseline hazard
+function comes for free. This is also part of the drawback with parametric
+models; they are nice to work with but often too rigid to fit data from
+a complex reality. It is for instance not possible to find simple
+parametric descriptions of human mortality over the full life span, it
+would require a
+U-shaped hazard function, and no standard survival distribution has that
+property. However, 
+when studying shorter segments of human life span, very good fits may be
+achieved with parametric models. So is for instance old age mortality, say
+above the age of 60, possible to model accurately with the Gompertz
+distribution. Another important general feature of parametric models is
+that they convey a a simple and clear message of the properties of a
+distribution or relation, thus easily adds to the accumulated knowledge
+about the phenomenon it is related to.
+
+The accelerated failure time (AFT) model is an alternative to the
+proportional hazards (PH) one. While in the PH model, relative effects are
+assumed to remain constant over time, the AFT model allows for effects
+to shrink towards zero with age. This is sometimes a more realistic
+scenario, for instance in a medical application, where a specific treatment
+may have an instant, but transient effect.
+
+With modern register data, exact event times are often not
+available. Instead data are grouped in one-year intervals. This is
+generally not because exact information is missing at the government
+agencies, but a result of integrity considerations. With access to birth
+date information, a person may be easy to identify. Anyway, as a result age
+is only possible to measure in (completed) years, and heavily tied data
+sets will be the result. That opens up for the use of discrete-time models,
+similar to logistic and Poisson regression. In fact, as is shown in
+Chapter 4, there is a close relation between Cox regression and binary and
+count data regression models.
+
+Finally, in the framework of Chapter 6 and parametric models, it is
+important to mention the piecewise constant hazard (PCH) model. It
+constitutes an excellent compromise between the non-parametric Cox
+regression and the fully parametric models discussed above. Formally, it is
+a fully parametric model, but it is easy to adapt to given data by changing
+the number of cut points (and by that the number of unknown parameters).
+The PCH model is especially useful in demographic and epidemiological
+applications where there is a huge amount of data available, often in
+tabular form. 
+
+Chapters 1--6 are suitable for an introductory course in survival analysis,
+with a focus on Cox regression and independent observations. In the
+remaining chapters, various extensions to the basic model are discussed. 
+
+In
+Chapter 7, a simple dependence structure is introduced, the so-called
+shared frailty model. Here it is assumed that data are grouped into
+clusters or litters, and that individuals within a cluster share a common
+risk. In demographic applications the clusters are biological families,
+people from the same geographical area, and so on. This pattern creates
+dependency structures in the data, which are necessary to consider in order
+to avoid biased results. 
+
+Competing risks models are introduced in Chapter 8. Here the simple
+survival model is extended to the inclusion of failures of several
+types. In a mortality study it may be deaths in different causes. The common
+feature in these situations is that to each individual, many events may
+occur, but at most one will occur. The events are competing with each
+other, and at the end there is only one winner. It turns out that in these
+situations the concept of cause-specific hazards is meaningful, while the
+discussion of cause-specific survival functions is problematic.
+
+During the last few decades, causality has become a hot topic in
+statistics. In Chapter 9 a review of parts relevant to event history
+analysis are given. The concept of matching is emphasized. It is also an
+important technique of its own, not necessarily tied to causal inference.
+
+There are four appendices. They contain material that is not
+necessary to read in order to be able to follow the core of the book, given
+proper background knowledge. Browsing through Appendix A is recommended to
+all readers, at least so that common statistical terminology is agreed
+upon. Appendix B contains a description of relevant statistical
+distributions in R, and also a presentation of the modeling behind the
+parametric models in the R package **eha**. The latter part 
+is not necessary for the understanding of the rest of the book. For readers
+new to R, Appendix C is a good starting point, but it is recommended to
+complement it with one of many introductory text books on R or on-line
+sources. Consult the home of R, 
+
+\url{http://www.r-project.org}
+and search under \emph{Documentation}. Appendix C also contains a separate
+section 
+with a selection of useful functions from the **eha** and the
+**survival** packages. This is of course recommended reading for
+everyone. It is also valuable as a reference library to functions used in
+the examples of the book. They are not always documented in the text.  
+
+Finally, Appendix D contains a short description of the most important
+packages for event history analysis in R. 
+
+As a general reading instruction, the following is recommended. Install the
+latest version of R from [CRAN](http://cran.r-project.org) and
+replicate the examples in the book by yourself. You need to install the
+package **eha** and load it. All the data in the examples are then
+available on line in R.
+ 
+Many thanks go to people who have read early and not so early versions of
+the book; they include Tommy Bengtsson, Kristina Broström, Bendix
+Carstensen, Renzo Derosas, Sören
+Edvinsson, Kajsa Fröjd, Ingrid Svensson, and students at the
+Departments of Statistics and Mathematical Statistics at the University of
+Umeå. Many errors have been spotted and improvements suggested, ant the
+remaining errors and weaknesses are solely my responsibility.
+
+I also had invaluable support from the publisher, CRC Press, Ltd. I
+especially want to thank Sarah Morris and Rob Calver for their interest in my
+work and their thrust in the project. 
+
+Of course, without the excellent work of the R community, especially the
+R Core Team, a title like the present one had been impossible. Especially
+I want to thank Terry Therneau for his inspiring work on the
+**survival** package; the **eha** package depends strongly on it.
+Also, Friedrich Leisch, author of the **Sweave** package, deserves many
+thanks. This book was entirely written with the aid of the package
+**Sweave** and the typesetting system \LaTeX, wonderful companions.  
+
+Finally, I want to thank Tommy Bengtsson, director of the \emph{Centre for
+Economic Demography}, Lund University, and Anders Brändström, director
+of the Demographic Data Base at Umeå University,
+for kindly letting me use
+real data in this book and in the R package **eha**. It greatly
+enhances the value of the illustrations and examples. 
+
+
+The R session information when compiling this book is shown below:
+
+```{r include=FALSE}
+# only show versions of very relevant packages
+sessionInfo = function() {
+  lapply(c('shiny', 'miniUI'), loadNamespace)
+  res = utils::sessionInfo()
+  loaded = res$loadedOnly
+  res$loadedOnly = loaded[intersect(names(loaded), c(
+    'bookdown', 'knitr', 'rmarkdown', 'shiny', 'htmltools', 'tools', 'miniUI'
+  ))]
+  res$BLAS = res$LAPACK = NULL
+  res
+}
+```
+
+```{r}
+sessionInfo()
+```
+
+
+```{block2, type='flushright', html.tag='p'}
+Göran Broström
+
+Umeå, Sweden
+```
+
