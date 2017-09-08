@@ -1,14 +1,15 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Single sample data
 
-\section{Introduction} %We discuss and introduce, first the
-%basic model descriptions of survival data, then methods for analysing
-%one-sample survival data. Basically, the distribution of survival data may
-%be either \emph{continuous} or \emph{discrete}, and we start by discussing
-%these in order.
+## Introduction
 
 The basic model descriptions of survival data are introduced. Basically,
 the distribution of survival data may
-be either \emph{continuous} or \emph{discrete}, but the nonparametric
+be either _continuous_ or _discrete-, but the nonparametric
 estimators\index{nonparametric estimator} of the distributions of survival
 time are discrete in any case.
 Therefore, when introducing the estimators, the discrete models are
@@ -16,56 +17,62 @@ necessary to know.
 
 In the present chapter, only nonparametric estimation is discussed. This
 means that no assumptions whatsoever are made about the true underlying
-distribution. Parametric models are presented in Chapter~5.
+distribution. Parametric models are presented in Chapter 6.
 
-\section{Continuous time model descriptions}
+## section{Continuous time model descriptions
 \index{model!continuous|(}
+
 Traditional statistical model descriptions are based on the
-\emph{density}\index{density function}
-and the \emph{cumulative distribution}
+_density_\index{density function}
+and the _cumulative distribution_
 functions\index{cumulative distribution function}. These functions are not
 so suitable for use with censored and/or truncated data. The
-\emph{survival} and \emph{hazard} functions are better suited, as will be
+_survival_ and _hazard functions_ are better suited, as will be
 demonstrated here. It should
 however be acknowledged that all these functions are simple functions of
 each other, so the information they convey is in
 principle the same, it is only convenience that determines which one(s) to
 choose and use in a particular application.
 
-\subsection{The survival function}
+## The survival function
 \index{survival function|(}
+
 We start with a motivating example, the life table, and its connection to
 death risks and survival probabilities in a population, see
-Table~\ref{tab:lifewomen}.
+Table \@ref(tab:lifewomen).
 
-\begin{example} Swedish female life table 2009. \end{example}
+```{example, name = "Swedish female life table 2009"}
 \index{life table|(}
+
 Statistics Sweden (SCB) is a government agency that produces
 statistics and have a coordinating role for the official statistics
 of Sweden. From their home page (http://www.scb.se) it is possible to
 download vital
 population statistics, like population size and number of deaths by age,
 gender, and year. From such data it is possible to construct a \emph{life
-table}, see Table~\ref{tab:lifewomen}.
-\begin{table}
-\tabletitle{Life table for Swedish females 2010.}
-\label{tab:lifewomen}
-\begin{tabular}{r|rr|r||r}
-  age($x$) &  pop & deaths & risk(\%) & alive at age $x$ \\ \hline
-  0 & 55407  &  117 & 0.211   &  100000 \\
-  1 & 54386  &   22 & 0.040  &   99789 \\
-  2 & 53803  &   11 & 0.020  &   99748 \\
-  3 & 53486  &    7 & 0.013  &   99728 \\
-  4 & 52544  &    4 & 0.008  &   99715 \\
-$\cdots$ &$\cdots$ &$\cdots$ &$\cdots$ &$\cdots$ \\
+table}, see Table \@ref(tab:lifewomen).
 
-96 &  3074  &    1030 & 33.507 &  6529 \\
-97 &  2204  &    817 & 37.061  &  4341 \\
-98 &  1473  &    624 & 42.363   & 2732 \\
-99 &  920  &    433 & 47.065    &  1575 \\
-100+ & 1400 &    837 & 59.786 &  834
-\end{tabular}
-\end{table}
+
+
+# \begin{table}
+# \tabletitle{Life table for Swedish females 2010.}
+# \label{tab:lifewomen}
+# \begin{tabular}{r|rr|r||r}
+#   age($x$) &  pop & deaths & risk(\%) & alive at age $x$ \\ \hline
+#   0 & 55407  &  117 & 0.211   &  100000 \\
+#   1 & 54386  &   22 & 0.040  &   99789 \\
+#   2 & 53803  &   11 & 0.020  &   99748 \\
+#   3 & 53486  &    7 & 0.013  &   99728 \\
+#   4 & 52544  &    4 & 0.008  &   99715 \\
+# $\cdots$ &$\cdots$ &$\cdots$ &$\cdots$ &$\cdots$ \\
+# 
+# 96 &  3074  &    1030 & 33.507 &  6529 \\
+# 97 &  2204  &    817 & 37.061  &  4341 \\
+# 98 &  1473  &    624 & 42.363   & 2732 \\
+# 99 &  920  &    433 & 47.065    &  1575 \\
+# 100+ & 1400 &    837 & 59.786 &  834
+# \end{tabular}
+# \end{table}
 It is constructed in the following way. The first column, headed by
 \emph{age(x)}, contains the ages in completed years. The second column,
 headed \emph{pop} contains the numbers of women in Sweden in the
