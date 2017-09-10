@@ -14,7 +14,7 @@ In the present chapter, only nonparametric estimation is discussed. This
 means that no assumptions whatsoever are made about the true underlying
 distribution. Parametric models are presented in Chapter 6.
 
-## section{Continuous time model descriptions
+## Continuous time model descriptions
 \index{model!continuous|(}
 
 Traditional statistical model descriptions are based on the
@@ -57,7 +57,7 @@ possible to _aggregate_ later, if that is prefered.
 First, the population data is read from the CSV file downloaded from SCB.
 
 ```{r scbpop,echo=TRUE}
-pop <- read.table("Data/pop2016.csv", header = TRUE, 
+pop <- read.table("Data/BE0101A6.csv", header = TRUE, 
                   stringsAsFactors = FALSE,
                   fileEncoding = "latin1")
 ```
@@ -82,8 +82,56 @@ knitr::kable(x, booktabs = TRUE, digits = 0, row.names = TRUE,
              caption = "Population by sex and age, Sweden 2016.")
 ```
 
+Next the table of deaths by age and sex is read from disk.
+
+```{r deaths, echo = TRUE}
+deaths <- read.table("Data/BE0101D9.csv", header = TRUE,
+                     stringsAsFactors = FALSE,
+                     fileEncoding = "latin1")
+```
+
+The result is shown in Table \@ref(tab:scbpoptab).
+
+```{r scbdeathtab,echo=FALSE}
+##x <- list(t1 = pop[1:8, ], t2 = pop[195:202, ])
+x <- deaths[1:4, ]
+x$X2016 <- as.character(round(x$X2016))
+x <- rbind(x, rep(".....", 3))
+y <- deaths[199:202, ]
+y$X2016 <- as.character(round(y$X2016))
+x <- rbind(x, y)
+rna <- c(1:4, ".....", 199:202)
+rownames(x) <- rna
+knitr::kable(x, booktabs = TRUE, digits = 0, row.names = TRUE, 
+             align = c("r", "l", "r"),
+             caption = "Deaths by sex and age, Sweden 2016.")
+```
+
+We concentrate on female mortality 2016 by combining the two tables after removing all information relating to men ("män") and translating to English.
+
+```{r combines}
+names(pop) <- c("age", "sex", "pop")
+females <- pop[pop$sex == "kvinnor", c("age", "pop")]
+females$age <- 0:100
+females$deaths <- deaths$X2016[deaths[, 2] == "kvinnor"]
+head(females, 4)
+tail(females, 4)
+```
+
+Then we add two columns, derived from the original three.
+
+```{r addtwo}
+females$risk <- females$deaths / females$pop
+alive <- numeric(101)
+alive[1] <- 100000
+for (i in 2:101){
+    alive[i] <- alive[i - 1] * (1 - females$risk[i-1])
+}
+females$alive <- alive
+```
+
 It is constructed in the following way. The first column, headed by
-_age(x)_, contains the ages in completed years. The second column,
+_age_, contains the ages in completed years. The second column,
 headed _pop_ contains the numbers of women in Sweden in the
 corresponding ages. It is equal to the mean
 population size over the year. Since population numbers from the SCB are
