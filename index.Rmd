@@ -1,4 +1,4 @@
---- 
+---
 title: "Event History Analysis with R, Second Edition"
 author: "Göran Broström"
 date: "`r Sys.Date()`"
@@ -15,6 +15,7 @@ monofont: "Source Code Pro"
 monofontoptions: "Scale=0.7"
 site: bookdown::bookdown_site
 description: "Event history analysis for demographers."
+url: 'http\://goranbrostrom.se/EHAR2/'
 github-repo: goranbrostrom/EHAR2
 cover-image: images/cover.jpg
 ---
@@ -43,30 +44,30 @@ special emphasis on how to do it in the statistical computing environment
 R [@cran]. The main applications in mind are
 demography and epidemiology, but also other applications, where durations
 are of primary interest, fit in to this framework.
-Ideally, the reader has a first 
+Ideally, the reader has a first
 course in statistics, but some necessary basics may be found in Appendix A.
 The basis for this book is courses in event history and survival analysis
 that I have given and developed over the years since the mid-eighties, and
 the development of software for the analysis of this kind of data. This
 development has during the last ten to fifteen years taken place in the
-environment of R  in the package **eha** [@eha]. 
+environment of R  in the package **eha** [@eha].
 
 There are already several good text books in the field of survival and event
 history analysis on the market,
  \cite{abg08}, \cite{abgk93},
-\cite{coxoakes84}, \cite{ph00}, 
+\cite{coxoakes84}, \cite{ph00},
 \cite{kp02}, and \cite{jl03} to mention a few. Some of these are already
 classical, but they all are aimed at an audience with solid mathematical
 and statistical background. On the other hand, the  \cite{pm95},
-\cite{pa84}, \cite{pasas95}, 
+\cite{pa84}, \cite{pasas95},
 \cite{km03},
 \cite{collett}, and
 \cite{ejj99} books are all more basic but lack the special treatment
 demographic applications needs today, and also the connection to R.
 
 In the late seventies, large databases with individual life histories began
-to appear. One of the 
-absolutely first was \emph{The Demographic Data Base} (DDB) at Umeå 
+to appear. One of the
+absolutely first was \emph{The Demographic Data Base} (DDB) at Umeå
 University. I started working there as a researcher in 1980, and at that
 time the data base contained individual data for seven Swedish
 parishes scattered all over the country. Statistical software for Cox
@@ -74,13 +75,13 @@ regression [@cox72] did not exist at that time, so we began a
 development, with the handling of large data sets in mind, of $\sc Fortran$
 programs for analyzing censored survival data. The starting point was Appendix 3 of
 @kp80. It contained ``Fortran programs for the proportional hazards
-model''.  
+model''.
 
 The beginning of the eighties was also important because then the first
-text books on survival analysis 
+text books on survival analysis
 began to appear. Of special importance (for me) was the books by
-@kp80, and, four years later, @coxoakes84. 
- 
+@kp80, and, four years later, @coxoakes84.
+
 The time period covered by the DDB data is approximately the $19^{th}$
 century. Today the geographical content is expanded to cover four large
 regions, with more than 60 parishes in total.
@@ -93,21 +94,21 @@ are \emph{open source}, and one of the survival analysis packages [@eha]
 in R and this book have the author in common. The **eha** package
 contains some research results not found in other software
 [@brli08; @gb02; @gb87]. However, it is important to emphasize that the real
-work horse in survival analysis in R is the recommended package **survival** 
+work horse in survival analysis in R is the recommended package **survival**
 [@survival].
 
 The mathematical and
 statistical theory underlying the content of this book is exposed to a
-minimum; the main target audience is social 
+minimum; the main target audience is social
 science researchers and students who are interested in studying
-demographically oriented research questions. 
+demographically oriented research questions.
 However, the apparent limitation to demographic applications in this book is not
 really a limitation, because the methods
 described here are equally useful whenever durations are of primary
 interest, for instance in epidemiology and econometrics.
 
 In Chapter 1 event history and survival data are exemplified, and the
-specific problems data of this kind poses on the statistical analysis. 
+specific problems data of this kind poses on the statistical analysis.
 Of special importance are the concepts of censoring and truncation, or in
 other words, incomplete observations. The dynamic nature of this kind of
 data is emphasized. The data sets used throughout the book are presented
@@ -122,10 +123,10 @@ functions non-parametrically are introduced, most important the
 Kaplan-Meier and Nelson-Aalen estimators. By ``nonparametric'' is meant
 that in the estimation procedures, no restrictions are put on the class of
 allowed distributions, except that it must consist of distributions on the
-positive real line; a life length cannot 
+positive real line; a life length cannot
 be negative. Some effort is put into giving an understanding of the
 intuitive reasoning behind the estimators, and the goal is to show that the
-ideas are really simple and elementary.    
+ideas are really simple and elementary.
 
 Cox regression is introduced in Chapter 3 and expanded on in Chapter 5. It
 is based on the property of proportional hazards, which makes it possible
@@ -166,7 +167,7 @@ a complex reality. It is for instance not possible to find simple
 parametric descriptions of human mortality over the full life span, it
 would require a
 U-shaped hazard function, and no standard survival distribution has that
-property. However, 
+property. However,
 when studying shorter segments of human life span, very good fits may be
 achieved with parametric models. So is for instance old age mortality, say
 above the age of 60, possible to model accurately with the Gompertz
@@ -201,11 +202,11 @@ a fully parametric model, but it is easy to adapt to given data by changing
 the number of cut points (and by that the number of unknown parameters).
 The PCH model is especially useful in demographic and epidemiological
 applications where there is a huge amount of data available, often in
-tabular form. 
+tabular form.
 
 Chapters 1--6 are suitable for an introductory course in survival analysis,
 with a focus on Cox regression and independent observations. In the
-remaining chapters, various extensions to the basic model are discussed. 
+remaining chapters, various extensions to the basic model are discussed.
 
 In
 Chapter 7, a simple dependence structure is introduced, the so-called
@@ -214,7 +215,7 @@ clusters or litters, and that individuals within a cluster share a common
 risk. In demographic applications the clusters are biological families,
 people from the same geographical area, and so on. This pattern creates
 dependency structures in the data, which are necessary to consider in order
-to avoid biased results. 
+to avoid biased results.
 
 Competing risks models are introduced in Chapter 8. Here the simple
 survival model is extended to the inclusion of failures of several
@@ -236,29 +237,29 @@ proper background knowledge. Browsing through Appendix A is recommended to
 all readers, at least so that common statistical terminology is agreed
 upon. Appendix B contains a description of relevant statistical
 distributions in R, and also a presentation of the modeling behind the
-parametric models in the R package **eha**. The latter part 
+parametric models in the R package **eha**. The latter part
 is not necessary for the understanding of the rest of the book. For readers
 new to R, Appendix C is a good starting point, but it is recommended to
 complement it with one of many introductory text books on R or on-line
-sources. Consult the home of R, 
+sources. Consult the home of R,
 
 \url{http://www.r-project.org}
 and search under \emph{Documentation}. Appendix C also contains a separate
-section 
+section
 with a selection of useful functions from the **eha** and the
 **survival** packages. This is of course recommended reading for
 everyone. It is also valuable as a reference library to functions used in
-the examples of the book. They are not always documented in the text.  
+the examples of the book. They are not always documented in the text.
 
 Finally, Appendix D contains a short description of the most important
-packages for event history analysis in R. 
+packages for event history analysis in R.
 
 As a general reading instruction, the following is recommended. Install the
 latest version of R from [CRAN](http://cran.r-project.org) and
 replicate the examples in the book by yourself. You need to install the
 package **eha** and load it. All the data in the examples are then
 available on line in R.
- 
+
 Many thanks go to people who have read early and not so early versions of
 the book; they include Tommy Bengtsson, Kristina Broström, Bendix
 Carstensen, Renzo Derosas, Sören
@@ -269,7 +270,7 @@ remaining errors and weaknesses are solely my responsibility.
 
 I also had invaluable support from the publisher, CRC Press, Ltd. I
 especially want to thank Sarah Morris and Rob Calver for their interest in my
-work and their thrust in the project. 
+work and their thrust in the project.
 
 Of course, without the excellent work of the R community, especially the
 R Core Team, a title like the present one had been impossible. Especially
@@ -277,14 +278,14 @@ I want to thank Terry Therneau for his inspiring work on the
 **survival** package; the **eha** package depends strongly on it.
 Also, Friedrich Leisch, author of the **Sweave** package, deserves many
 thanks. This book was entirely written with the aid of the package
-**Sweave** and the typesetting system \LaTeX, wonderful companions.  
+**Sweave** and the typesetting system \LaTeX, wonderful companions.
 
 Finally, I want to thank Tommy Bengtsson, director of the \emph{Centre for
 Economic Demography}, Lund University, and Anders Brändström, director
 of the Demographic Data Base at Umeå University,
 for kindly letting me use
 real data in this book and in the R package **eha**. It greatly
-enhances the value of the illustrations and examples. 
+enhances the value of the illustrations and examples.
 
 
 The R session information when compiling this book is shown below:

@@ -1,5 +1,5 @@
-book_filename: bookdown
-repo: https://github.com/rstudio/bookdown/
+book_filename: ehar2
+repo: https://github.com/goranbrostrom/EHAR2/
 output_dir: _book
 clean: [packages.bib, bookdown.bbl]
 language:
