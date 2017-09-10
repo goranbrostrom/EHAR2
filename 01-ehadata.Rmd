@@ -229,8 +229,15 @@ operation, and the final event time is time of relapse (if any).
 When an individual is lost to follow-up, we say that she is _right censored_ 
 \index{censoring!right}, see Figure \@ref(fig:rightcensoring).
 
-```{r rightcensoring, fig.cap = "Right censoring", echo = FALSE}
-plot(c(1, 10), c(2, 2), type = "l", ylim = c(0, 4))
+```{r rightcensoring, fig.cap = "Right censoring", echo = FALSE, fig.height= 3}
+plot(c(0, 10), c(2, 2), type = "l", ylim = c(0, 4), 
+     xlab = "Duration", xlim = c(0, 20), ylab = "", axes = FALSE)
+axis(1, at = c(0, 6, 10), labels = c("0", "C", "T"))
+box()
+rect(6, 1, 18, 3, col = "grey")
+lines(c(0, 10), c(2, 2), cex = 1.5)
+text(13, 2, "+      Censored")
+abline(v = 0)
 ```
 
 
@@ -375,7 +382,27 @@ As a rather complex example, let us look at _marital fertility_ in
 Figure \@ref(fig:fert).
 
 ```{r fert, fig.cap = "Marital fertility.", echo = FALSE}
-symbols(1, 1, circle = 1, )
+plot(1, 1, ylim = c(0, 20), xlim = c(0, 30), axes = FALSE,
+     xlab = "", ylab = "", type = "n")
+
+rect(1, 1, 8, 5)
+text(4.5, 3, "4 children")
+rect(1, 8, 8, 12)
+text(4.5, 10, "5+ children")
+rect(1, 15, 8+5, 19)
+text(7, 17, "Married, no children")
+##
+add <- 20
+rect(1 + add, 1, 8 + add, 5)
+text(4.5 + add, 3, "3 children")
+rect(1 + add, 8, 8 + add, 12)
+text(4.5 + add, 10, "2 children")
+rect(1 + add, 15, 8 + add, 19)
+text(4.5 + add, 17, "1 child")
+symbols(14.5, 10, circles = 2, add = TRUE, inches = FALSE)
+text(14.5, 10, "End")
+arrows(x0 = 13, y0 = 17, x1 = 21, length = 0.1)
+arrows(x0 = 25, y0 = 15, y1 = 12, length = 0.1)
 ```
 
 In a marital fertility study, women are typically followed over time from
