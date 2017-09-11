@@ -14,10 +14,10 @@ fontsize: 12pt
 monofont: "Source Code Pro"
 monofontoptions: "Scale=0.7"
 site: bookdown::bookdown_site
-description: "Event history analysis for demographers."
+description: "Event history analysis for demographers and epidemiologists."
 url: 'http\://goranbrostrom.se/EHAR2/'
 github-repo: goranbrostrom/EHAR2
-cover-image: images/cover.jpg
+cover-image: images/ehar.jpeg
 ---
 
 ```{r setup, include=FALSE}
@@ -35,8 +35,8 @@ lapply(c('DT', 'citr', 'formatR', 'svglite'), function(pkg) {
 
 # Preface to the First Edition {-}
 
-```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='https://www.crcpress.com/product/isbn/9781138700109'}
-knitr::include_graphics('images/cover.jpg', dpi = NA)
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='https://www.crcpress.com/product/isbn/9781439831649'}
+knitr::include_graphics('images/ehar.jpeg', dpi = NA)
 ```
 
 This book is about the analysis of event history and survival data, with

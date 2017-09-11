@@ -5,7 +5,7 @@
 ## Introduction
 The thing that characterizes event history and survival data the most
 is its _dynamic_ nature. Individuals are
-followed over 
+followed over
 time, and during that course, the timing of events of interest are
 noted. Naturally, things may happen that makes it necessary to interrupt an
 individual follow-up, such as the individual suddenly disappearing for some
@@ -17,56 +17,56 @@ things, at solving such problems.
 
 In this introductory chapter, the use of the special techniques that
 constitute survival and event history analysis are motivated. The concepts of
-_right censoring_\index{censoring!right} and 
-_left truncation_\index{left truncation} are defined and discussed. 
+_right censoring_\index{censoring!right} and
+_left truncation_\index{left truncation} are defined and discussed.
 The data sets used throughout the book are also presented
-in this chapter. 
+in this chapter.
 
 The environment R is freely (under a _GPL license_) available for
 download from [CRAN](https://cran.r-project.org). There you will find
 precompiled versions for Linux, MacOS X, and Microsoft Windows, as well as
 the full source code, which is open. See _Appendix C_ for more
-information.   
+information.
 
 ## Survival data
 
 Survival data (survival times)\index{survival data} constitute the
 simplest form of event history data\index{event history data}. A survival
-time is defined as the  
+time is defined as the
 time it takes for an event to occur, measured from a well-defined start
 event. Thus, there are three basic elements which must be well defined: a
 time origin, a scale for measuring time, and an event. The response in a
 statistical analysis of such data is the exact time elapsed from the time
 origin to the time at which the event occurs. The challenge, which
 motivates special methods, is that in most applications, this
-duration is often not possible to observe exactly.  
+duration is often not possible to observe exactly.
 
 As an introduction to the research questions that are suitable for handling
 with event history and survival analysis, let us look at a data set found
-in the **eha** 
-package [@eha] in R [@cran]. 
+in the **eha**
+package [@eha] in R [@cran].
 
 ```{example, name = "Old age mortality", label = "oldmort0"}
 \index{mortality!old age|(}
 The data set _oldmort_\index{Data sets!old age mortality|(} in **eha**
-contains survival data from the 
+contains survival data from the
 parish Sundsvall\index{Sundsvall} in the mid-east of 19th century
 Sweden. The name _oldmort_ is an acronym for _old age
   mortality_. The source is digitized information from historical parish registers, church books. More
-information about this can be found at the web page of the 
-_Centre for Demographic and Ageing Research_ at Umeå University 
-([CEDAR](http://www.cedar.umu.se)). 
+information about this can be found at the web page of the
+_Centre for Demographic and Ageing Research_ at Umeå University
+([CEDAR](http://www.cedar.umu.se)).
 
 The sampling was done as follows: Every person who was present and alive
-and 60 years of age or above anytime between 1 January 1860 and 31 December 
-1879 was followed from the entrance age (for most people that would be 60) 
+and 60 years of age or above anytime between 1 January 1860 and 31 December
+1879 was followed from the entrance age (for most people that would be 60)
 until the age when last seen, determined by death, out-migration, or
 surviving until 31 December 1879. Those born during the
 eighteenth century would enter observation at an age above 60, given that
-they lived long enough, that is at least until January 1, 1860. 
+they lived long enough, that is at least until January 1, 1860.
 
 Two types of finishing the observation of a person are distinguished:
-Either it is by 
+Either it is by
 _death_ or it is by something else, out-migration or end of study period.
 In the first case we say that the event of interest has occurred, in the
 second case not. $\Box$
@@ -82,9 +82,9 @@ Let us look at the first few lines of *oldmort*. It is conveniently
 done with the aid of the R function **head**:
 ```{r head1}
 head(oldmort, 3)
-``` 
+```
 The variables in *oldmort* have the following definitions and
-interpretations: 
+interpretations:
 
 *   **id** A unique id number for each individual.
 *   **enter, exit** The start age and stop age for this record
@@ -104,9 +104,9 @@ interpretations:
   60 will be included. This bias must be compensated for in the analysis,
   and it is accomplished by conditioning on the fact that these
   persons were alive at January 1, 1860. This technique is called
-  left truncation\index{left truncation}. 
-*   **event** A logical variable (taking values _TRUE_ or _FALSE_) 
-indicating if the exit is a death (_TRUE_) or not (_FALSE_). For our first 
+  left truncation\index{left truncation}.
+*   **event** A logical variable (taking values _TRUE_ or _FALSE_)
+indicating if the exit is a death (_TRUE_) or not (_FALSE_). For our first
 individual, the value is _TRUE_, indicating
   that she died at the age of 95.81 years.
 *   **birthdate** The birth date expressed as the time (in years) elapsed
@@ -115,13 +115,13 @@ individual, the value is _TRUE_, indicating
   the fraction of the year 1765 that elapsed until the birth of individual
   No. `r oldmort$id[1]`.
 *   **m.id** _Mother's id_. It is unknown for all the individuals listed
-  above. That is the symbol _NA_\index{NA}, which stands for _Not Available_. 
+  above. That is the symbol _NA_\index{NA}, which stands for _Not Available_.
   The oldest people in the data set typically have no links
   to parents.
 *   **f.id** _Father's id_. See _m.id_.
 *   **sex** A categorical variable\index{categorical variable}  with
   the levels _female_ and _male_.
-*   *civ** Civil status. A categorical variable\index{categorical variable|(}
+*   **civ** Civil status. A categorical variable\index{categorical variable|(}
   with three levels;
   _unmarried_, _married_, and _widow(er)_.
 *   **ses.50** Socio-economic status (SES) at age 50. Based on occupation
@@ -131,7 +131,7 @@ individual, the value is _TRUE_, indicating
   record holder (the priest in the parish). The occupation is only noted in
   connection to a vital event in the family (such as a death, birth,
   marriage, or in- or out-migration). For those who were above 50 at the start
-  of the period there is no information on SES at 50.  
+  of the period there is no information on SES at 50.
 *   **birthplace** A categorical variable with two categories, _parish_
   and _remote_, representing born in parish and born
     outside parish, respectively.
@@ -140,7 +140,7 @@ individual, the value is _TRUE_, indicating
 *   **region** Present geographical area of residence. The parishes in the
   region are grouped into three regions, _Sundsvall town_, _rural_,
   and _industry_. The industry is the sawmill one, which grew rapidly
-  in this 
+  in this
   area during the late part of the 19th century. The Sundsvall area was in
   fact one of the largest sawmill areas in Europe at this time.
   \index{categorical variable|)}
@@ -160,22 +160,22 @@ if _exit_ is the true duration (the interval ends with a death) and
 _FALSE_ if the individual is still alive at the duration ``last seen''.
 
 Individuals aged 60 or above between 1 January 1860 and 31 December 1879
-are included in the 
+are included in the
 study. Those who are above 60 at this start date are included only if they
-did not die between 
+did not die between
 the age of 60 and the age at 1 January 1860. If this is not taken into
 account, a bias in the estimation of mortality will result. The proper way
 of dealing with this problem is to use _left truncation_, which is
-indicated by the variable _enter_. If we look at the first rows of _oldmort_ we 
+indicated by the variable _enter_. If we look at the first rows of _oldmort_ we
 see that the _enter_ variable is very large; it is the
-age for each individual at 1 January 1860. You can add _enter_ and _birthdate_ 
+age for each individual at 1 January 1860. You can add _enter_ and _birthdate_
 for the first six individuals to see that:
 ```{r add1}
 oldmort$enter[1:6] + oldmort$birthdate[1:6]
-``` 
+```
 The statistical implication (description) of left truncation is that its
-presence forces the analysis to be 
-_conditional_\index{conditional probability} on survival up to the 
+presence forces the analysis to be
+_conditional_\index{conditional probability} on survival up to the
 age _enter_.
 
 A final important note: In order to get the actual duration at exit, we
@@ -199,9 +199,9 @@ different for women and men?
 The answers to these, and other, questions will be given later. The methods
 in later chapters of the book are all illustrated on a few core
 examples. They are all presented a first time in this chapter.
-\index{Data sets!old age mortality|)} 
+\index{Data sets!old age mortality|)}
 
-The data set _oldmort_ contained 
+The data set _oldmort_ contained
 only two states, referred to as _Alive_ and _Dead_, and
 one possible transition, from Alive to Dead, see Figure \@ref(fig:survival).
 
@@ -215,7 +215,7 @@ knitr::include_graphics("images/fig1.1.pdf")
 The ultimate study object
 in survival analysis is the time it takes from entering state _Alive_
 (e.g., becoming 60 years of age) until entering state _dead_ (e.g.,
-death). This time 
+death). This time
 interval is defined by the exact time of two events, which we may call
 _birth_ and _death_, although in practice these two events may be
 almost any kind of events. Economists, for instance, are interested in the
@@ -226,11 +226,11 @@ operation, and the final event time is time of relapse (if any).
 
 ## Right censoring
 
-When an individual is lost to follow-up, we say that she is _right censored_ 
+When an individual is lost to follow-up, we say that she is _right censored_
 \index{censoring!right}, see Figure \@ref(fig:rightcensoring).
 
 ```{r rightcensoring, fig.cap = "Right censoring", echo = FALSE, fig.height= 3}
-plot(c(0, 10), c(2, 2), type = "l", ylim = c(0, 4), 
+plot(c(0, 10), c(2, 2), type = "l", ylim = c(0, 4),
      xlab = "Duration", xlim = c(0, 20), ylab = "", axes = FALSE)
 axis(1, at = c(0, 6, 10), labels = c("0", "C", "T"))
 box()
@@ -245,7 +245,7 @@ As indicated in Figure \@ref(fig:rightcensoring), the true age at death is
 _T_, but due to right
 censoring, the only information available is that death age _T_ is larger
 than _C_. The number _C_ is the age at which this individual was last
-seen. In ordinary, classical regression analysis, such data are 
+seen. In ordinary, classical regression analysis, such data are
 difficult, if not impossible, to handle. Discarding such information may
 introduce bias. The modern theory of survival analysis offers simple ways
 to deal with right censored data.
@@ -253,7 +253,7 @@ to deal with right censored data.
 A natural question to ask is: If there is right censoring, there should be
 something called _left_ censoring, and if so, what is it? The answer
 to that is that yes, _left censoring_\index{censoring!left} refers to
-a situation where the 
+a situation where the
 only thing known about a death age is that it is _less than_ a certain
 value $C$. Note carefully that this is different from _left
   truncation_, see the next section.
@@ -262,10 +262,10 @@ value $C$. Note carefully that this is different from _left
 
 The concept of _left truncation_\index{left truncation|(}, or
 _delayed entry_, is well illustrated by the data set _oldmort_
-that was discussed in detail in Section \@ref(sec:oldmort1). 
+that was discussed in detail in Example \@ref(ex:oldmort0).
 Please note the
 difference compared to _left censoring_
-\index{censoring!left}. Unfortunately, you may still 
+\index{censoring!left}. Unfortunately, you may still
 see articles where these two concepts are confused.
 
 It is illustrative to think of the construction of the data set
@@ -279,7 +279,7 @@ of birth and the final event is death. Due to the calendar time constraints
 (and migration), all individuals will not be observed to die (especially
 those who live long), and moreover, some individuals will enter the study
 after the "starting" event, the sixtieth anniversary. A person who enter
-late, say he is 
+late, say he is
 65 on January 1, 1860, had not been included had he died at age 63
 (say). Therefore, in the analysis, we must
 _condition_\index{conditional probability} on the fact
@@ -306,12 +306,12 @@ takes for a woman to give birth to her first child after marriage. The
 natural way of measuring time is to start the clock at the day of marriage,
 but a possible (but not necessarily recommended!) alternative is to start
 the clock at some (small) common age of the women, for instance at
-birth. This would give left truncated (at marriage) 
+birth. This would give left truncated (at marriage)
 observations, since women were sampled at marriage. There are two clocks
-ticking, and you have to make a choice. 
+ticking, and you have to make a choice.
 
 Generally, it is important to realize that there often are alternatives,
-and that the 
+and that the
 result of an analysis may depend strongly on the choice made.
 \index{time scale|)}
 
@@ -324,7 +324,7 @@ duration) and calendar time. For instance, an investigation of mortality
 may be limited in these two directions. In Figure \ref{fig:lexis1} this is
 illustrated for a study of old age mortality during the years 1829 and
 1895. ``Old age mortality'' is defined as mortality from age 50 and onwards
-to age 100. 
+to age 100.
 The Lexis diagram is a way of showing the interplay between the two time
 scales and (human) life lines. Age moves vertically and calendar time
 horizontally, which will imply that individual lives will move
@@ -339,12 +339,12 @@ nul <- lexis()
 
 Assume that the data set at hand is saved in the text file 'lex.dat'. Note
 that this data set is not part of **eha**; it is only used here for
-the illustration of the Lexis diagram. 
+the illustration of the Lexis diagram.
 
 ```{r read.lex}
 lex <- read.table("Data/lex.dat", header = TRUE)
 lex
-``` 
+```
 How do we restrict the data to fit into the rectangle given by the Lexis
 diagram in Figure \@ref(fig:lexis1)? With the two functions **age.window**
 and **cal.window** it is easy. The former fixes the 'age cut' while the
@@ -375,11 +375,12 @@ application in this book is demography and epidemiology, hence events of
 primary interest
 are _births_, _deaths_, _marriages_ and _migration_.
 
-\begin{example} Marital fertility in 19th century Sweden \end{example}
 
+```{example, name = "Marital fertility in 19th century Sweden", label = "marfert"}
 As a rather complex example, let us look at _marital fertility_ in
 19th century Sweden, see
 Figure \@ref(fig:fert).
+```
 
 ```{r fert, fig.cap = "Marital fertility.", echo = FALSE}
 plot(1, 1, ylim = c(0, 20), xlim = c(0, 30), axes = FALSE,
@@ -400,9 +401,17 @@ text(4.5 + add, 10, "2 children")
 rect(1 + add, 15, 8 + add, 19)
 text(4.5 + add, 17, "1 child")
 symbols(14.5, 10, circles = 2, add = TRUE, inches = FALSE)
-text(14.5, 10, "End")
+text(14.5, 10, "'End'")
 arrows(x0 = 13, y0 = 17, x1 = 21, length = 0.1)
 arrows(x0 = 25, y0 = 15, y1 = 12, length = 0.1)
+arrows(x0 = 25, y0 = 8, y1 = 5, length = 0.1)
+arrows(x0 = 21, y0 = 3, x1 = 8, length = 0.1)
+arrows(x0 = 4.5, y0 = 5, y1 = 8, length = 0.1)
+arrows(x0 = 13, y0 = 15, x1 = 13.8, y1 = 12.4, length = 0.1)
+arrows(x0 = 21, y0 = 15, x1 = 15.7, y1 = 12.0, length = 0.1)
+arrows(x0 = 21, y0 = 10, x1 = 16.5, length = 0.1)
+arrows(x0 = 21, y0 = 5, x1 = 15.7, y1 = 8, length = 0.1)
+arrows(x0 = 8, y0 = 5, x1 = 13.2, y1 = 8, length = 0.1)
 ```
 
 In a marital fertility study, women are typically followed over time from
@@ -411,13 +420,13 @@ fertility period is over, say at age 50, whichever comes first. The
 marriage dissolution may be due to the death of the woman or of her
 husband, or it may be due to a divorce. If the study is limited to a given
 geographical area, women may get lost to follow-up due to
-out-migration. This event gives rise to a 
+out-migration. This event gives rise to a
 _right-censored_\index{censoring!right} observation.
 
 During the follow-up, the exact timings of child births are
 recorded. Interest in the analysis may lie in investigating which factors,
 if any, that affect the length of birth intervals. A data set may look like
-this: 
+this:
 ```{r bi,echo=FALSE}
 #load("../../bi.RData")
 #bi[1:7, ]
@@ -427,7 +436,7 @@ n.rows <- 9
 head(fert[, -9], n = n.rows)
 ```
 This is the first `r n.rows` rows, corresponding to the first two
-mothers in the 
+mothers in the
 data file.
 The variable
 _id_ is _mother's id_, a label that uniquely identifies each
@@ -438,45 +447,45 @@ are the time points of births, except for the first interval, where
 the start point is time of marriage, and the last interval, which is
 open to the right. However, the last interval is stopped at the time of
 marriage dissolution
-or when the mother becomes 50, whatever comes first. The variable 
+or when the mother becomes 50, whatever comes first. The variable
   _parity_ is zero for the first interval, between date of marriage and date
 of first birth, one for the next interval, and so forth. The last (highest)
 number is thus equal to the total number of births for a woman during her
-first marriage (disregarding twin births, etc.). 
+first marriage (disregarding twin births, etc.).
 
 Here is a description variable by variable of the data set.
 
 *   **id** The mother's unique id.
 *   **parity** Order of _previous_ birth, see above for details. Starts
-  at zero. 
+  at zero.
 *   **age** Mother's age at the event defining the start of the interval.
 *   **year** Calendar year for the birth defining the start of the interval.
 *   **next.ivl** measures the time in years from the birth at _parity_
 to the birth at _parity + 1_, or, for the woman's last interval, to the
-age of right censoring. 
+age of right censoring.
 *   **event** is an indicator
 for the interval ending with a birth. It is always equal to 1, except for
 the last interval, which always has event equal to zero.
 *   **prev.ivl** is the length of the interval preceding this one. For the
   first interval of a woman, it is always _NA_ (Not Available).
-*   **ses** Socio-economic status (based on occupation data). 
+*   **ses** Socio-economic status (based on occupation data).
 
 
 Just to make it clear: The first woman has id 1. She is
 represented by two records, meaning that she gave birth to one
 child. She waited 0.411 years from marriage to the first birth, and 22.348
-years from the first birth to the second, _which never happened_. 
+years from the first birth to the second, _which never happened_.
  The second woman (2) is represented by
 seven records, implying that she gave birth to six children. And so on.
 
-Of course, in an analysis of birth intervals we are interested in 
+Of course, in an analysis of birth intervals we are interested in
 causal\index{causality}
 effects; why are some intervals short while others are long?  The
-dependence of the 
+dependence of the
 history can be modeled by _lengths of previous intervals_ (for the same
 mother), _parity_, _survival of earlier births_, and so on. Note that all
 relevant covariate information _must refer to the past_. More about
-that later. 
+that later.
 
 
 The first interval of a woman is different from the others, since it starts
@@ -490,24 +499,35 @@ than 50 years of age. If there is no next birth, i.e., she reaches 50, or
 the marriage is dissolved (most often by death of one of the spouses), the
 interval is censored at the duration when she still was under
 observation. Censoring can also occur by emigration, and reaching the end
-of follow-up, in this case November 5, 1901.
+of follow-up, in this case November 5, 1901.$\Box$
 
-
-\begin{example} The illness-death model. \end{example}
+```{example, name = "The illness-death model", label = "illdeath"}
 \index{illness-death model|(}
-Another useful setup is the so-called _illness-death_ model, see
-Figure \@ref(fig:illdeath).
+Another useful setup is the _illness-death_ model, see
+Figure \@ref(fig:illdeathfig).
+```
 
-```{r illdeath, fig.cap = "The illness-death model.", echo = FALSE}
-plot(3, 3)
+```{r illdeathfig, fig.cap = "The illness-death model.", echo = FALSE}
+plot(1, 1, ylim = c(0, 20), xlim = c(0, 30), type = "n", axes = FALSE,
+     xlab = "", ylab = "")
+rect(1, 12, 9, 18)
+text(5, 15, "Healthy")
+rect(21, 12, 29, 18)
+text(25, 15, "Diseased")
+arrows(x0 = 9, y0 = 16, x1 = 21, length = 0.1)
+arrows(x0 = 21, y0 = 14, x1 = 9, length = 0.1)
+symbols(15.5, 4, circles = 3, add = TRUE, inches = FALSE)
+text(15.5, 4, "Dead")
+arrows(x0 = 5, y0 = 12, x1 = 12.7, y1 = 5.5, length = 0.1)
+arrows(x0 = 25, y0 = 12, x1 = 25 - 6.8, y1 = 5.5, length = 0.1)
 ```
 
 
 Individuals may move back and forth between the states _Healthy_ and
 _Diseased_, and from each of these two states there is a pathway to
-_Death_, which is an _absorbing state_\index{absorbing state},
-meaning that once in that state, you never leave 
-it.\index{illness-death model|)}
+_Dead_, which is an _absorbing state_\index{absorbing state},
+meaning that once in that state, you never leave
+it.\index{illness-death model|)}$\Box$
 
 ## More data sets
 
@@ -519,14 +539,14 @@ library(eha)
 ```
 This loads the **eha** package. In the
 examples to follow, we assume that this is already done. The main data
-source is the CEDAR, UmeÅ University, Sweden. However, one
+source is the CEDAR, Umeå University, Sweden. However, one
 data set is taken from the home page of [Statistics Sweden](http://www.scb.se).
 
-\begin{example} Survival of males aged 20 \end{example}
-\index{males aged 20|(} 
+```{example, name = "Survival of males aged 20", label = "menaged"}
+\index{males aged 20|(}
 \index{Data sets!male mortality|(}
 This data set is included in the R [@cran] package **eha**
-[@eha]. 
+[@eha].
 It contains information about 1023 males, age twenty between January 1,
 1800 and December 31, 1819, and living in Skellefteå, a parish in the
 north-east of Sweden. The total number of records in the data frame
@@ -537,7 +557,10 @@ data file. The reason for that is that the _socio-economic status_
 one of the covariates in the file, and it changes over time. Each time a
 change is recorded, a new record is created for that individual, with the
 new value of SES. For instance, the third and fourth rows in the data frame are
+```
+
 ```{r mort}
+options(digits = 7)
 mort[3:4, ]
 ```
 Note that the variable _id_ is the same (3) for the two records, meaning
@@ -547,7 +570,7 @@ birth day anniversary, and _exit_
 likewise. The information about him is that he
 was born on 1800.031, or January 12, 1800, and he is followed from his
 21th birth date, or from January 12, 1820. He is in an _upper_
-socio-economic status until he is 20 + 13.46311 = 33.46311 years of age,
+socio-economic status until he is 20 + 13.463 = 33.463 years of age,
 when he unfortunately is degraded to a lower _ses_. He is then
 followed until 20 years have elapsed, or until his fortieth birthday.  The
 variable _event_ tells us that he is alive we stop observing him. The
@@ -555,7 +578,7 @@ value zero indicates that the follow-up ends with _right censoring_.
 
 In an analysis of male mortality with this data set we could ask whether
 there is a socio-economic difference in mortality, and also if it changes
-over time. That would typically be done by 
+over time. That would typically be done by
 _Cox regression_\index{Cox regression} or by a
 parametric _proportional hazards model_. More about that follows in
 later chapters.
@@ -563,7 +586,7 @@ later chapters.
 \index{Data sets!male mortality|)}
 
 <!---
-% \begin{example} {\bf Marital fertility.}\label{ex:1fert} 
+% \begin{example} {\bf Marital fertility.}\label{ex:1fert}
 % This is also a data set available in _eha_, where it is called {\tt fert}.
 % It contains lengths of birth intervals for married women in 19th century
 % Skellefte{\aa}. The first interval is the time (in years) it took from
@@ -598,63 +621,67 @@ later chapters.
 % \end{example}
 --->
 
-\begin{example} Infant mortality \end{example}
+```{example, name = "Infant mortality", label = "infmort"}
 \index{mortality!infant}
 \index{Data sets!infant mortality|(}
 This data set is taken from \cite{gb87} and concerns the interplay between
 infant and maternal mortality in 19th century Sweden (source: CEDAR,
 Umeå University, Sweden). More specifically, we
-are interested in 
+are interested in
 estimating the effect of mother's death on the infant's survival
 chances. Because maternal mortality was rare (around one per 200 births),
 matching is used. This is performed as follows: for each child experiencing
 the death of its mother (before age one), two matched controls were
 selected. The criteria were: same age as the case at the event, same sex,
 birth year, parish, socio-economic status, marital status of mother. The
-triplets so created were followed until 
+triplets so created were followed until
 age one, and eventual deaths of the infants were recorded. The data
-collected in this way is part of the **eha**  package under the name 
-  _infants_, and the first rows of the data frame are shown here: 
-```{r imr1}
+collected in this way is part of the **eha**  package under the name
+  _infants_, and the first rows of the data frame are shown here:
+```
+
+```{r imr1, echo = FALSE}
 head(infants)
-```   
+```
 A short description of the variables follows.
 
-*   **stratum** denotes the id of the triplets, 35 in all. 
+*   **stratum** denotes the id of the triplets, 35 in all.
 *   **enter** is the age in days of the case, when
-its mother died. 
+its mother died.
 *   **exit** is the age in days when
 follow-up ends. It takes the value 365 (one year) for those who survived
-their first anniversary. 
+their first anniversary.
 *   **event** indicates whether
-a death (1) or a survival (0) was observed. 
+a death (1) or a survival (0) was observed.
 *   **mother** has value _dead_ for all cases and the value _alive_ for the
-controls. 
+controls.
 *   **age** Age of mother at infant's birth.
 *   **sex** Sex of the infant.
 *   **parish** Birth parish.
 *   **civst** Civil status of mother, married or unmarried.
 *   **ses** Socio-economic status, often the father's, based on registrations
-  of occupation. 
+  of occupation.
 *   **year** Calendar year of the birth.
 
 
 This data set is discussed and analyzed in Chapter 8.
-\index{Data sets!infant mortality|)}
+\index{Data sets!infant mortality|)}$\Box$
 
-\begin{example} Old age mortality, tabular data \end{example}
+```{example, name = "Old age mortality, tabular data", label = "oldagetab"}
 \index{Data sets!tabular}
 \index{Data sets!tabular!old age mortality|(}
 This data set is taken from Statistics Sweden\index{Statistics Sweden}. It
-is freely available on 
+is freely available on
 the web site \url{http://www.scb.se}. The aggregated data set contains
 information about population size and No.\ of deaths by sex and age for the
-ages 61 and above for 
+ages 61 and above for
 the year 2007.
+```
+
 ```{r olmscb1}
 head(swe07)
 tail(swe07)
-``` 
+```
 \index{Functions!data}\index{Functions!head}\index{Functions!tail}
 The variables have the following meanings.
 
@@ -662,11 +689,11 @@ The variables have the following meanings.
   the same row. The average is based on the population at the beginning and
   end of the year 2007.
 *   **deaths** The observed number of deaths in the _age_ and for the
-  _sex_ given on the same row. 
+  _sex_ given on the same row.
 *   **sex** Female or male.
 *   **age** Age in completed years.
 *   **log.pop** The natural logarithm of _pop_. This variable is used as
   _offset_ in a Poisson\index{Distributions!Poisson} regression.
 
 See Chapter 4 for how to analyze this data set.
-\index{Data sets!tabular!old age mortality|)}
+\index{Data sets!tabular!old age mortality|)}$\Box$

@@ -29,7 +29,7 @@ each other, so the information they convey is in
 principle the same, it is only convenience that determines which one(s) to
 choose and use in a particular application.
 
-## The survival function
+### The survival function
 \index{survival function|(}
 
 We start with a motivating example, the life table, and its connection to
@@ -45,24 +45,24 @@ of Sweden. From their home page (http://www.scb.se) it is possible to
 download vital
 population statistics, like population size and number of deaths by age,
 gender, and year. From such data it is possible to construct a _life
-table_. 
+table_.
 
 Two tables are needed, one with population size by age and sex, and one with
-the number of deaths by the same categories. Tables are available for age 
-intervals of lengths 1, 5, and 10 years. We always prefer data with as much 
-information as possible. so we choose the age interval length one. It is always 
+the number of deaths by the same categories. Tables are available for age
+intervals of lengths 1, 5, and 10 years. We always prefer data with as much
+information as possible. so we choose the age interval length one. It is always
 possible to _aggregate_ later, if that is prefered.
 ```
 
 First, the population data is read from the CSV file downloaded from SCB.
 
 ```{r scbpop,echo=TRUE}
-pop <- read.table("Data/BE0101A6.csv", header = TRUE, 
+pop <- read.table("Data/BE0101A6.csv", header = TRUE,
                   stringsAsFactors = FALSE,
                   fileEncoding = "latin1")
 ```
 The argument _stringsAsFactors = FALSE_ is needed in order to avoid character columns
-being converted to factors, and _fileEncoding_ is needed to take care of some 
+being converted to factors, and _fileEncoding_ is needed to take care of some
 strange Swedish characters (å, ä, ö) in variable names and labels.
 
 The result is shown in Table \@ref(tab:scbpoptab).
@@ -77,7 +77,7 @@ y$X2016 <- as.character(round(y$X2016))
 x <- rbind(x, y)
 rna <- c(1:4, ".....", 199:202)
 rownames(x) <- rna
-knitr::kable(x, booktabs = TRUE, digits = 0, row.names = TRUE, 
+knitr::kable(x, booktabs = TRUE, digits = 0, row.names = TRUE,
              align = c("r", "l", "r"),
              caption = "Population by sex and age, Sweden 2016.")
 ```
@@ -102,7 +102,7 @@ y$X2016 <- as.character(round(y$X2016))
 x <- rbind(x, y)
 rna <- c(1:4, ".....", 199:202)
 rownames(x) <- rna
-knitr::kable(x, booktabs = TRUE, digits = 0, row.names = TRUE, 
+knitr::kable(x, booktabs = TRUE, digits = 0, row.names = TRUE,
              align = c("r", "l", "r"),
              caption = "Deaths by sex and age, Sweden 2016.")
 ```
@@ -129,6 +129,29 @@ for (i in 2:101){
 }
 females$alive <- alive
 ```
+The result is shown in Table \@ref(tab:lifewomen).
+
+```{r lifewomen, echo = FALSE}
+fem <- females
+fem$pop <- round(fem$pop)
+fem$risk <- round(fem$risk, 5)
+fem$alive <- round(fem$alive)
+fem$age <- as.character(format(fem$age, digits = 6))
+fem$age[101] <- "100+"
+fem$pop <- as.character(fem$pop)
+fem$deaths <- as.character(fem$deaths)
+fem$risk <- as.character(format(fem$risk, digits = 5))
+fem$alive <- as.character(format(fem$alive, digits = 7))
+fem[6, ] <- rep("...", 5)
+fem <- fem[c(1:6, 97:101), ]
+## For text input:
+d1 <- round(females$risk[1] * 100000)
+l2 <- 100000 - d1
+l2 <- as.character(l2, digits = 5)
+knitr::kable(fem, row.names = FALSE,
+             caption = "Life table for Swedish women 2016.", align = "r")
+```
+
 
 It is constructed in the following way. The first column, headed by
 _age_, contains the ages in completed years. The second column,
@@ -141,31 +164,53 @@ deaths in each age category during the year.  The fourth and fifth columns
 are derived from the previous ones. The _risk_ is essentially the
 ratio between the number of deaths and population size for each age.
 
-Column five, _alive at age $x$_, contains the actual construction of
+Column five, _alive_, contains the actual construction of
 the life table. It depicts the actual size of a birth cohort\index{cohort},
 _year by year_,
 exposed to the death risks of column four. It starts with 100000 newborn females.
-Under the first year of life the death risk is 0.211 per cent, meaning that we
-expect $0.00211 \times 100\,000 = 211$ girls to die the
-first year. In other words, $100000 - 211 = 99789$ will remain alive
+Under the first year of life the death risk is `r fem$risk[1]`, meaning that we
+expect `r fem$risk[1]` x 100000 = `r d1` girls to die the
+first year. In other words, 100000 - `r d1` =
+`r l2` will remain alive
 at the first anniversary (at exact age one year). That is the number in the
 second row in the fifth column. The calculations then continues in the same
 way through the last two columns. Note, though, that the last interval
 (100+) is an open interval, i.e., it has no fixed upper limit.
 
 Note the difference in interpretation between the numbers in the second
-column ("pop"") and those in the last ("alive at age $x$"); the former
+column ("pop"") and those in the last ("alive"); the former
 gives the age distribution in a population a given year (referred to as
 _period data_), while the latter constitutes \emph{synthetic cohort
   data}\index{synthetic cohort}, i.e., a group of newborn are followed from
 birth to death, and the
 actual size of the (still alive) cohort is recorded age by age. That is,
-``individuals'' in the synthetic cohort live their whole lives under the
-mortality conditions of the year 2009. Of course no real individual can
-experience this scenario, hence the name ``synthetic
-cohort''. Nevertheless, it is a useful tool to illustrate the state of
+"individuals" in the synthetic cohort live their whole lives under the
+mortality conditions of the year 2016. Of course no real individual can
+experience this scenario, hence the name "synthetic
+cohort". Nevertheless, it is a useful tool to illustrate the state of
 affairs regarding mortality a given year.
 
-It makes sense to plot the life table, see Figure \@ref(fig:lifetable). By
+
+
+```{r lifetablefig, fig.cap = "Life table and survival function, females, Sweden 2016.", fig.scap = "Life table and survival function, females, Sweden 2016.", echo = FALSE}
+library(eha)
+x <- seq(0, 102, length = 1000)
+plot(x, ppch(x, 1:100, females$risk, lower.tail = FALSE), type = "l",
+     xlab = "Age", ylab = "Surviving fraction", axes = FALSE)
+##plot(females$age, females$alive / 100000, type = "s",
+  ##   xlab = "Age", ylab = "Surviving fraction",
+    ## axes = FALSE)
+axis(1, at = c(0, 50, 87, 100))
+axis(2, at = c(0, 0.5, 1), las = 1)
+box()
+abline(v = 0)
+abline(h = 0)
+abline(h = 0.5, lty = 3)
+abline(v = 86.746, lty = 3)
+```
+
+It makes sense to plot the life table, see Figure \@ref(fig:lifetablefig). Exactly how this is done will be shown later in the chapter. _Median life length_ is
+`r round(qpch(0.5, 1:100, females$risk), 2)`, see construction in the figure.
+By
 dividing all numbers by the original cohort size (in our case 100000), they
-may be interpreted as _probabilities_.\index{life table|)}$\Box$
+may be interpreted as _probabilities_.\index{life table|)}. $\Box$
