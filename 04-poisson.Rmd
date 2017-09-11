@@ -1,0 +1,8 @@
+# Poisson Regression
+
+Poisson regression is introduced and its connection to Cox regression is
+discussed. We start by ....
+
+## The Poisson Distribution
+
+The Poisson distribution is ...

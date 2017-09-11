@@ -1,0 +1,27 @@
+# Cox Regression
+
+We move slowly from the two-sample and _k_-sample cases, ...
+
+## Proportional Hazards
+
+## The Log-Rank Test
+
+### Two samples
+
+### Several samples
+
+## Proportional Hazards in Continuous Time
+
+### Proportional Hazards, Two Groups
+
+### Proportional Hazards, Several Groups
+
+### The General Proportional Hazards Regression Model
+
+## Estimation of the Baseline Hazard
+
+## Explanatory Variables
+
+### Continuous Covariates
+
+### Factor Covariates
