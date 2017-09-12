@@ -68,7 +68,7 @@ Two types of finishing the observation of a person are distinguished:
 Either it is by
 _death_ or it is by something else, out-migration or end of study period.
 In the first case we say that the event of interest has occurred, in the
-second case not. $\Box$
+second case not.\qedhere
 ```
 
 
@@ -202,7 +202,7 @@ examples. They are all presented a first time in this chapter.
 
 The data set _oldmort_ contained
 only two states, referred to as _Alive_ and _Dead_, and
-one possible transition, from Alive to Dead, see Figure \@ref(fig:survival).
+one possible transition, from Alive to Dead, see Figure&nbsp;\@ref(fig:survival).
 
 ```{r survival, fig.cap = "Survival data.", echo = FALSE}
 ##knitr::include_graphics("images/fig1.1.pdf")
@@ -233,7 +233,7 @@ operation, and the final event time is time of relapse (if any).
 ## Right censoring
 
 When an individual is lost to follow-up, we say that she is _right censored_
-\index{censoring!right}, see Figure \@ref(fig:rightcensoring).
+\index{censoring!right}, see Figure&nbsp;\@ref(fig:rightcensoring).
 
 ```{r rightcensoring, fig.cap = "Right censoring", echo = FALSE, fig.height= 3}
 plot(c(0, 10), c(2, 2), type = "l", ylim = c(0, 4),
@@ -247,7 +247,7 @@ abline(v = 0)
 ```
 
 
-As indicated in Figure \@ref(fig:rightcensoring), the true age at death is
+As indicated in Figure&nbsp;\@ref(fig:rightcensoring), the true age at death is
 _T_, but due to right
 censoring, the only information available is that death age _T_ is larger
 than _C_. The number _C_ is the age at which this individual was last
@@ -268,7 +268,7 @@ value $C$. Note carefully that this is different from _left
 
 The concept of _left truncation_\index{left truncation|(}, or
 _delayed entry_, is well illustrated by the data set _oldmort_
-that was discussed in detail in Example \@ref(exm:oldmort0).
+that was discussed in detail in Example&nbsp;\@ref(exm:oldmort0).
 Please note the
 difference compared to _left censoring_
 \index{censoring!left}. Unfortunately, you may still
@@ -352,7 +352,7 @@ lex <- read.table("Data/lex.dat", header = TRUE)
 lex
 ```
 How do we restrict the data to fit into the rectangle given by the Lexis
-diagram in Figure \@ref(fig:lexis1)? With the two functions **age.window**
+diagram in Figure&nbsp;\@ref(fig:lexis1)? With the two functions **age.window**
 and **cal.window** it is easy. The former fixes the 'age cut' while the
 latter makes the 'calendar time cut'.
 
@@ -385,7 +385,7 @@ are _births_, _deaths_, _marriages_ and _migration_.
 ```{example, name = "Marital fertility in 19th century Sweden", label = "marfert"}
 As a rather complex example, let us look at _marital fertility_ in
 19th century Sweden, see
-Figure \@ref(fig:fert).
+Figure&nbsp;\@ref(fig:fert).
 ```
 
 ```{r fert, fig.cap = "Marital fertility.", echo = FALSE}
@@ -510,7 +510,7 @@ of follow-up, in this case November 5, 1901.$\Box$
 ```{example, name = "The illness-death model", label = "illdeath"}
 \index{illness-death model|(}
 Another useful setup is the _illness-death_ model, see
-Figure \@ref(fig:illdeathfig).
+Figure&nbsp;\@ref(fig:illdeathfig).
 ```
 
 ```{r illdeathfig, fig.cap = "The illness-death model.", echo = FALSE}

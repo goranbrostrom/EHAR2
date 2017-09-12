@@ -10,7 +10,7 @@ necessary to know.
 
 In the present chapter, only nonparametric estimation is discussed. This
 means that no assumptions whatsoever are made about the true underlying
-distribution. Parametric models are presented in Chapter 6.
+distribution. Parametric models are presented in Chapter&nbsp;6.
 
 ## Continuous time model descriptions
 \index{model!continuous|(}
@@ -32,7 +32,7 @@ choose and use in a particular application.
 
 We start with a motivating example, the life table, and its connection to
 death risks and survival probabilities in a population, see
-Table \@ref(tab:lifewomen).
+Table&nbsp;\@ref(tab:lifewomen).
 
 ```{example, name = "Swedish female and male life tables 2016."}
 \index{life table|(}
@@ -63,7 +63,7 @@ The argument _stringsAsFactors = FALSE_ is needed in order to avoid character co
 being converted to factors, and _fileEncoding_ is needed to take care of some
 strange Swedish characters (å, ä, ö) in variable names and labels.
 
-The result is shown in Table \@ref(tab:scbpoptab).
+The result is shown in Table&nbsp;\@ref(tab:scbpoptab).
 
 ```{r scbpoptab,echo=FALSE}
 ##x <- list(t1 = pop[1:8, ], t2 = pop[195:202, ])
@@ -88,7 +88,7 @@ deaths <- read.table("Data/BE0101D9.csv", header = TRUE,
                      fileEncoding = "latin1")
 ```
 
-The result is shown in Table \@ref(tab:scbpoptab).
+The result is shown in Table&nbsp;\@ref(tab:scbpoptab).
 
 ```{r scbdeathtab,echo=FALSE}
 ##x <- list(t1 = pop[1:8, ], t2 = pop[195:202, ])
@@ -127,7 +127,7 @@ for (i in 2:101){
 }
 females$alive <- alive
 ```
-The result is shown in Table \@ref(tab:lifewomen).
+The result is shown in Table&nbsp;\@ref(tab:lifewomen).
 
 ```{r lifewomen, echo = FALSE}
 fem <- females
@@ -207,8 +207,8 @@ abline(h = 0.5, lty = 3)
 abline(v = 86.746, lty = 3)
 ```
 
-It makes sense to plot the life table, see Figure \@ref(fig:lifetablefig). Exactly how this is done will be shown later in the chapter. _Median life length_ is
+It makes sense to plot the life table, see Figure&nbsp;\@ref(fig:lifetablefig). Exactly how this is done will be shown later in the chapter. _Median life length_ is
 `r round(qpch(0.5, 1:100, females$risk), 2)`, see construction in the figure.
 By
 dividing all numbers by the original cohort size (in our case 100000), they
-may be interpreted as _probabilities_.\index{life table|)}. $\Box$
+may be interpreted as _probabilities_.\index{life table|)}$\Box$
