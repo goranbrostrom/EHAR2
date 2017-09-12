@@ -16,7 +16,8 @@
 \bibliographystyle{apalike}
 
 \title{Proposal for the Second Edition of \\
-  Event History Analysis with R}
+  Event History Analysis with R\footnote{Second attempt.}}
+
 
 \author{Göran Broström}
 
@@ -38,6 +39,9 @@ Section~\ref{sec:updates}.
 
 Finally, in Section~\ref{sec:contents}, a tentative layout of Chapters and
 Sections in the new edition is given.
+
+This is a revised version of the original proposal, based on input from reviewers 
+(for which I am grateful).
 
 \section{News} \label{sec:news}
 
@@ -163,7 +167,7 @@ given, especially in the accelerated failure time framework.
 \subsection{Writing the book}
 
 The first edition was written using Sweave \citep{sweave02} and \LaTeX\
-\citep{lamport}, but I consider 
+\citep{lamport}, but I will
 switching to either knitr \citep{knitr15} and \LaTeX\ or bookdown 
 \citep{bookdown16}. For now, I will go with \emph{bookdown}.
 
@@ -201,49 +205,52 @@ Remains essentially as is.
 Essentially as is, with the addition that Subsection 2.5. Doing it in {\bf
   R} will introduce \emph{RStudio}.
 
-\subsection*{Chapter 3: Reproducible research and RStudio}
+%\subsection*{Chapter 3: Reproducible research and RStudio}
 
-New chapter: The important concept of \emph{reproducible research} is
-introduced, and it is shown how \emph{RStudio} can be assisting in applying
-it. \emph{Rmarkdown} is introduced. These tools are used throughout the
-book.
+% Moved to Appendix
 
-\subsection*{Chapter 4: Cox regression}
+
+\subsection*{Chapter 3: Cox regression}
 
 The old Chapter 3.
 
-\subsection*{Chapter 5: Poisson regression}
+\subsection*{Chapter 4: Poisson regression}
 
 The old Chapter 4.
 
-\subsection*{Chapter 6: More on Cox regression}
+\subsection*{Chapter 5: More on Cox regression}
 
 The old Chapter 5.
 
-\subsection*{Chapter 7: Parametric models}
+\subsection*{Chapter 6: Parametric models}
 
 The old Chapter 6. The \emph{Gompertz} baseline distribution will get an
 own subsection, as will the \emph{Piecewise Constant Hazard} model.
 
-\subsection*{Chapter 8: Register-based survival data methods}
+\subsection*{Chapter 7: Register-based survival data methods}
 
 New Chapter.
 
-\subsection*{Chapter 9: Multivariate survival models}
+\subsection*{Chapter 8: Multivariate survival models}
 
 The old Chapter 7.
 
-\subsection*{Chapter 10: Causality and mediation}
+\subsection*{Chapter 9: Causality and mediation}
 
-Replaces and expands the old Chapter 9.
+Expands the old Chapter 9.
 
-\subsection*{Chapter 11: Competing risks models}
+\subsection*{Chapter 10: Competing risks models}
 
 The old Chapter 8.
 
 \subsection*{Appendices}
 
-Essentially as is, but much have aged and will be rewritten.
+Essentially as is, but much have aged and will be rewritten. One important addition:
+The concept of \emph{reproducible research} is
+introduced, and it is shown how \emph{RStudio} can be assisting in applying
+it. \emph{Rmarkdown} is introduced. These tools are used throughout the
+book and will briefly be presented in an appendix.
+
 
 \bibliography{surv2}
 
