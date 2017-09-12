@@ -2,7 +2,6 @@
 
 # Event History and Survival Data
 
-## Introduction
 The thing that characterizes event history and survival data the most
 is its _dynamic_ nature. Individuals are
 followed over
@@ -205,10 +204,17 @@ The data set _oldmort_ contained
 only two states, referred to as _Alive_ and _Dead_, and
 one possible transition, from Alive to Dead, see Figure \@ref(fig:survival).
 
-```{r survival, fig.cap = "Survival data", echo = FALSE}
-knitr::include_graphics("images/fig1.1.pdf")
+```{r survival, fig.cap = "Survival data.", echo = FALSE}
+##knitr::include_graphics("images/fig1.1.pdf")
 ##source("R/fig1.1.R")
 ##fig1.1()
+plot(1, 1, type = "n", xlim = c(0, 20), ylim = c(0, 10),
+   axes = FALSE,
+   xlab = "", ylab = "")
+symbols(c(5, 15), c(5, 5), circles = c(2, 2), inches = FALSE, add = TRUE)
+arrows(7, 5, x1 = 13, length = 0.1)
+text(5, 5, "Alive")
+text(15, 5, "Dead")
 ```
 
 
@@ -262,7 +268,7 @@ value $C$. Note carefully that this is different from _left
 
 The concept of _left truncation_\index{left truncation|(}, or
 _delayed entry_, is well illustrated by the data set _oldmort_
-that was discussed in detail in Example \@ref(ex:oldmort0).
+that was discussed in detail in Example \@ref(exm:oldmort0).
 Please note the
 difference compared to _left censoring_
 \index{censoring!left}. Unfortunately, you may still

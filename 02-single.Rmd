@@ -1,7 +1,5 @@
 # Single sample data
 
-## Introduction
-
 The basic model descriptions of survival data are introduced. Basically,
 the distribution of survival data may
 be either _continuous_ or _discrete_, but the nonparametric
