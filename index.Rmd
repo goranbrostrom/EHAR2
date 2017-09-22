@@ -38,14 +38,14 @@ Instead, for the time being, I will try to keep you and myself updated about the
 ongoing work with the second edition. You will find the *Preface to the First Edition*
 two pages ahead.
 
-*The First Edition* was written with the aid of  *Sweave* and \LaTeX, but for the second edition 
+*The First Edition* was written with the aid of  *Sweave* and $\text{\LaTeX}$, but for the second edition 
 I have switched to *knitr* and *bookdown*. So now in the beginning, there will be a 
 lot of work with translation (much more than I anticipated) from the former to the latter. For the moment (mid 
 September 2017), Chapter 1 is translated (but not finished), and I
-am currently working on *Chapter 2*.
+am currently working on translating *Chapter 2*.
 
 
-The R session information when compiling this book is shown below:
+The R session information when last compiling this book is shown below:
 
 ```{r include=FALSE}
 # only show versions of very relevant packages
