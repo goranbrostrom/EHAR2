@@ -33,6 +33,39 @@ lapply(c('DT', 'citr', 'formatR', 'svglite'), function(pkg) {
 
 # Preface {-}
 
+This is the place for the *Preface to the Second Edition*, which is not written yet. 
+Instead, for the time being, I will try to keep you and myself updated about the 
+ongoing work with the second edition. You will find the *Preface to the First Edition*
+two pages ahead.
+
+*The First Edition* was written with the aid of  *Sweave* and \LaTeX, but for the second edition 
+I have switched to *knitr* and *bookdown*. So now in the beginning, there will be a 
+lot of work with translation (much more than I anticipated) from the former to the latter. For the moment (mid 
+September 2017), Chapter 1 is translated (but not finished), and I
+am currently working on *Chapter 2*.
+
+
+The R session information when compiling this book is shown below:
+
+```{r include=FALSE}
+# only show versions of very relevant packages
+sessionInfo = function() {
+  lapply(c('shiny', 'miniUI'), loadNamespace)
+  res = utils::sessionInfo()
+  loaded = res$loadedOnly
+  res$loadedOnly = loaded[intersect(names(loaded), c(
+    'bookdown', 'knitr', 'rmarkdown', 'shiny', 'htmltools', 'tools', 'miniUI'
+  ))]
+  res$BLAS = res$LAPACK = NULL
+  res
+}
+```
+
+```{r}
+sessionInfo()
+```
+
+
 # Preface to the First Edition {-}
 
 ```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='https://www.crcpress.com/product/isbn/9781439831649'}
@@ -287,26 +320,6 @@ for kindly letting me use
 real data in this book and in the R package **eha**. It greatly
 enhances the value of the illustrations and examples.
 
-
-The R session information when compiling this book is shown below:
-
-```{r include=FALSE}
-# only show versions of very relevant packages
-sessionInfo = function() {
-  lapply(c('shiny', 'miniUI'), loadNamespace)
-  res = utils::sessionInfo()
-  loaded = res$loadedOnly
-  res$loadedOnly = loaded[intersect(names(loaded), c(
-    'bookdown', 'knitr', 'rmarkdown', 'shiny', 'htmltools', 'tools', 'miniUI'
-  ))]
-  res$BLAS = res$LAPACK = NULL
-  res
-}
-```
-
-```{r}
-sessionInfo()
-```
 
 
 ```{block2, type='flushright', html.tag='p'}
