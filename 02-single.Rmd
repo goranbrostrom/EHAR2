@@ -212,3 +212,20 @@ It makes sense to plot the life table, see Figure&nbsp;\@ref(fig:lifetablefig). 
 By
 dividing all numbers by the original cohort size (in our case 100000), they
 may be interpreted as _probabilities_.\index{life table|)}$\Box$
+
+The *survival function* $S(t), \; t > 0$, is defined as
+  the probability of surviving past $t$, $t > 0$, or with a formula,
+$$
+S(t) = P(T \ge t), \quad t > 0,
+$$
+where $T$ is the (random) life length under study. The symbol $P(T \ge t)$
+reads *"the probability that $T$ is equal to or larger than
+  $t$"*; here $t$ is a fixed number while $T$ denotes a "random
+quantity". In statistical language, $T$ is called a *random 
+  variable*. In our example, $T$ is the (future) life length of a randomly
+chosen newborn female, of course unknown at birth.
+
+We will, for the time being, assume that $S$ is a ``nice'' function, smooth
+and *differentiable*. That will ensure that the following definitions
+are unambiguous.\index{survival function|)}
+
