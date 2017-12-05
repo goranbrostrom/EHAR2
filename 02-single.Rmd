@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Single sample data
 
 The basic model descriptions of survival data are introduced. Basically,
