@@ -234,3 +234,22 @@ We will, for the time being, assume that $S$ is a ``nice'' function, smooth
 and *differentiable*. That will ensure that the following definitions
 are unambiguous.\index{survival function|)}
 
+### The density function
+
+The *density function* is defined as minus the derivative of the survival function, or
+
+$$
+f(t) = -\frac{d}{dt} S(t), t > 0
+$$
+The intuitive interpretation of this definition is that, for small enough $s$, the following approximation is good:
+$$
+P(t_0 \le T < t_0 + s) \approx s f(t_0).
+$$
+This is illustrated in Figure&nbsp;\@ref(fig:densityfig).
+
+```{r densityfig, fig.cap = "Interpretation of the density function.", echo=FALSE}
+x <- seq(0, 2, length = 100)
+plot(x, dweibull(x, scale = 1, shape = 2), type = "l", axes = FALSE)
+axis(1)
+axis(2)
+```
