@@ -252,19 +252,23 @@ $$
 This is illustrated in Figure&nbsp;\@ref(fig:densityfig).
 
 ```{r densityfig, fig.cap = "Interpretation of the density function.", echo=FALSE,fig.height=4}
-x <- seq(0, 3, length = 100)
-f <- function(x) dweibull(x, scale = 1, shape = 2)
-plot(x, f(x), type = "l", axes = FALSE, 
-     ylim = c(-0.5, 1), xlab = "", ylab = "")
-arrows(0, 0, 0, 0.95, length = 0.1)
-arrows(0, 0, 3, 0, length = 0.1)
+x <- seq(0, 40, length = 100)
+f <- function(x) dgompertz(x, scale = 18.9, shape = 1.45, param = "canonical")
+plot(x, f(x), type = "l", axes = FALSE, ylim = c(-0, 0.1), 
+     xlab = "Age", ylab = "", xlim = c(0, 40))
+arrows(0, 0, 0, 0.1, length = 0.1)
+arrows(0, 0, 40, 0, length = 0.1)
 text(3, 0.08, "t")
 text(0.14, 0.95, "f(t)")
-x0 <- 1
-x0s <- 1.2
+ats <- c(0, 10, 12, 20, 30, 40)
+axis(1, at = ats, labels = ats + 60)
+axis(2)
+x0 <- 10
+x0s <- 12
 lines(c(x0, x0), c(0, f(x0)), lty = 2)
+lines(c(0, x0), (c(f(x0), f(x0))), lty = 2)
 lines(c(x0s, x0s), c(0, f(x0s)), lty = 2)
-text(x0, f(x0) + 0.01, expression(paste("P(", t[0], " < T <= ", t[0] + s, ")")), pos = 4)
+text(x0, f(x0) + 0.01, expression(paste("P(", t[0], " <= T < ", t[0] + s, ")")), pos = 4)
 text(x0, -0.1, expression(t[0]))
 text(x0s, -0.1, expression(t[0]+s))
 cord.x <- c(x0, seq(x0, x0s, by = 0.01), x0s)
@@ -301,15 +305,15 @@ latter is (the limit of) a
 hazard function is also a kind of density function, with a similar
 graphical interpretation, see Figure~\ref{fig:h}. 
 
-```{r densityfig, fig.cap = "Interpretation of the density function.", echo=FALSE,fig.height=4}
+```{r hazardfig, fig.cap = "Interpretation of the hazard function.", echo=FALSE,fig.height=4}
 x <- seq(0, 3, length = 100)
-f <- function(x) dweibull(x, scale = 1, shape = 2)
+f <- function(x) eha::hweibull(x, scale = 1, shape = 3)
 plot(x, f(x), type = "l", axes = FALSE, 
-     ylim = c(-0.5, 1), xlab = "", ylab = "")
+     ylim = c(-0.5, 10), xlab = "", ylab = "", xlim = c(0,2))
 arrows(0, 0, 0, 0.95, length = 0.1)
 arrows(0, 0, 3, 0, length = 0.1)
 text(3, 0.08, "t")
-text(0.14, 0.95, "f(t)")
+text(0.14, 0.95, "h(t)")
 x0 <- 1
 x0s <- 1.2
 lines(c(x0, x0), c(0, f(x0)), lty = 2)
