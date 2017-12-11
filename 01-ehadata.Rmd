@@ -204,7 +204,7 @@ The data set _oldmort_ contained
 only two states, referred to as _Alive_ and _Dead_, and
 one possible transition, from Alive to Dead, see Figure&nbsp;\@ref(fig:survival).
 
-```{r survival, fig.cap = "Survival data.", echo = FALSE}
+```{r survival, fig.cap = "Survival data.", echo = FALSE,fig.height=4}
 ##knitr::include_graphics("images/fig1.1.pdf")
 ##source("R/fig1.1.R")
 ##fig1.1()

@@ -195,7 +195,7 @@ affairs regarding mortality a given year.
 
 
 
-```{r lifetablefig, fig.cap = "Life table and survival function, females, Sweden 2016.", fig.scap = "Life table and survival function, females, Sweden 2016.", echo = FALSE}
+```{r lifetablefig, fig.cap = "Life table and survival function, females, Sweden 2016.", fig.scap = "Life table and survival function, females, Sweden 2016.", echo = FALSE,fig.height=4}
 library(eha)
 x <- seq(0, 102, length = 1000)
 plot(x, ppch(x, 1:100, females$risk, lower.tail = FALSE), type = "l",
@@ -220,9 +220,11 @@ may be interpreted as _probabilities_.\index{life table|)}$\Box$
 
 The *survival function* $S(t), \; t > 0$, is defined as
   the probability of surviving past $t$, $t > 0$, or with a formula,
-$$
-S(t) = P(T \ge t), \quad t > 0,
-$$
+
+\begin{equation}
+S(t) = P(T \ge t), \quad t > 0, \label{eq:surv}
+\end{equation}
+
 where $T$ is the (random) life length under study. The symbol $P(T \ge t)$
 reads *"the probability that $T$ is equal to or larger than
   $t$"*; here $t$ is a fixed number while $T$ denotes a "random
@@ -235,21 +237,132 @@ and *differentiable*. That will ensure that the following definitions
 are unambiguous.\index{survival function|)}
 
 ### The density function
-
+\index{density function|(}
 The *density function* is defined as minus the derivative of the survival function, or
 
-$$
-f(t) = -\frac{d}{dt} S(t), t > 0
-$$
+\begin{equation}
+f(t) = -\frac{d}{dt} S(t), t > 0 \label{eq:dens}
+\end{equation}
+
 The intuitive interpretation of this definition is that, for small enough $s$, the following approximation is good:
+
 $$
-P(t_0 \le T < t_0 + s) \approx s f(t_0).
+P(t_0 \le T < t_0 + s) \approx s f(t_0). 
 $$
 This is illustrated in Figure&nbsp;\@ref(fig:densityfig).
 
-```{r densityfig, fig.cap = "Interpretation of the density function.", echo=FALSE}
-x <- seq(0, 2, length = 100)
-plot(x, dweibull(x, scale = 1, shape = 2), type = "l", axes = FALSE)
-axis(1)
-axis(2)
+```{r densityfig, fig.cap = "Interpretation of the density function.", echo=FALSE,fig.height=4}
+x <- seq(0, 3, length = 100)
+f <- function(x) dweibull(x, scale = 1, shape = 2)
+plot(x, f(x), type = "l", axes = FALSE, 
+     ylim = c(-0.5, 1), xlab = "", ylab = "")
+arrows(0, 0, 0, 0.95, length = 0.1)
+arrows(0, 0, 3, 0, length = 0.1)
+text(3, 0.08, "t")
+text(0.14, 0.95, "f(t)")
+x0 <- 1
+x0s <- 1.2
+lines(c(x0, x0), c(0, f(x0)), lty = 2)
+lines(c(x0s, x0s), c(0, f(x0s)), lty = 2)
+text(x0, f(x0) + 0.01, expression(paste("P(", t[0], " < T <= ", t[0] + s, ")")), pos = 4)
+text(x0, -0.1, expression(t[0]))
+text(x0s, -0.1, expression(t[0]+s))
+cord.x <- c(x0, seq(x0, x0s, by = 0.01), x0s)
+cord.y <- c(0, f(seq(x0, x0s, by = 0.01)), 0)
+polygon(cord.x, cord.y, col = "lightgrey")
 ```
+
+For a short enough interval $(t_0, t_0 +s]$, the probability of an observation falling in that interval is well approximated by the area of a rectangle with sides of lengths $s$ and $f(t_0)$, or $sf(t_0)$. The formal mathematical definition as a limit is given in equation \@ref(eq:denslim).
+
+\begin{equation}
+f(t) = \lim_{s \rightarrow 0} \frac{P(t \le T < t + s)}{s}, \quad t > 0. \label{eq:denslim}
+\end{equation}
+
+### The hazard function
+\index{hazard function|(}
+
+The \emph{hazard function}\index{hazard function} is central to the understanding of survival
+analysis, so the reader is recommended to get at least an intuitive
+understanding of it. One way of thinking of it is as an ``instant
+probability''; at a given age $t$, it measures the risk of dying in a short
+interval $(t, t + s)$ immediately after $t$, for an individual \emph{who
+  still is alive at $t$}.
+
+\begin{equation*}
+h(t) = \lim_{s \rightarrow 0}\frac{P(t \le T < t + s \mid T \ge t)}{s}
+\end{equation*}
+$$
+P(t_0 \le T < t_0 + s \mid T \ge t_0) \approx s h(t_0)
+$$
+Note the difference between the density and the hazard functions. The
+former is (the limit of) an \emph{unconditional} probability, while the
+latter is (the limit of) a 
+\emph{conditional} probability\index{conditional probability}. Otherwise, the
+hazard function is also a kind of density function, with a similar
+graphical interpretation, see Figure~\ref{fig:h}. 
+
+```{r densityfig, fig.cap = "Interpretation of the density function.", echo=FALSE,fig.height=4}
+x <- seq(0, 3, length = 100)
+f <- function(x) dweibull(x, scale = 1, shape = 2)
+plot(x, f(x), type = "l", axes = FALSE, 
+     ylim = c(-0.5, 1), xlab = "", ylab = "")
+arrows(0, 0, 0, 0.95, length = 0.1)
+arrows(0, 0, 3, 0, length = 0.1)
+text(3, 0.08, "t")
+text(0.14, 0.95, "f(t)")
+x0 <- 1
+x0s <- 1.2
+lines(c(x0, x0), c(0, f(x0)), lty = 2)
+lines(c(x0s, x0s), c(0, f(x0s)), lty = 2)
+text(x0, f(x0) + 0.01, expression(paste("P(", t[0], " < T <= ", t[0] + s, ")")), pos = 4)
+text(x0, -0.1, expression(t[0]))
+text(x0s, -0.1, expression(t[0]+s))
+cord.x <- c(x0, seq(x0, x0s, by = 0.01), x0s)
+cord.y <- c(0, f(seq(x0, x0s, by = 0.01)), 0)
+polygon(cord.x, cord.y, col = "lightgrey")
+```
+
+### The cumulative hazard function
+\index{cumulative hazard function|(} 
+The *cumulative hazard function*
+is
+defined as the integral of the hazard function,
+\begin{equation*}
+H(t) = \int_0^t h(s) ds, \quad t \ge 0.
+\end{equation*}
+That is, an intuitive interpretation is that the cumulative hazard function
+successively accumulates the instant risks.
+
+The cumulative hazard function is important because it is fairly easy to
+estimate nonparametrically\index{nonparametric estimation} (i.e., without
+any restrictions), in contrast to the hazard and density functions. 
+
+\begin{example} The exponential distribution \end{example}
+
+Perhaps the simplest continuous life length distribution is the
+\emph{exponential distribution}. It is simple because its hazard function
+is constant:
+\begin{equation*}
+h(t) = \lambda, \quad \lambda > 0, \; t \ge 0.
+\end{equation*}
+From this it is easy to calculate the other functions that characterize the
+exponential distribution. The cumulative hazards function is
+\begin{equation*}
+H(t) = \lambda t, \quad \lambda > 0,\; t \ge 0,
+\end{equation*}
+the survival function is
+\begin{equation*}
+S(t) = e^{-\lambda t}, \quad \lambda > 0,\; t \ge 0,
+\end{equation*}
+and the density function is
+\begin{equation*}
+f(t) = \lambda e^{-\lambda t}, \quad \lambda > 0,\; t \ge 0.
+\end{equation*}
+The property of constant hazard implies \emph{no aging}. This is not a
+realistic property for human mortality, but, as we will see, a useful
+benchmark, and a useful model for modelling mortality over short time
+intervals (*piece-wise constant hazard*). 
+\index{cumulative hazard function|)} 
+The exponential distribution is described in detail in 
+Appendix~\ref{app:B}.\eex\index{model!continuous|)}
+
