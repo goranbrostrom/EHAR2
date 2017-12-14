@@ -249,26 +249,28 @@ The intuitive interpretation of this definition is that, for small enough $s$, t
 $$
 P(t_0 \le T < t_0 + s) \approx s f(t_0). 
 $$
-This is illustrated in Figure&nbsp;\@ref(fig:densityfig).
+This is illustrated in Figure&nbsp;\@ref(fig:densityfig), with $t_0 = 10$ and $s = 2$. The application is *remaining life at age 60* in a nineteenth century setting.
 
 ```{r densityfig, fig.cap = "Interpretation of the density function.", echo=FALSE,fig.height=4}
-x <- seq(0, 40, length = 100)
-f <- function(x) dgompertz(x, scale = 18.9, shape = 1.45, param = "canonical")
-plot(x, f(x), type = "l", axes = FALSE, ylim = c(-0, 0.1), 
-     xlab = "Age", ylab = "", xlim = c(0, 40))
-arrows(0, 0, 0, 0.1, length = 0.1)
-arrows(0, 0, 40, 0, length = 0.1)
-text(3, 0.08, "t")
-text(0.14, 0.95, "f(t)")
+x <- seq(0, 25, length = 100)
+f <- function(x) eha::dgompertz(x, scale = 18.9, shape = 1.45, param = "canonical")
+y <- f(x)
+plot(x[1:85], f(x[1:85]), type = "l", axes = FALSE, ylim = c(-0, max(y) + 0.01), 
+     xlab = "Remaining years after age 60.", ylab = "", xlim = c(0, max(x)))
+arrows(0, 0, 0, max(y) + 0.01, length = 0.1)
+arrows(0, 0, max(x), 0, length = 0.1)
+text(max(x), 0.005, "t")
+text(0.14, max(y) + 0.01, "f(t)", pos = 4)
 ats <- c(0, 10, 12, 20, 30, 40)
-axis(1, at = ats, labels = ats + 60)
-axis(2)
+axis(1, at = ats, labels = ats)
 x0 <- 10
 x0s <- 12
+axis(2, at = c(0, f(x0), 0.08), labels = round(c(0, f(x0), 0.08), 2), las = 1)
 lines(c(x0, x0), c(0, f(x0)), lty = 2)
 lines(c(0, x0), (c(f(x0), f(x0))), lty = 2)
 lines(c(x0s, x0s), c(0, f(x0s)), lty = 2)
-text(x0, f(x0) + 0.01, expression(paste("P(", t[0], " <= T < ", t[0] + s, ")")), pos = 4)
+##text(x0, f(x0) + 0.01, expression(paste("P(", t[0], " <= T < ", t[0] + s, ")")), pos = 4)
+text(x0, f(x0) + 0.01, "P(10 <= T < 12)", pos = 4)
 text(x0, -0.1, expression(t[0]))
 text(x0s, -0.1, expression(t[0]+s))
 cord.x <- c(x0, seq(x0, x0s, by = 0.01), x0s)
@@ -303,22 +305,27 @@ former is (the limit of) an \emph{unconditional} probability, while the
 latter is (the limit of) a 
 \emph{conditional} probability\index{conditional probability}. Otherwise, the
 hazard function is also a kind of density function, with a similar
-graphical interpretation, see Figure~\ref{fig:h}. 
+graphical interpretation, see Figure \@ref(fig:hazardfig) with $t_0 = 10$ and $s = 2$. 
 
 ```{r hazardfig, fig.cap = "Interpretation of the hazard function.", echo=FALSE,fig.height=4}
-x <- seq(0, 3, length = 100)
-f <- function(x) eha::hweibull(x, scale = 1, shape = 3)
-plot(x, f(x), type = "l", axes = FALSE, 
-     ylim = c(-0.5, 10), xlab = "", ylab = "", xlim = c(0,2))
-arrows(0, 0, 0, 0.95, length = 0.1)
-arrows(0, 0, 3, 0, length = 0.1)
-text(3, 0.08, "t")
-text(0.14, 0.95, "h(t)")
-x0 <- 1
-x0s <- 1.2
+x <- seq(0, 25, length = 100)
+f <- function(x) eha::hgompertz(x, scale = 18.9, shape = 1.45, param = "canonical")
+y <- f(x)
+plot(x[1:85], y[1:85], type = "l", axes = FALSE, xlab ="Remaining years after age 60.",
+     ylim = c(0, max(y)), ylab = "", xlim = c(0,max(x)))
+arrows(0, 0, 0, max(y), length = 0.1)
+arrows(0, 0, max(x), 0, length = 0.1)
+text(max(x), 0.02, "t")
+text(0.14, max(y), "h(t)", pos = 4)
+axis(1, at = ats, labels = ats)
+x0 <- 10
+x0s <- 12
+axis(2, at = round(c(0, f(10), 0.25), 2), las = 1)
 lines(c(x0, x0), c(0, f(x0)), lty = 2)
 lines(c(x0s, x0s), c(0, f(x0s)), lty = 2)
-text(x0, f(x0) + 0.01, expression(paste("P(", t[0], " < T <= ", t[0] + s, ")")), pos = 4)
+lines(c(0, x0), c(f(x0), f(x0)), lty = 2)
+##text(x0s + 0.1, f(x0s) / 2, expression(paste("P(", t[0], " < T <= ", t[0] + s, " | T >= ", t[0], ")")), pos = 4)
+text(x0s + 0.1, f(x0s) / 2, "P(10 <= T < 12  | T >= 10)", pos = 4)
 text(x0, -0.1, expression(t[0]))
 text(x0s, -0.1, expression(t[0]+s))
 cord.x <- c(x0, seq(x0, x0s, by = 0.01), x0s)
@@ -331,6 +338,7 @@ polygon(cord.x, cord.y, col = "lightgrey")
 The *cumulative hazard function*
 is
 defined as the integral of the hazard function,
+
 \begin{equation*}
 H(t) = \int_0^t h(s) ds, \quad t \ge 0.
 \end{equation*}
@@ -368,5 +376,5 @@ benchmark, and a useful model for modelling mortality over short time
 intervals (*piece-wise constant hazard*). 
 \index{cumulative hazard function|)} 
 The exponential distribution is described in detail in 
-Appendix~\ref{app:B}.\eex\index{model!continuous|)}
+Appendix~\ref{app:B}.\index{model!continuous|)}$\Box$
 
