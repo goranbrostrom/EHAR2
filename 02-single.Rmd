@@ -39,7 +39,7 @@ We start with a motivating example, the life table, and its connection to
 death risks and survival probabilities in a population, see
 Table&nbsp;\@ref(tab:lifewomen).
 
-```{example, name = "Swedish female and male life tables 2016."}
+```{example, sw16, name = "Swedish female and male life tables 2016."}
 \index{life table|(}
 
 Statistics Sweden (SCB) is a government agency that produces
@@ -64,6 +64,7 @@ pop <- read.table("Data/BE0101A6.csv", header = TRUE,
                   stringsAsFactors = FALSE,
                   fileEncoding = "latin1")
 ```
+
 The argument _stringsAsFactors = FALSE_ is needed in order to avoid character columns
 being converted to factors, and _fileEncoding_ is needed to take care of some
 strange Swedish characters (å, ä, ö) in variable names and labels.
@@ -241,13 +242,13 @@ are unambiguous.\index{survival function|)}
 The *density function* is defined as minus the derivative of the survival function, or
 
 \begin{equation}
-f(t) = -\frac{d}{dt} S(t), t > 0 \label{eq:dens}
+f(t) = -\frac{d}{dt} S(t), \quad t > 0 \label{eq:dens}
 \end{equation}
 
 The intuitive interpretation of this definition is that, for small enough $s$, the following approximation is good:
 
 $$
-P(t_0 \le T < t_0 + s) \approx s f(t_0). 
+P(t_0 \le T < t_0 + s) = S(t_0) - S(t_0 + s) \approx s f(t_0). 
 $$
 This is illustrated in Figure&nbsp;\@ref(fig:densityfig), with $t_0 = 10$ and $s = 2$. The application is *remaining life at age 60* in a nineteenth century setting.
 
@@ -295,15 +296,20 @@ interval $(t, t + s)$ immediately after $t$, for an individual \emph{who
   still is alive at $t$}.
 
 \begin{equation*}
-h(t) = \lim_{s \rightarrow 0}\frac{P(t \le T < t + s \mid T \ge t)}{s}
+\begin{split}
+h(t) &= \lim_{s \rightarrow 0}\frac{P(t \le T < t + s \mid T \ge t)}{s} \\
+     &= \lim_{s \rightarrow 0}\frac{S(t) - S(t + s)}{s S(t)} \\
+     &= \frac{f(t)}{S(t)}
+\end{split}
 \end{equation*}
-$$
-P(t_0 \le T < t_0 + s \mid T \ge t_0) \approx s h(t_0)
-$$
+
+
 Note the difference between the density and the hazard functions. The
 former is (the limit of) an \emph{unconditional} probability, while the
 latter is (the limit of) a 
-\emph{conditional} probability\index{conditional probability}. Otherwise, the
+\emph{conditional} probability\index{conditional probability} per time unit. 
+<!--
+Otherwise, the
 hazard function is also a kind of density function, with a similar
 graphical interpretation, see Figure \@ref(fig:hazardfig) with $t_0 = 10$ and $s = 2$. 
 
@@ -332,11 +338,12 @@ cord.x <- c(x0, seq(x0, x0s, by = 0.01), x0s)
 cord.y <- c(0, f(seq(x0, x0s, by = 0.01)), 0)
 polygon(cord.x, cord.y, col = "lightgrey")
 ```
+-->
 
 ### The cumulative hazard function
 \index{cumulative hazard function|(} 
-The *cumulative hazard function*
-is
+
+The *cumulative hazard function* is
 defined as the integral of the hazard function,
 
 \begin{equation*}
@@ -354,19 +361,23 @@ any restrictions), in contrast to the hazard and density functions.
 Perhaps the simplest continuous life length distribution is the
 \emph{exponential distribution}. It is simple because its hazard function
 is constant:
+
 \begin{equation*}
 h(t) = \lambda, \quad \lambda > 0, \; t \ge 0.
 \end{equation*}
 From this it is easy to calculate the other functions that characterize the
 exponential distribution. The cumulative hazards function is
+
 \begin{equation*}
 H(t) = \lambda t, \quad \lambda > 0,\; t \ge 0,
 \end{equation*}
 the survival function is
+
 \begin{equation*}
 S(t) = e^{-\lambda t}, \quad \lambda > 0,\; t \ge 0,
 \end{equation*}
 and the density function is
+
 \begin{equation*}
 f(t) = \lambda e^{-\lambda t}, \quad \lambda > 0,\; t \ge 0.
 \end{equation*}
@@ -376,5 +387,701 @@ benchmark, and a useful model for modelling mortality over short time
 intervals (*piece-wise constant hazard*). 
 \index{cumulative hazard function|)} 
 The exponential distribution is described in detail in 
-Appendix~\ref{app:B}.\index{model!continuous|)}$\Box$
+Appendix \@ref{app:B}.\index{model!continuous|)}$\Box$
 
+## Discrete time models
+\index{model!discrete|(}
+So far we have assumed, implicitly or explicitly, that time is
+continuous. We will now introduce discrete time survival models, and the
+reason is two-fold: (i) Even if data are generated from truly continuous
+time models, nonparametric estimation of these models will, as will be
+shown later, give rise to estimators corresponding to a discrete time
+model. This is an inherent property of nonparametric maximum likelihood
+estimators. Thus, in order to study the properties of these estimators, we
+need some knowledge of discrete time models. (ii) Data are discrete,
+usually through grouping. For instance, life lengths may be measured in
+full years, introducing *tied data*\index{tied data}.
+
+It is important to realize that in practice all data are discrete. For
+instance, it
+is impossible to measure time with infinite precision. Therefore, all data
+are more or less rounded. If data are so much rounded that the result is
+heavily tied data, true discrete-data models are called for.
+
+Discrete time models will now be introduced. Let $R$ be a discrete random
+variable with
+
+*  support\index{support} $(r_1, r_2, \ldots, r_k)$ (positive real numbers, usually $1,
+  2, \ldots$ or $0, 1, 2, \ldots$),
+*  probability mass function
+
+\begin{equation*}
+p_i = P(R = r_i), \quad i = 1, \ldots, k,
+\end{equation*}
+with $p_i > 0, \quad i = 1, \ldots, k$
+and $\sum_{i=1}^k p_i = 1$.
+
+Then
+<!--
+%\vspace{\baselineskip}
+%\begin{center}
+%\shadowbox{
+%\begin{Beqnarray}
+-->
+
+\begin{equation*}
+F(t)  =  \sum_{i: r_i \le t} p_i, \quad x -\infty < t < \infty,
+\end{equation*}
+
+is the cumulative distribution function, and
+
+\begin{equation}
+S(t) = \sum_{i: r_i \ge x} p_i, \quad x -\infty < t < \infty,
+\end{equation}
+
+is the survival function.
+
+<!--
+
+% \psset{yunit=1.2cm}
+
+% \begin{figure}
+% \pspicture(-1, -1)(10,2)% Density function
+% \psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,1.5)
+% \uput[0](-0.7,0){{  0}}
+% \uput[0](-0.7,1){{  1}}
+% \uput[90](9,-1.5\baselineskip){{ $x$}}
+% \uput[90](1,-1.5\baselineskip){ 1}
+% \uput[90](4,-1.5\baselineskip){ 4}
+% \uput[90](6,-1.5\baselineskip){ 6}
+% \uput[90](0.5,1.2){{ $p(x)$}}
+% \psline(1,0)(1,0.2)
+% \psline(4,0)(4,0.5)
+% \psline(6,0)(6,0.3)
+% \psline[linewidth=1pt](-0.1,1)(0.1,1) %tick mark on y axis
+% %\uput[90](1.5,0.1){\small 0.2}
+% %\uput[90](4.5,0.25){\small 0.5}
+% %\uput[90](6.5,0.1){\small 0.3}
+% \endpspicture
+% \caption{Discrete time probability function.}
+% \label{fig:discprob}
+% \end{figure}
+
+% \begin{figure}
+% \pspicture(-1, -1)(10,2)% Survival function
+% \psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,1.5)
+% \uput[0](-0.7,0){{  0}}
+% \uput[0](-0.7,1){{  1}}
+% \uput[90](9,-1.5\baselineskip){{ $x$}}
+% \uput[90](1,-1.5\baselineskip){ 1}
+% \uput[90](4,-1.5\baselineskip){ 4}
+% \uput[90](6,-1.5\baselineskip){ 6}
+% \uput[90](0.5,1.2){{ $F(x)$}}
+% \psline(0,0)(1,0)
+% \psline[linestyle=dotted](1,0)(1,0.2)
+% \psline(1,0.2)(4,0.2)
+% \psline[linestyle=dotted](4,0.2)(4,0.7)
+% \psline(4,0.7)(6,0.7)
+% \psline[linestyle=dotted](6,0.7)(6,1)
+% \psline(6,1)(9,1)
+% \psline[linewidth=1pt](-0.1,1)(0.1,1) %tick mark on y axis
+% \endpspicture
+% \caption{Discrete time cumulative probability function.}
+% \label{fig:disccdf}
+% \end{figure}
+-->
+The discrete time hazard function is defined as
+
+\begin{equation}
+h_i = P(R = r_i \mid R \ge r_i) = \frac{p_i}{\sum_{j=i}^k p_j},
+\quad i = 1, \ldots, k.\label{eq:alpha}
+\end{equation}
+
+Note that here, the hazard at any given time point is a *conditional
+  probability*, so it must always be bounded to lie between zero and
+one. In the continuous case, on the other hand, the hazard function may
+take any positive value. Further note that if, like here, the support is finite,
+the last "hazard atom" is always equal to one (having lived to the "last
+station"", one is bound to die).
+
+The system \@ref(eq:alpha) of equations has a unique solution, easily
+found by recursion:
+<!--
+%\begin{equation*}
+%h_i = \frac{p_i}{1-\sum_{j=1}^{i-1} p_j}, \quad i = 1, \ldots k,
+%\end{equation*}
+%which has an ``inverse'':
+-->
+
+\begin{equation}
+p_i = h_i \prod_{j=1}^{i-1} (1 - h_j), \quad i = 1, \ldots, k.
+\end{equation}\label{eq:sol}
+
+From this we get the discrete time survival function at each support point as
+
+\begin{equation*}
+S(r_i )  =  \sum_{j = i}^k p_j
+         =  \prod_{j = 1}^{i-1} (1-h_j), \quad i = 1, \ldots, k,
+\end{equation*}
+
+and the general definition
+
+\begin{equation}
+S(t)  =  \prod_{j: r_j < t} \left(1 - h_j\right), \quad t \ge 0
+\end{equation}\label{eq:discsur}
+
+It is easily seen that $S$ is decreasing, $S(0) = 1$, and $S(\infty) = 0$,
+as it should be.
+
+\begin{example}The geometric distribution\end{example}
+The \emph{geometric} distribution\index{Distributions!geometric|(} has
+support on $\{1, 2, \ldots\}$ (another version also includes zero in the
+support, this is the case for the one in **R**), and the hazard function $h$ is constant:
+
+\begin{equation}
+h_i = h, \quad 0 < h < 1, \; i = 1, 2, \ldots.
+\end{equation}
+Thus, the geometric distribution is the discrete analogue to the
+exponential distribution in that it implies no aging. The probability mass
+function is, from \eqref{eq:sol},
+
+\begin{equation*}
+p_i = h (1-h)^{i-1}, i = 1, 2, \ldots,
+\end{equation*}
+and the survival function becomes, from \eqref{eq:discsur},
+
+\begin{equation*}
+S(t) = (1-h)^{[t]}, \quad t > 0,
+\end{equation*}
+where $[t]$ denotes the largest integer smaller than or equal to $t$
+(rounding downwards). In Figure \@ref(fig:geom2) the four functions for a
+geometric distribution with $h = 0.25$ are plotted. $\Box$
+\index{Distributions!geometric|)}
+
+```{r geom2,echo=FALSE,fig.height=5, fig.cap = "The geometric distribution with success probability 0.25.", fig.scap="The geometric distribution.",echo=FALSE}
+source("plgeo.R")
+par(las = 1)
+plgeo(h = 0.25, maxval = 10)
+```
+
+\index{Distributions!geometric|)}
+
+<!--
+% \subsection{Summing it up}
+
+% \underline{Relations:}
+
+% \begin{align*}
+% h(t) &= \frac{d}{dt} H(t) \\
+% h(t) &= \frac{f(t)}{S(t)}
+% \end{align*}
+
+%\subsection{Constant and piecewise constant hazard}
+\index{model!discrete|)}
+-->
+
+## Nonparametric estimators
+
+As an introductory example, look at an extremely simple data set:
+$4$, $2^*$, $6$, $1$, $3^*$ (starred observations are right censored; in
+the figure, deaths are marked with $+$, censored observations with a small
+circle), see Figure \@ref(fig:simple).
+
+```{r simple, fig.cap = "A simple survival data set.",echo=FALSE,fig.height=3}
+plot(c(0, 4), c(1, 1), type= "l", ylim = c(0, 5.1), xlim = c(0, 8),
+     xlab = "Duration", ylab = "Person No.", axes = FALSE)
+axis(1, at = c(0:6))
+axis(2, at = 1:5, las = 1)
+##box()
+abline(v = 0)
+text(4.2, 1, "+", cex = 1.5)
+lines(c(0, 2), c(2, 2))
+text(2, 2, "0")
+lines(c(0, 6), c(3, 3))
+text(6.2, 3, "+", cex = 1.5)
+lines(c(0, 1), c(4, 4))
+text(1.2, 4, "+", cex = 1.5)
+lines(c(0, 3), c(5, 5))
+text(3, 5, "0")
+```
+
+<!--
+\begin{figure}[ht!]
+\psset{yunit=0.6}
+\pspicture(-1, -1.5)(10,7)% Data
+\psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,5.5)
+\uput[90](9,-1.5\baselineskip){duration}
+\uput[90](0.5,5.5){Person No.}
+%1
+\uput[0](-0.7,1){{\bf  1}}
+\psline[linecolor=black](0,1)(4,1)
+\uput[0](4.2,1){+}
+%\pscircle(4,1){4pt}
+%\psline[linestyle=dashed](4,0)(4,5)
+%\uput[90](4,-2\baselineskip){$t_{(2)}$}%\psline(0,1)(4,1)
+%\uput[90](4,-1.5\baselineskip){ 4}%\psline(0,1)(4,1)
+%2
+\uput[0](-0.7,2){{\bf  2}}
+\psline[linecolor=black](0,2)(2,2)
+%\uput[0](4.2,1){+}
+\pscircle(2,2){4pt}
+%\psline[linestyle=dashed](2,0)(2,5)
+%\uput[90](4,-2\baselineskip){$t_{(1)}$}%\psline(0,1)(4,1)
+%3
+\uput[0](-0.7,3){{\bf  3}}
+\psline[linecolor=black](0,3)(6,3)
+\uput[0](6.2,3){+}
+%\pscircle(4,1){4pt}
+%\psline[linestyle=dashed](6,0)(6,5)
+%\uput[90](6,-2\baselineskip){$t_{(3)}$}%\psline(0,1)(4,1)
+%\uput[90](6,-1.5\baselineskip){ 6}%\psline(0,1)(4,1)
+%4
+\uput[0](-0.7,4){{\bf  4}}
+\psline[linecolor=black](0,4)(1,4)
+\uput[0](1.2,4){+}
+%\pscircle(4,1){4pt}
+%\psline[linestyle=dashed](1,0)(1,5)
+%\uput[90](1,-2\baselineskip){$t_{(1)}$}%\psline(0,1)(4,1)
+%\uput[90](1,-1.5\baselineskip){ 1}%\psline(0,1)(4,1)
+%5
+\uput[0](-0.7,5){{\bf  5}}
+\psline[linecolor=black](0,5)(3,5)
+%\uput[0](4.2,1){+}
+\pscircle(3,5){4pt}
+%\psline[linestyle=dashed](4,0)(4,5)
+%\uput[90](4,-2\baselineskip){$t_{(1)}$}\psline(0,1)(4,1)
+
+\endpspicture
+\caption{A simple survival data set.}
+\label{fig:simple}
+\end{figure}
+-->
+How should the survival function be estimated?  The answer is that we take
+it in 
+steps. First, the hazard "atoms" are estimated. It is done nonparametrically,
+and the result as such is not very useful. Its potential lies in that it is
+used as 
+the building block in constructing estimates of the cumulative hazards and
+survival functions.
+
+### The hazard atoms
+
+In Figure \@ref(fig:prelhaz), the observed event times in Figure \ref@(fig:simple)
+are marked, the vertical dashed lines at durations 1, 4, and 6, respectively. In
+the estimation of the hazard atoms, the concept of \emph{risk set} is of vital
+importance.
+
+```{r prelhaz, fig.cap = "Preliminaries for estimating the hazard function.",echo=FALSE,fig.height=3}
+plot(c(0, 4), c(1, 1), type= "l", ylim = c(0, 5.1), xlim = c(0, 8),
+     xlab = "Duration", ylab = "Person No.", axes = FALSE)
+axis(1, at = c(0, 1, 4, 6))
+axis(2, at = 1:5, las = 1)
+abline(v = 0)
+text(4.2, 1, "+", cex = 1.5)
+lines(c(0, 2), c(2, 2))
+text(2, 2, "0")
+lines(c(0, 6), c(3, 3))
+text(6.2, 3, "+", cex = 1.5)
+lines(c(0, 1), c(4, 4))
+text(1.2, 4, "+", cex = 1.5)
+lines(c(0, 3), c(5, 5))
+text(3, 5, "0")
+abline(v = c(1, 4, 6), lty = 2)
+```
+
+<!--
+\begin{figure}
+\psset{yunit=0.6cm}
+\pspicture(-1, -1.5)(10,6)% Data
+\psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,5.5)
+\uput[90](9,-1.5\baselineskip){duration}
+\uput[90](0.5,5.5){Person No.}
+%1
+\uput[0](-0.7,1){{\bf  1}}
+\psline[linecolor=black](0,1)(4,1)
+\uput[0](4.2,1){+}
+%\pscircle(4,1){4pt}
+\psline[linestyle=dashed,linecolor=black](4,0)(4,5)
+%\uput[90](4,-2\baselineskip){$t_{(2)}$}%\psline(0,1)(4,1)
+\uput[90](4,-1.5\baselineskip){ 4}%\psline(0,1)(4,1)
+%2
+\uput[0](-0.7,2){{\bf  2}}
+\psline[linecolor=black](0,2)(2,2)
+%\uput[0](4.2,1){+}
+\pscircle(2,2){4pt}
+%\psline[linestyle=dashed](2,0)(2,5)
+%\uput[90](4,-2\baselineskip){$t_{(1)}$}%\psline[linecolor=black](0,1)(4,1)
+%3
+\uput[0](-0.7,3){{\bf  3}}
+\psline[linecolor=black](0,3)(6,3)
+\uput[0](6.2,3){+}
+%\pscircle(4,1){4pt}
+\psline[linestyle=dashed,linecolor=black](6,0)(6,5)
+%\uput[90](6,-2\baselineskip){$t_{(3)}$}%\psline(0,1)(4,1)
+\uput[90](6,-1.5\baselineskip){ 6}%\psline(0,1)(4,1)
+%4
+\uput[0](-0.7,4){{\bf  4}}
+\psline[linecolor=black](0,4)(1,4)
+\uput[0](1.2,4){+}
+%\pscircle(4,1){4pt}
+\psline[linestyle=dashed,linecolor=black](1,0)(1,5)
+%\uput[90](1,-2\baselineskip){$t_{(1)}$}%\psline(0,1)(4,1)
+\uput[90](1,-1.5\baselineskip){ 1}%\psline(0,1)(4,1)
+%5
+\uput[0](-0.7,5){{\bf  5}}
+\psline[linecolor=black](0,5)(3,5)
+%\uput[0](4.2,1){+}
+\pscircle(3,5){4pt}
+%\psline[linestyle=dashed](4,0)(4,5)
+%\uput[90](4,-2\baselineskip){$t_{(1)}$}\psline(0,1)(4,1)
+\endpspicture
+\caption{Preliminaries for estimating the hazard function.}
+\label{fig:prelhaz}
+\end{figure}
+-->
+The risk set $R(t)$ at duration $t, \; t > 0$ is defined mathematically
+as
+
+\begin{equation}\label{eq:rs}
+R(t) = \{\text{all individuals under observation at $t-$}\} ,
+\end{equation}
+or in words, the risk set at time $t$ consists of all individuals present and under
+observation just prior to $t$. The reason we do not say ``present at time $t$'' is
+that it is vital to include those individuals who have an event or are right
+censored at the exact time $t$.  In our example, the risk sets $R(1)$, $R(4)$, and
+$R(6)$ are the interesting ones. They are:
+
+\begin{equation}
+\begin{split}
+R(1) &= \{1, 2, 3, 4, 5\} \\
+R(4) &= \{1, 3\} \\
+R(6) &= \{3\} \\
+\end{split}
+\end{equation}
+
+\begin{equation}\label{tab:estatoms}
+\begin{split}
+\hat{h}(1) &= \frac{1}{5} = 0.2 \\
+\hat{h}(4) &= \frac{1}{2} = 0.5 \\
+\hat{h}(6) &= \frac{1}{1} = 1 \\
+\end{split}
+\end{equation}
+
+The estimation of the hazard atoms is simple. First, we assume that the
+probability of an event at times where no event is observed, is zero. Then, at
+times where events do occur, we count the number of events and divides that
+number
+by the size of the corresponding risk set. The result is shown in  Table \@ref(tab:estatoms).
+
+
+```{r esthaz, fig.cap = "Nonparametric estimation of the hazard function.", fig.height = 3, echo=FALSE}
+plot(c(1, 1), c(0, 0.2), type = "l", xlim = c(0, 7), ylim = c(0, 1.2), axes = FALSE, lwd = 1.5, xlab = "Duration", ylab = "")
+axis(1, at = c(0, 1, 4, 6))
+axis(2, at = c(0, 1))
+abline(h = 0, v = 0)
+box()
+lines(c(4, 4), c(0, 0.5), lwd = 1.5)
+lines(c(6, 6), c(0, 1), lwd = 1.5)
+text(1.4, 0.2, "0.2")
+text(4.4, 0.5, "0.5")
+text(6.4, 1.0, "1.0")
+```
+
+
+See also
+Figure \@ref(fig:esthaz).
+
+<!--
+\begin{figure}[ht!]
+\psset{yunit=2.0cm}
+\pspicture(-1, -1)(10,2)% Hazard function
+\psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,1.5)
+\uput[0](-0.7,0){{  0}}
+\uput[0](-0.7,1){{  1}}
+\uput[90](9,-1.5\baselineskip){{ $t$}}
+\uput[90](1,-1.5\baselineskip){ 1}
+\uput[90](4,-1.5\baselineskip){ 4}
+\uput[90](6,-1.5\baselineskip){ 6}
+\uput[90](0.5,1.2){{ $\hat{h}(t)$}}
+\psset{linecolor=black}
+\psline(1,0)(1,0.2)
+\psline(4,0)(4,0.5)
+\psline(6,0)(6,1)
+\psset{linecolor=black}
+\psline[linewidth=1pt](-0.1,1)(0.1,1) %tick mark on y axis
+\uput[90](1.5,0.1){\small 0.2}
+\uput[90](4.5,0.25){\small 0.5}
+\uput[90](6.5,0.5){\small 1.0}
+\endpspicture
+\caption{Nonparametric estimation of the hazard function.}
+\label{fig:esthaz}
+\end{figure}
+-->
+As is evident from Figure \@ref(fig:esthaz), the estimated hazard atoms will
+be too 
+irregular to be of practical use; they need *smoothing*. The simplest
+way of 
+smoothing them is to calculate the cumulative sums, which leads to the
+*Nelson-Aalen* estimator of the cumulative hazards function, see the next
+section. There are more direct smoothing techniques to get reasonable
+estimators of 
+the hazard function itself, e.g., kernel estimators
+\index{kernel estimator}, but they will not be discussed here. See
+e.g. @sil86 for a general introduction to kernel smoothing.
+
+### The Nelson-Aalen estimator
+\index{cumulative hazard function|(} 
+
+```{r na, fig.cap="The Nelson-Aalen estimator.", fig.height=4, echo=FALSE}
+##library(eha)
+##dat <- data.frame(exit = c(4, 2, 6, 1, 3),
+##                  event = c(1, 0, 1, 1, 0))
+##x <- c(0, 1, 4, 6)
+##y <- c(0, 0.2, 0.5, 1.0)
+##plot(x, cumsum(y), type = "s", xlim = c(0, 8))
+plot(c(0, 1), c(0, 0), type = "l", lwd = 1.5, xlim = c(0, 8), ylim = c(0, 2), xlab = "Duration", ylab = "Nelson-Aalen", axes = FALSE)
+axis(1, at = c(0, 1, 4, 6))
+axis(2, at = c(0, 0.2, 0.7, 1.7), las = 1)
+lines(c(1, 4), c(0.2, 0.2), lwd = 1.5)
+lines(c(4, 6), c(0.7, 0.7), lwd = 1.5)
+lines(c(6, 8), c(1.7, 1.7), lwd = 1.5)
+lines(c(1, 1), c(0, 0.2), lty = 3)
+lines(c(4, 4), c(0.2, 0.7), lty = 3)
+lines(c(6, 6), c(0.7, 1.7), lty = 3)
+abline(h = 0, v = 0)
+box()
+```
+
+From the theoretical relation we immediately get
+
+\begin{equation}
+\hat{H}(t) =  \sum_{s \le t} \hat{h}(s), \quad t \ge 0
+\end{equation}
+
+which is the *Nelson-Aalen* estimator [@nel72; @aa78], see
+Figure \@ref(fig:na). The sizes of the jumps are equal to the heights of the
+``spikes'' in Figure \@ref(fig:esthaz).
+
+<!--
+\begin{figure}[ht!]
+\psset{yunit=2cm}
+\pspicture(-1, -1)(10,2)% Cumulative Hazards function
+\psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,2)
+\uput[0](-0.7,0){{  0}}
+\uput[0](-0.7,1){{  1}}
+\uput[90](9,-1.5\baselineskip){{ $t$}}
+\uput[90](1,-1.5\baselineskip){ 1}
+\uput[90](4,-1.5\baselineskip){ 4}
+\uput[90](6,-1.5\baselineskip){ 6}
+\uput[90](0.5,1.2){{ $\hat{H}(t)$}}
+\psset{linecolor=black}
+\psline(0,0)(1,0)
+\psline[linestyle=dotted](1,0)(1,0.2)
+\psline(1,0.2)(4,0.2)
+\psline[linestyle=dotted](4,0.2)(4,0.7)
+\psline(4,0.7)(6,0.7)
+\psline[linestyle=dotted](6,0.7)(6,1.7)
+\psline(6, 1.7)(9,1.7)
+\psset{linecolor=black}
+\psline[linewidth=1pt](-0.1,1)(0.1,1) %tick mark on y axis
+
+\endpspicture
+\caption{The Nelson-Aalen estimator.}
+\label{fig:na}
+\end{figure}
+-->
+\index{cumulative hazard function|)}
+
+### The Kaplan-Meier estimator
+
+From the theoretical relation \@ref(eq:discsur) we get
+
+\begin{equation}\label{eq:km2}
+\hat{S}(t) =  \prod_{s < t} \bigl(1 - \hat{h}(s)\bigr), \quad t \ge 0,
+\end{equation}
+
+see also Figure \@ref(fig:km2). Equation \@ref(eq:km2) may be given a
+heuristic interpretation: In order to survive time $t$, one must survive
+*all* "spikes" (or shocks) that come before time $t$. The
+multiplication principle for conditional 
+probabilities\index{conditional probability} then gives
+equation \@ref(eq:km2).
+
+```{r km2, fig.height = 4, echo = FALSE, fig.cap = "The Kaplan-Meier estimator."}
+x <- c(0, 1, 4, 6)
+y <- c(1, 0.8, 0.8 * 0.5, 0)
+plot(c(x[1], x[2]), c(1, 1), xlim = c(0, 8), type = "l", xlab = "Duration", axes = FALSE, lwd = 1.5, ylim = c(0, 1.2), ylab = "Kaplan-Meier")
+lines(c(x[2], x[3]), c(y[2], y[2]), lwd = 1.5)
+lines(c(x[3], x[4]), c(y[3], y[3]), lwd = 1.5)
+lines(c(x[4], 8), c(y[4], y[4]), lwd = 1.5)
+axis(1, at = c(0, 1, 4, 6))
+axis(2, at = y[4:1])
+abline(h = 0, v = 0)
+lines(c(1, 1), c(y[1], y[2]), lty = 3)
+lines(c(4, 4), c(y[2], y[3]), lty = 3)
+lines(c(6, 6), c(y[3], 0), lty = 3)
+box()
+```
+
+<!--
+\begin{figure}[ht!]
+\psset{yunit=2cm}
+\pspicture(-1, -1)(10,2)% Survival function
+\psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,1.5)
+\uput[0](-0.7,0){{  0}}
+\uput[0](-0.7,1){{  1}}
+\uput[90](9,-1.5\baselineskip){{ $t$}}
+\uput[90](1,-1.5\baselineskip){ 1}
+\uput[90](4,-1.5\baselineskip){ 4}
+\uput[90](6,-1.5\baselineskip){ 6}
+\uput[90](0.5,1.2){{ $\hat{S}(t)$}}
+\psset{linecolor=black}
+\psline(0,1)(1,1)
+\psline[linestyle=dotted](1,1)(1,0.8)
+\psline(1,0.8)(4,0.8)
+\psline[linestyle=dotted](4,0.8)(4,0.4)
+\psline(4,0.4)(6,0.4)
+\psline[linestyle=dotted](6,0.4)(6,0)
+\psline(6,0)(9,0)
+\psset{linecolor=black}
+\psline[linewidth=1pt](-0.1,1)(0.1,1) %tick mark on y axis
+
+\endpspicture
+\caption{The Kaplan-Meier estimator}
+\label{fig:km2}
+\end{figure}
+
+
+%\subsubsection{Greenwood's formula}
+
+%\subsection{Life table estimators}
+-->
+
+## Doing it in R
+
+We show how to do it in **R** by using the male mortality data set `mort`, which is part of the package `eha`. By loading `eha` we have access to `mort`. The **R** function `head` is convenient for looking at a few (six by default) rows in a data frame. 
+
+```{r getmort}
+library(eha)
+head(mort)
+```
+
+This is the normal form of storing left truncated and right censored data. Here, males are followed from their twentieth birthdate until death or their fortieth birthdate, whichever comes first. An indicator for *death* is introduced, called `event`. The value 1
+indicates that the corresponding life time is fully observed, while the value
+0 indicates a right censored life time. Another common coding scheme is
+`TRUE` and `FALSE`, respectively.
+
+### Nonparametric estimation
+
+In the **R** package `eha`,
+the `plot` function can be used to plot both Nelson-Aalen and
+Kaplan-Meier
+curves. The code for the Nelson-Aalen and Kaplan-Meier plots is
+
+```{r esthas,fig=FALSE, eval = FALSE}
+par(mfrow = c(1, 2))# Two plots, "one row, two columns".
+with(mort, plot(Surv(enter, exit, event), fn = "cum"))
+with(mort, plot(Surv(enter, exit, event), fn = "surv"))
+```
+
+and the result is seen in Figure \@ref(fig:pshazsur).
+
+
+```{r pshazsur,fig=TRUE,echo=FALSE,fig.cap="Nelson-Aalen plot (left panel) and Kaplan-Meier plot (right panel), male mortality data. The dashed lines in the Survival function plot are 95 percent confidence limits.", scap = "Male mortality, Nelson-Aalen and Kaplan-Meier plots.", fig.height = 3}
+par(mfrow = c(1, 2)) 
+par(las = 1, cex.main = 0.9)
+with(mort, plot(Surv(enter, exit, event), axes = FALSE, fn = "cum"))
+axis(1)
+axis(2, at = c(0, 0.1, 0.2, 0.3))
+box()
+with(mort, plot(Surv(enter, exit, event), fn = "surv",
+     col.con = "black")) # See > ?plot.Surv
+```
+
+The package `eha` must be loaded for this to work. Note the use of the
+function `with`\index{Functions!`with`}; it tells the `plot`
+function that it should get its data `(enter, exit, event)` from the
+data frame `mort`. The function `Surv`\index{Functions!`Surv`}
+from the package `survival` creates a "survival object", which is
+used in many places. It is for instance *the response* in all
+functions that perform regression analysis on survival data.
+
+Note that the "Duration" in Figure\@ref(fig:pshazsur) is duration (in
+years) since the day each man became twenty years of age. They are followed until
+death or age forty, whichever comes first.  The right hand figure shows
+that approximately 25 per cent of the men alive at age twenty died before they
+became forty.
+
+
+If the Kaplan-Meier estimator is wanted as a table, use `survfit` in
+combination with `coxreg`\index{Functions!coxreg} or 
+`coxph`\index{Functions!coxph}. Since the output will have
+approximately as many rows as there are distinct event times, we illustrate
+it by taking only a small
+random sample from `mort`.\index{Functions!sample}
+\index{Data sets!male mortality}
+
+```{r rsa2}
+indx <- sample(NROW(mort), size = 50, replace = FALSE)
+rsa <- mort[indx, ]
+fit <- coxph(Surv(enter, exit, event) ~ 1, data = rsa)
+s.fit <- survfit(fit)
+options(width=70)
+summary(s.fit)
+```
+
+The functions `coxreg`\index{Functions!coxreg} and
+`coxph`\index{Functions!coxph}  both fits *Cox
+  regression*\index{Cox regression}
+models, which is the topic of the next chapter. Here we fit a regression
+model with just a constant term and no covariates. This results in
+estimation of the *baseline hazards*\index{baseline hazard function}
+which `survfit` transforms to 
+elements of the Kaplan-Meier estimator seen above. Note also that, by
+default, a 95 per cent confidence band\index{confidence band} is produced around
+the estimator. 
+
+You can also plot the output of the fit (`s.fit`) by simply typing
+
+```{r output=FALSE, eval = FALSE}
+plot(s.fit)
+```
+
+The result is not shown here. It will look similar to the right hand panel
+of Figure \@ref(fig:pshazsur). 
+
+### Parametric estimation
+
+It is also possible to fit a parametric model to data with the aid of the
+function `phreg`\index{Functions!phreg|(} 
+(it also works with the
+function `aftreg`\index{Functions!aftreg}). Just 
+fit a "parametric proportional hazards model with no covariates".
+<!--
+%% Must fix plot.phreg!!
+\begin{figure}[ht!]
+-->
+```{r paramfit2,fig.cap="Male mortality, Weibull fit.", fig.height = 3.2}
+par(mfrow = c(1, 2))
+fit.w <- phreg(Surv(enter, exit, event) ~ 1, data = mort)
+par(las = 1)
+plot(fit.w, fn = c("cum"), main = "", axes = FALSE)
+axis(2, at = c(0.0, 0.1, 0.2, 0.3))
+axis(1)
+box()
+plot(fit.w, fn = c("sur"), main = "")
+```
+
+Note that the default distribution in `phreg` is the `Weibull`
+distribution, which means that if no distribution is specified (through the
+argument `dist`), then the Weibull distribution is assumed.
+
+We can also show the parameter estimates. For the interpretations of these,
+see Appendix B, the *Weibull* distribution.
+
+```{r showest2}
+coefficients(fit.w)
+```
+
+More about this will be discussed in Chapter 6, Parametric models.
+\index{Functions!`phreg`|)} 
