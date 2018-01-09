@@ -1,8 +1,123 @@
 # Cox Regression
 
-We move slowly from the two-sample and _k_-sample cases, ...
+## Introduction
+
+We move slowly from the two-sample case, via the $k$-sample case, to the
+general regression model. On this route, we  start with the *log-rank test*
+and end up with *Cox regression* and the *proportional hazards model* [@cox72]. 
 
 ## Proportional Hazards
+\label{sec:ph3}\index{proportional hazards}
+
+The property of *proportional hazards* is fundamental in Cox
+regression. It is in fact the essence of Cox's simple yet ingenious
+idea. The definition is as follows.
+
+```{definition, name="Proportional hazards"}
+If $h_1(t)$ and $h_0(t)$ are hazard functions from two separate
+distributions, we say that they are *proportional* if
+
+\begin{equation}\label{eq:prophaz}
+h_1(t)  =  \psi h_0(t), \quad \text{for all } t \ge 0,
+\end{equation}
+for some positive constant $\psi$ and *all* $t \ge 0$. Further, if
+\eqref{eq:prophaz} holds, then the same 
+property holds for the corresponding 
+*cumulative hazard functions* $H_1(t)$ and $H_0(t)$.
+\index{cumulative hazard function}
+
+\begin{equation}\label{eq:propcumhaz}
+H_1(t)  =  \psi H_0(t), \quad \text{for all } t \ge 0,
+\end{equation}
+with the same proportionality constant $\psi$ as in \ref{eq:prophaz}.$\Box$
+```
+
+<!--
+\begin{definition} Proportional hazards. \end{definition}
+If $h_1(t)$ and $h_0(t)$ are hazard functions from two separate
+distributions, we say that they are *proportional* if
+
+\begin{equation}\label{eq:prophaz}
+h_1(t)  =  \psi h_0(t), \quad \text{for all } t \ge 0,
+\end{equation}
+for some positive constant $\psi$ and *all* $t \ge 0$. Further, if
+\eqref{eq:prophaz} holds, then the same 
+property holds for the corresponding 
+*cumulative hazard functions* $H_1(t)$ and $H_0(t)$.
+\index{cumulative hazard function}
+
+\begin{equation}\label{eq:propcumhaz}
+H_1(t)  =  \psi H_0(t), \quad \text{for all } t \ge 0,
+\end{equation}
+with the same proportionality constant $\psi$ as in \ref{eq:prophaz}.$\Box$
+-->
+
+
+Strictly speaking, the second part of this definition follows easily from
+the first (and vice versa), so more correct would be to state one part as a
+definition and the other as a corollary.
+The important part of this definition is "$\textit{for all }t \ge 0$",
+and that 
+the constant $\psi$ *does not depend on $t$*. Think of the hazard
+functions as age-specific mortality for two groups, e.g., women and
+men. It is ``well known'' that women have lower mortality than men in all
+ages. It would therefore be reasonable to assume proportional
+hazards in that case. It would mean that the female *relative*
+advantage is equally large in all ages. See Example \@ref(exm:sw16) for a
+demonstration of this example of *proportional
+  hazards*\index{proportional hazards}. 
+
+It must be emphasized that this is an assumption that always must be
+carefully checked. In many other situations, it would not reasonable to assume
+proportional hazards. If in doubt, check data by plotting the Nelson-Aalen
+estimates\index{Nelson-Aalen estimator} for each group in the same plot.
+
+See
+Figure \@ref(fig:prophazfig) for an example with two *Weibull* hazard
+functions and the proportionality constant $\psi = 2$.
+
+```{r prophazfig,fig=TRUE,echo=FALSE, fig.cap = "Two hazard functions that are proportional. The proportionality constant is 2.",  fig.scap="Proportional hazard functions."}
+library(eha)
+x <- seq(0,1, length = 500)
+#y <- dweibull(x, scale = 1, shape = 3) / (1 - pweibull(x, scale = 1, shape = 3))
+y <- hweibull(x, scale = 1, shape = 3)
+z <- 2 * y
+plot(x, z, type = "l", main = "", xlab = "Time", ylab = "Hazards")
+lines(x, y, lty = 2)
+abline(h = 0)
+```
+
+The proportionality is often difficult to judge by eye, so in order make it
+easier to see, the plot can be made on a *log scale*, see
+Figure \@ref(fig:prophazlog3).
+
+
+```{r prophazlog3,fig=TRUE,echo=FALSE,fig.cap="Two hazard functions that are proportional are on a constant distance from each other on a log-log scale. The proportionality constant is 2, corresponding to a vertical distance of log(2) =  0.693.", fig.scap = "Proportional hazard functions, log scale"}
+x <- seq(0.01,1, length = 500)
+#y <- dweibull(x, scale = 1, shape = 3) / (1 - pweibull(x, scale = 1, shape = 3))
+y <- hweibull(x, scale = 1, shape = 3)
+z <- 2 * y
+plot(log(x), log(z), type = "l", main = "", xlab = "log(Time)", ylab = "log(Hazards)")
+lines(log(x), log(y), lty = 2)
+abline(h = 0)
+```
+
+
+
+Note that both dimensions are on a log scale. This type of plot,
+constructed from empirical data, is called a *Weibull
+  plot*\index{Weibull plot} in reliability applications: If the lines are
+straight lines, then data are well fitted by a Weibull
+distribution. Additionally, if the the slope of the line is 1 (45 degrees),
+then an exponential model fits well.
+
+To summarize Figure \@ref(fig:prophazlog3): (i) The hazard functions are
+proportional because on the log-log scale, the vertical distance is
+constant, (ii) Both hazard functions represent a Weibull distribution,
+because both lines are straight lines, and (iii) neither represents an
+exponential distribution, because the slopes are *not* one. This
+latter fact may be difficult to see because of the different scales on the
+axes. 
 
 ## The Log-Rank Test
 
