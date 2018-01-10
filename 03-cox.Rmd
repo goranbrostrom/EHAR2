@@ -29,7 +29,7 @@ property holds for the corresponding
 \begin{equation}\label{eq:propcumhaz}
 H_1(t)  =  \psi H_0(t), \quad \text{for all } t \ge 0,
 \end{equation}
-with the same proportionality constant $\psi$ as in \ref{eq:prophaz}.$\Box$
+with the same proportionality constant $\psi$ as in \@ref(eq:prophaz).$\Box$
 ```
 
 <!--
@@ -76,8 +76,9 @@ See
 Figure \@ref(fig:prophazfig) for an example with two *Weibull* hazard
 functions and the proportionality constant $\psi = 2$.
 
-```{r prophazfig,fig=TRUE,echo=FALSE, fig.cap = "Two hazard functions that are proportional. The proportionality constant is 2.",  fig.scap="Proportional hazard functions."}
+```{r prophazfig,fig=TRUE,echo=FALSE, fig.cap = "Two hazard functions that are proportional. The proportionality constant is 2.",  fig.scap="Proportional hazard functions.", fig.height = 4}
 library(eha)
+par(las = 1)
 x <- seq(0,1, length = 500)
 #y <- dweibull(x, scale = 1, shape = 3) / (1 - pweibull(x, scale = 1, shape = 3))
 y <- hweibull(x, scale = 1, shape = 3)
@@ -92,7 +93,8 @@ easier to see, the plot can be made on a *log scale*, see
 Figure \@ref(fig:prophazlog3).
 
 
-```{r prophazlog3,fig=TRUE,echo=FALSE,fig.cap="Two hazard functions that are proportional are on a constant distance from each other on a log-log scale. The proportionality constant is 2, corresponding to a vertical distance of log(2) =  0.693.", fig.scap = "Proportional hazard functions, log scale"}
+```{r prophazlog3,fig=TRUE,echo=FALSE,fig.cap="Two hazard functions that are proportional are on a constant distance from each other on a log-log scale. The proportionality constant is 2, corresponding to a vertical distance of log(2) =  0.693.", fig.scap = "Proportional hazard functions, log scale", fig.height = 4}
+par(las=1)
 x <- seq(0.01,1, length = 500)
 #y <- dweibull(x, scale = 1, shape = 3) / (1 - pweibull(x, scale = 1, shape = 3))
 y <- hweibull(x, scale = 1, shape = 3)
@@ -117,9 +119,319 @@ constant, (ii) Both hazard functions represent a Weibull distribution,
 because both lines are straight lines, and (iii) neither represents an
 exponential distribution, because the slopes are *not* one. This
 latter fact may be difficult to see because of the different scales on the
-axes. 
+axes (the *aspect ratio* is not one). 
 
 ## The Log-Rank Test
+
+The \emph{log-rank test} \index{Tests!log-rank} is a $k$-sample test
+of equality of survival functions. We first look at the two-sample case,
+that is, $k = 2$.
+\subsection{Two samples}
+Suppose that we have the small data set illustrated in
+Figure~\ref{fig:twosample}. There are two samples, the {\tt letters} (A, B,
+C, D, E) and the {\tt numbers} (1, 2, 3, 4, 5).
+\begin{figure}[ht!]
+\begin{center}
+\psset{yunit=0.45cm}
+\pspicture(-1, -1.5)(10,12)% Data
+\psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,11)
+\psset{linecolor=black}
+\uput[90](9,-1.5\baselineskip){t}
+\uput[90](0.5,11){Person No.}
+%1
+\uput[0](-0.7,1){{\bf  1}}
+\psline(0,1)(4,1)
+\uput[0](4,1){+}
+%\pscircle(4,1){4pt}
+\psline[linestyle=dotted](4,0)(4,10.2)
+%\uput[90](4,-2\baselineskip){$t_{(2)}$}%\psline(0,1)(4,1)
+\uput[90](4,-1.5\baselineskip){$t_{(3)}$}%\psline(0,1)(4,1)
+%2
+\uput[0](-0.7,2){{\bf  2}}
+\psline(0,2)(2,2)
+%\uput[0](4.2,1){+}
+\pscircle(2,2){4pt}
+%\psline[linestyle=dashed](2,0)(2,5)
+%\uput[90](4,-2\baselineskip){$t_{(1)}$}%\psline(0,1)(4,1)
+%3
+\uput[0](-0.7,3){{\bf  3}}
+\psline(0,3)(6,3)
+\uput[0](6,3){+}
+%\pscircle(4,1){4pt}
+\psline[linestyle=dotted,linecolor=black](6,0)(6,10.2)
+\uput[90](6,-1.5\baselineskip){$t_{(5)}$}
+%4
+\uput[0](-0.7,4){{\bf  4}}
+\psline(0,4)(1,4)
+\uput[0](1,4){+}
+%\pscircle(4,1){4pt}
+\psline[linestyle=dotted,linecolor=black](1,0)(1,10.2)
+%\uput[90](1,-2\baselineskip){$t_{(1)}$}%\psline(0,1)(4,1)
+%\uput[90](1,-1.5\baselineskip){ 1}%\psline(0,1)(4,1)
+%5
+\uput[0](-0.7,5){{\bf  5}}
+\psline(0,5)(3.5,5)
+%\uput[0](4.2,1){+}
+\pscircle(3.5,5){4pt}
+%\psline[linestyle=dashed](4,0)(4,5)
+%\uput[90](4,-2\baselineskip){$t_{(1)}$}\psline(0,1)(4,1)
+%\endpspicture
+%\psset{yunit=0.6cm}
+
+%\pspicture(-1, -1.5)(10,6)% Data
+%\psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,5.5)
+%\uput[90](9,-1.5\baselineskip){duration}
+%\uput[90](0.5,5.5){Person No.}
+%1
+\psset{linecolor=black}
+\uput[0](-0.7,6){{\bf  A}}
+\psline[linestyle=dashed](0,6)(5,6)
+\uput[0](5,6){+}
+%\pscircle(4.5,6){4pt}
+\psline[linecolor=black,linestyle=dotted](5,0)(5,10.2)
+\uput[90](5,-1.5\baselineskip){$t_{(4)}$}
+%\uput[90](5,-1.5\baselineskip){5}%\psline(0,1)(4,1)
+%2
+\uput[0](-0.7,7){{\bf  B}}
+\psline[linestyle=dashed](0,7)(3,7)
+\uput[0](3,7){+}
+%\pscircle(2,7){4pt}
+\psline[linestyle=dotted,linecolor=black](3,0)(3,10.2)
+\uput[90](3,-1.5\baselineskip){$t_{(2)}$}
+%3
+\uput[0](-0.7,8){{\bf  C}}
+\psline[linestyle=dashed](0,8)(6,8)
+%\uput[0](6.2,8){+}
+\pscircle(6,8){4pt}
+%\psline[linestyle=dashed,linecolor=black](6,0)(6,10.2)
+%\uput[90](6,-2\baselineskip){$t_{(3)}$}%\psline(0,1)(4,1)
+%\uput[90](6,-1.5\baselineskip){ 6}%\psline(0,1)(4,1)
+%4
+\uput[0](-0.7,9){{\bf  D}}
+\psline[linestyle=dashed](0,9)(1,9)
+\uput[0](1,9){+}
+%\pscircle(4,1){4pt}
+%\psline[linestyle=dashed,linecolor=black](1,0)(1,5)
+%\uput[90](1,-2\baselineskip){$t_{(1)}$}%\psline(0,1)(4,1)
+\uput[90](1,-1.5\baselineskip){$t_{(1)}$}
+%5
+\uput[0](-0.7,10){{\bf  E}}
+\psline[linestyle=dashed](0,10)(2.5,10)
+%\uput[0](4.2,1){+}
+\pscircle(2.5,10){4pt}
+%\psline[linestyle=dashed](4,0)(4,5)
+%\uput[90](4,-2\baselineskip){$t_{(1)}$}\psline(0,1)(4,1)
+\endpspicture
+\caption[Two-sample data]{Two-sample data, the {\tt letters} (dashed) and the {\tt numbers}
+  (solid). Circles denote censored observations, plusses uncensored.}
+\label{fig:twosample}
+\end{center}
+\end{figure}
+We are interested in investigating whether {\tt letters} and {\tt numbers}
+have the same survival chances or not. Therefore, the hypothesis
+\begin{equation*}
+H_0: \text{No difference in survival between {\tt numbers} and {\tt letters}}
+\end{equation*}
+is formulated. In order to test $H_0$, we make five tables, one
+for each observed \emph{event time}\index{event time}, see
+Table~\ref{tab:lr1}, where they are 
+merged into one table.
+\begin{table}[ht!]
+\tabletitle[Log rank test summary]{Five $2\times 2$ tables. Each table
+  reports the situation at one
+  observed failure time point, i.e., at $t_{(1)}, \ldots, t_{(5)}$.}
+\label{tab:lr1}
+\begin{tabular}{|c|l|cc|r|}
+Time & Group & Deaths & Survivals & Total \\ \hline
+$t_{(1)}$ & {\tt numbers}  &   1    &    4      & 5 \\
+& {\tt letters}   &   1    &    4      & 5 \\ \hline
+& Total &   2    &    8      & 10 \\ \hline \hline
+$t_{(2)}$ &  {\tt numbers}  &   0    &    3      & 3 \\
+& {\tt letters}   &   1    &    2      & 3 \\ \hline
+& Total &   1    &    5      & 6 \\ \hline \hline
+$t_{(3)}$ &  {\tt numbers}  &   1    &    1      & 2 \\
+& {\tt letters}   &   0    &    2      & 2 \\ \hline
+& Total &   1    &    3      & 4 \\ \hline \hline
+$t_{(4)}$ &  {\tt numbers}  &   0    &    1      & 1 \\
+& {\tt letters}   &   1    &    1      & 2 \\ \hline
+& Total &   1    &    2      & 3 \\ \hline \hline
+$t_{(5)}$ &  {\tt numbers}  &   1    &    0      & 1 \\
+& {\tt letters}   &   0    &    1      & 1 \\ \hline
+& Total &   1    &    1      & 2 \\ \hline \hline
+\end{tabular}
+\end{table}
+Let us look at the first table at failure time $t_{(1)}$, i.e., the first
+three rows in Table~\ref{tab:lr1}, from the viewpoint of the {\tt numbers}.
+\begin{itemize}
+\item The observed number of deaths among {\tt numbers}: $1$.
+\item The expected number of deaths among {\tt numbers}: $2 \times 5 / 10 = 1$.
+\end{itemize}
+The \emph{expected} number is calculated under $H_0$, i.e., as if there is
+no difference between {\tt letters} and {\tt numbers}. It is further
+assumed that the two margins are given (fixed). Then, given two deaths in
+total and five out of ten observations are from the group {\tt numbers},
+the expected number of deaths is calculated as above.
+
+This procedure is repeated for each of the five tables, and the results are
+summarized in Table~\ref{tab:sumup}.
+\begin{table}[ht!]
+\tabletitle[Logrank test: Summary table]{Observed and expected number of deaths for {\tt numbers} at the
+five observed event times.}
+\label{tab:sumup}
+\begin{tabular}{r|rr|r|r}
+Time  & Observed & Expected & Difference & Variance\\ \hline
+$t_{(1)}$ & 1 & 1.0 & 0.0 & 0.44\\
+$t_{(2)}$ & 0 & 0.5 & -0.5 & 0.25 \\
+$t_{(3)}$ & 1 & 0.5 & 0.5 & 0.25 \\
+$t_{(4)}$ & 0 & 0.3 & -0.3 & 0.22 \\
+$t_{(5)}$ & 1 & 0.5 & 0.5 & 0.25 \\ \hline
+Sum & 3 & 2.8 & 0.2 & 1.41 \\ \hline
+\end{tabular}
+\end{table}
+Finally, the observed test statistic $T$ is calculated as
+\begin{equation*}
+T = \frac{0.2^2}{1.41} \approx 0.028
+\end{equation*}
+Under the null hypothesis, this is an observed value from a 
+$\chi^2(1)$\index{Distributions!chi-square@$\chi^2$}
+distribution, and $H_0$ should be rejected for \emph{large} values of
+$T$. Using a \emph{level of significance} of 5\%, the cutting point for the
+value of $T$ is 3.84, far from our observed value of 1.41. The
+conclusion is
+therefore that there is no (statistically significant) difference in
+survival chances between {\tt letters} and {\tt numbers}.
+Note, however, that this result depends on 
+asymptotic\index{asymptotic theory} (large sample) 
+properties, and 
+in this toy example, these properties are not valid.
+
+For more detail about the underlying theory, see Appendix A.
+
+In \R, the log-rank test is performed by the 
+\fun{coxph}\index{Functions!\fun{coxph}} function in the
+package survival (there are other options). With the data in our example,
+see Table~\ref{tab:exlr}, we get:
+\begin{table}
+%%\begin{center}
+\tabletitle{Data in a simple example.}
+\label{tab:exlr}
+\begin{tabular}{lcc}
+group & time & event \\ \hline
+numbers   & 4.0 & 1 \\
+numbers   & 2.0 & 0 \\
+numbers   & 6.0 & 1 \\
+numbers   & 1.0 & 1 \\
+numbers   & 3.5 & 0 \\
+letters & 5.0 & 1 \\
+letters & 3.0 & 1 \\
+letters & 6.0 & 0 \\
+letters & 1.0 & 1 \\
+letters & 2.5 & 0
+\end{tabular}
+%%\end{center}
+\end{table}
+<<example.logrank>>=
+library(survival)
+ex.data <- read.table("exlr.dat", header = TRUE)
+fit <- coxph(Surv(time, event) ~ group, data = ex.data)
+summary(fit)
+@
+Obviously, there is a lot of information here. We have in fact performed
+a \emph{Cox regression} ahead of schedule! This also tells
+us that
+the simplest way of performing a logrank test in \R\ is to run a Cox
+regression. The result of the
+logrank test is displayed on the last line of output. The $p$-value is
+$0.891$, i.e., there is no significant difference between groups
+whatsoever. This is not very surprising, since we are using a toy example
+with almost no information, only six events in total.
+
+Let us now look at a real data example, the old age mortality data set
+\code{oldmort} in \pkg{eha}.
+<<lrreal3>>=
+require(eha) # Loads 'survival' as well.
+data(oldmort)
+fit <- coxph(Surv(enter, exit, event) ~ sex, data = oldmort)
+summary(fit)
+@ 
+As in the trivial example, the last line of the output gives the $p$-value
+of the logrank test, $p = 0.0000225$ (in ``exponential notation'' in the
+output). This is very small, and we can conclude that the mortality
+difference between women and men is highly statistically significant. But
+how large is it, i.e., what is the value of the proportionality constant?
+The answer to that question is found five rows up, where \code{sexfemale}
+reports the value 0.8245 for {\tt exp(Coef)}. The interpretation of this is
+that female mortality is about $82.45$ per cent of the male mortality,
+i.e., $17.55$ per cent lower. This is for ages above 60, because this data
+set contains only information in that range. 
+
+Remember that this result depends on the proportional hazards
+assumption. We can graphically check it as follows.
+<<grch,fig=TRUE,include=FALSE>>=
+##plot(Surv(oldmort$enter, oldmort$exit, oldmort$event), 
+  ##   strata = oldmort$sex, fn = "cum")
+with(oldmort, plot(Surv(enter, exit, event), strata = sex))
+@ 
+First note that the out-commented (\#\#) version works equally well, but it
+is more tedious to type, and also harder to read. The \fun{with}
+\index{Functions!\fun{with}} function is very handy and will be used often
+throughout the book. 
+Note also that the grouping factor (\code{sex}) is given through the
+argument {\tt strata}. The
+result is shown in Figure~\ref{fig:phazom3}.
+\begin{figure}[ht!]
+\includegraphics{{$HOME}/Documents/ehaBook/Sweave/figs/ch3-grch}
+\caption{Old age mortality, women vs.\ men, cumulative hazards.}
+\label{fig:phazom3}
+\end{figure}
+The proportionality assumption seems to be a good description from 60 to
+85--90 years of age, but it seems more doubtful in the very high ages. One
+reason for this may be that the high-age estimates are based on few
+observations (most of the individuals in the sample died earlier), so
+random fluctuations have a large impact in the high ages.
+
+\subsection{Several samples}
+
+The result for the two-sample case is easily extended to the $k$-sample
+case. Instead of one $2\times 2$ table per observed event time we get one
+$k\times 2$ table per observed event time and we have to calculate expected
+and observed numbers of events for $(k-1)$ groups at each failure time. The
+resulting test statistic will have $(k-1)$ degrees of freedom and still be
+approximately $\chi^2$ distributed. This is illustrated with the same data
+set, \data{oldmort}, as above, but with the covariate \var{birthplace},
+which is a 
+\code{factor} with three levels, instead of \var{sex}.
+<<lrplace3>>=
+require(eha) # Loads 'survival' as well.
+data(oldmort)
+fit <- coxph(Surv(enter, exit, event) ~ birthplace, 
+             data = oldmort)
+summary(fit)
+@ 
+The degrees of freedom for the \emph{score test}\index{Tests!score}
+is now $2$, equal to the number
+of levels in \var{birthplace} (\code{parish}, \code{region}, \code{remote})
+minus one. The birthplace thus does not seem to have any great impact on
+old age mortality. It is however recommended to check the proportionality
+assumption graphically, see Figure~\ref{fig:grbp3}.
+<<grbp3,fig=TRUE,include=FALSE>>=
+with(oldmort, plot(Surv(enter, exit, event), strata = birthplace))
+@ 
+\begin{figure}[ht!]
+\includegraphics{{$HOME}/Documents/ehaBook/Sweave/figs/ch3-grbp3}
+\caption{Old age mortality by birthplace, cumulative hazards.}
+\label{fig:grbp3}
+\end{figure}
+There is obviously nothing that indicates non-proportionality in this case
+either. 
+
+We do not go deeper into this matter here, mainly because the logrank test
+generally is a special case of Cox regression, which will be described in
+detail later in this chapter. There are however two special cases of the
+logrank test, the \emph{weighted} and \emph{stratified} versions, that may
+be of interest on 
+their own. The interested reader may consult the text books by
+\citet[pp.\ 22-23]{kp02} or \citet[pp.\ 49--53]{collett}.
 
 ### Two samples
 
