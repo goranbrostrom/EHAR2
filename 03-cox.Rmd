@@ -334,10 +334,10 @@ in this toy example, these properties are not valid.
 
 For more detail about the underlying theory, see Appendix A.
 
-In \R, the log-rank test is performed by the 
-\fun{coxph}\index{Functions!\fun{coxph}} function in the
+In **R**, the log-rank test is performed by the 
+`coxph`\index{Functions!`coxph`} function in the
 package survival (there are other options). With the data in our example,
-see Table~\ref{tab:exlr}, we get:
+see Table \@ref(tab:exlr), we get:
 \begin{table}
 %%\begin{center}
 \tabletitle{Data in a simple example.}
@@ -366,7 +366,7 @@ summary(fit)
 Obviously, there is a lot of information here. We have in fact performed
 a \emph{Cox regression} ahead of schedule! This also tells
 us that
-the simplest way of performing a logrank test in \R\ is to run a Cox
+the simplest way of performing a logrank test in **R** is to run a Cox
 regression. The result of the
 logrank test is displayed on the last line of output. The $p$-value is
 $0.891$, i.e., there is no significant difference between groups
@@ -374,7 +374,7 @@ whatsoever. This is not very surprising, since we are using a toy example
 with almost no information, only six events in total.
 
 Let us now look at a real data example, the old age mortality data set
-\code{oldmort} in \pkg{eha}.
+`oldmort` in `eha`.
 <<lrreal3>>=
 require(eha) # Loads 'survival' as well.
 data(oldmort)
@@ -386,8 +386,8 @@ of the logrank test, $p = 0.0000225$ (in ``exponential notation'' in the
 output). This is very small, and we can conclude that the mortality
 difference between women and men is highly statistically significant. But
 how large is it, i.e., what is the value of the proportionality constant?
-The answer to that question is found five rows up, where \code{sexfemale}
-reports the value 0.8245 for {\tt exp(Coef)}. The interpretation of this is
+The answer to that question is found five rows up, where `sexfemale`
+reports the value 0.8245 for `exp(Coef)`. The interpretation of this is
 that female mortality is about $82.45$ per cent of the male mortality,
 i.e., $17.55$ per cent lower. This is for ages above 60, because this data
 set contains only information in that range. 
@@ -403,7 +403,7 @@ First note that the out-commented (\#\#) version works equally well, but it
 is more tedious to type, and also harder to read. The \fun{with}
 \index{Functions!\fun{with}} function is very handy and will be used often
 throughout the book. 
-Note also that the grouping factor (\code{sex}) is given through the
+Note also that the grouping factor (`sex`) is given through the
 argument {\tt strata}. The
 result is shown in Figure~\ref{fig:phazom3}.
 \begin{figure}[ht!]
@@ -427,7 +427,7 @@ resulting test statistic will have $(k-1)$ degrees of freedom and still be
 approximately $\chi^2$ distributed. This is illustrated with the same data
 set, \data{oldmort}, as above, but with the covariate \var{birthplace},
 which is a 
-\code{factor} with three levels, instead of \var{sex}.
+`factor` with three levels, instead of `sex`.
 <<lrplace3>>=
 require(eha) # Loads 'survival' as well.
 data(oldmort)
@@ -435,20 +435,24 @@ fit <- coxph(Surv(enter, exit, event) ~ birthplace,
              data = oldmort)
 summary(fit)
 @ 
-The degrees of freedom for the \emph{score test}\index{Tests!score}
+The degrees of freedom for the *score test*\index{Tests!score}
 is now $2$, equal to the number
-of levels in \var{birthplace} (\code{parish}, \code{region}, \code{remote})
+of levels in `birthplace` (`parish`, `region`, `remote`)
 minus one. The birthplace thus does not seem to have any great impact on
 old age mortality. It is however recommended to check the proportionality
-assumption graphically, see Figure~\ref{fig:grbp3}.
-<<grbp3,fig=TRUE,include=FALSE>>=
-with(oldmort, plot(Surv(enter, exit, event), strata = birthplace))
-@ 
+assumption graphically, see Figure \@ref(fig:grbp3).
+
+```{r grbp3,fig=TRUE,include=TRUE, fig.cap = "Old age mortality by birthplace, cumulative hazards"}
+with(oldmort, plot(Surv(enter, exit, event), strata = birthplace), main = "", xlab = "Age", ylab = "", las = 1)
+```
+<!--
 \begin{figure}[ht!]
 \includegraphics{{$HOME}/Documents/ehaBook/Sweave/figs/ch3-grbp3}
 \caption{Old age mortality by birthplace, cumulative hazards.}
 \label{fig:grbp3}
 \end{figure}
+-->
+
 There is obviously nothing that indicates non-proportionality in this case
 either. 
 
