@@ -60,7 +60,7 @@ The important part of this definition is "$\textit{for all }t \ge 0$",
 and that 
 the constant $\psi$ *does not depend on $t$*. Think of the hazard
 functions as age-specific mortality for two groups, e.g., women and
-men. It is ``well known'' that women have lower mortality than men in all
+men. It is "well known" that women have lower mortality than men in all
 ages. It would therefore be reasonable to assume proportional
 hazards in that case. It would mean that the female *relative*
 advantage is equally large in all ages. See Example \@ref(exm:sw16) for a
