@@ -41,12 +41,12 @@ two pages ahead.
 *The First Edition* was written with the aid of  *Sweave* and $\text{\LaTeX}$, but for the second edition 
 I have switched to *knitr* and *bookdown*. So now in the beginning, there will be a 
 lot of work with translation (much more than I anticipated) from the former to the latter. For the moment (mid 
-September 2017), Chapter 1 is translated (but not finished), and I
-am currently working on translating *Chapter 2*.
+January 2018), Chapters 1 and 2 are translated (but not finished), and I
+am currently working on translating *Chapter 3*.
 
 
 The R session information when last compiling this book is shown below:
-
+y
 ```{r include=FALSE}
 # only show versions of very relevant packages
 sessionInfo = function() {
