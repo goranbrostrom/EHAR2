@@ -5,6 +5,6 @@ Chapman and Hall book "Event History Analysis with R" from 2012.
 A preliminary release date of the paper book is April 2019.
 
 The html version of the Second Edition as it looks today (not so much so
-far) is found [here](http://goranbrostrom.se/EHAR2/).
+far) is found [here](http://capa.ddb.umu.se/EHAR2/).
 
 Suggestions and comments are welcome!
