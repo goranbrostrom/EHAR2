@@ -130,10 +130,14 @@ that is, $k = 2$.
 \subsection{Two samples}
 
 Suppose that we have the small data set illustrated in
-Figure \@ref(fig:twosample). There are two samples, the {\tt letters} (A, B,
-C, D, E) and the {\tt numbers} (1, 2, 3, 4, 5).
+Figure \@ref(fig:twosample). There are two samples, the `letters` (A, B,
+C, D, E) and the `numbers` (1, 2, 3, 4, 5).
 
-```{r twosample}
+(ref:twosamplecap) Two-sample data, the `letters` (dashed) and the `numbers` (solid). Circles denote censored observations, plusses events.
+
+(ref:twosamplescap) Two-sample data.
+
+```{r twosample, fig.cap = "(ref:twosamplecap)", fig.scap = "(ref:twosamplescap)", echo=FALSE }
 two <- data.frame(group = c(rep("numbers", 5), rep("letters", 5)),
                   id = as.character(c(1:5, LETTERS[1:5])),
                   exit = c(4, 2, 6, 1, 3.5, 5, 3, 6, 1, 2.5),
@@ -142,15 +146,37 @@ two <- data.frame(group = c(rep("numbers", 5), rep("letters", 5)),
 plot(c(0, two$exit[1]), c(1, 1), type = "l", main = "", xlab="Duration", ylab = "Person No.",
      axes = FALSE,  ylim = c(0, 11), xlim = c(0, 8))
 for (i in 2:5){
-  lines(c(0, two$exit[i]), c(i, i))
+  lines(c(0, two$exit[i]), c(i, i), lwd = 1.5)
 }
 for (i in 6:10){
-  lines(c(0, two$exit[i]), c(i, i), lty = 2)
+  lines(c(0, two$exit[i]), c(i, i), lty = 2, lwd = 1.5)
 }
 axis(1, at = c(0, two$exit[two$event == 1]))
-axis(2, at = 1:10, labels = two$id)
+axis(2, at = 1:10, labels = two$id, las = 1)
 box()
 abline(v = 0)
+deaths <- two$exit[two$event == 1]
+abline(v = deaths, lty = 3)
+y <- which(two$event == 1)
+nd <- length(deaths)
+for (i in 1:10){
+  if (two$event[i] == 1){
+    text(two$exit[i] + 0.2, i, "+", cex = 1.5)
+  }else{
+    text(two$exit[i], i, "o", cex = 1.5)
+  }
+}
+```
+
+The data in Figure \@ref(fig:twosample) can be presented i tabular form, see Table \@ref(tab:exlr).
+
+```{r exlr, echo = FALSE}
+library(survival)
+ex.data <- data.frame(group = c(rep("numbers", 5), rep("letters", 5)),
+                      time = c(4,2,6,1,3.5,5,3,6,1,2.5),
+                      event = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, 
+                                TRUE, FALSE, TRUE, FALSE))
+knitr::kable(ex.data, booktabs = TRUE, caption = "Example data for the log-rank test..")
 ```
 
 <!--
@@ -252,6 +278,7 @@ abline(v = 0)
 \end{center}
 \end{figure}
 -->
+
 We are interested in investigating whether `letters` and `numbers`
 have the same survival chances or not. Therefore, the hypothesis
 
@@ -260,8 +287,9 @@ H_0: \text{No difference in survival between {\tt numbers} and {\tt letters}}
 \end{equation*}
 is formulated. In order to test $H_0$, we make five tables, one
 for each observed *event time*\index{event time}, see
-Table \@ref{tab:lr1}, where they are 
-merged into one table.
+Table \@ref(tab:lr1), where the the first table, relating to failure time $t_{(1)} = 1$, is shown.
+
+<!--
 \begin{table}[ht!]
 \tabletitle[Log rank test summary]{Five $2\times 2$ tables. Each table
   reports the situation at one
@@ -286,21 +314,50 @@ $t_{(5)}$ &  {\tt numbers}  &   1    &    0      & 1 \\
 & Total &   1    &    1      & 2 \\ \hline \hline
 \end{tabular}
 \end{table}
+-->
 
-Let us look at the first table at failure time $t_{(1)}$, i.e., the first
-three rows in Table~\ref{tab:lr1}, from the viewpoint of the {\tt numbers}.
-\begin{itemize}
-\item The observed number of deaths among {\tt numbers}: $1$.
-\item The expected number of deaths among {\tt numbers}: $2 \times 5 / 10 = 1$.
-\end{itemize}
-The \emph{expected} number is calculated under $H_0$, i.e., as if there is
-no difference between {\tt letters} and {\tt numbers}. It is further
-assumed that the two margins are given (fixed). Then, given two deaths in
-total and five out of ten observations are from the group {\tt numbers},
+Table: (\#tab:lr1) The $2 \times 2$ table for the first event time.
+
+| Group   | Deaths | Survivals | **Total** |
+|---------|--------|-----------|-------|
+| numbers |  1     |  4        |  5    |
+| letters |  1     |  4        |  5    |
+| **Total**   |  2     |  8        | 10    |  
+
+
+
+Let us look at the table at failure time $t_{(1)} = 1$, i.e., Table \@ref(tab:lr1), 
+from the viewpoint of the `numbers`.
+
+*    The observed number of deaths among `numbers`: $1$.
+*    The expected number of deaths among `numbers`: $2 \times 5 / 10 = 1$.
+
+The *expected* number is calculated under $H_0$, i.e., as if there is
+no difference between `letters` and `numbers` regarding mortality. It is further
+assumed that the two margins (Total) are given (fixed). 
+
+\newpage
+
+Then, given two deaths in
+total and five out of ten observations are from the group `numbers`,
 the expected number of deaths is calculated as above.
 
 This procedure is repeated for each of the five tables, and the results are
-summarized in Table~\ref{tab:sumup}.
+summarized in Table \@ref(tab:sumup).
+
+```{r sumup, echo = FALSE}
+x <- c(1, 0, 1, 0, 1, 3,
+       1.0, 0.5, 0.5, 0.3, 0.5, 2.8,
+       0.0, -0.5, 0.5, -0.3, 0.5, 0.2,
+       0.44, 0.25, 0.25, 0.22, 0.25, 1.41)
+x <- matrix(x, ncol = 4)
+colnames(x) <- c("Observed", "Expected", "Difference", "Variance")
+rownames(x) <- c("t(1)", "t(2)", "t(3)", "t(4)", "t(5)", "Sum")
+knitr::kable(x, booktabs = TRUE, caption = "Observed and expected number of deaths at event times.")
+```
+
+
+<!--
 \begin{table}[ht!]
 \tabletitle[Logrank test: Summary table]{Observed and expected number of deaths for {\tt numbers} at the
 five observed event times.}
@@ -315,18 +372,25 @@ $t_{(5)}$ & 1 & 0.5 & 0.5 & 0.25 \\ \hline
 Sum & 3 & 2.8 & 0.2 & 1.41 \\ \hline
 \end{tabular}
 \end{table}
+-->
+
+<!--
+Table: (#\tab:sumup)
+-->
+
 Finally, the observed test statistic $T$ is calculated as
+
 \begin{equation*}
 T = \frac{0.2^2}{1.41} \approx 0.028
 \end{equation*}
 Under the null hypothesis, this is an observed value from a 
 $\chi^2(1)$\index{Distributions!chi-square@$\chi^2$}
-distribution, and $H_0$ should be rejected for \emph{large} values of
-$T$. Using a \emph{level of significance} of 5\%, the cutting point for the
+distribution, and $H_0$ should be rejected for *large* values of
+$T$. Using a \emph{level of significance} of 5%, the cutting point for the
 value of $T$ is 3.84, far from our observed value of 1.41. The
 conclusion is
 therefore that there is no (statistically significant) difference in
-survival chances between {\tt letters} and {\tt numbers}.
+survival chances between `letters` and `numbers`.
 Note, however, that this result depends on 
 asymptotic\index{asymptotic theory} (large sample) 
 properties, and 
@@ -336,88 +400,70 @@ For more detail about the underlying theory, see Appendix A.
 
 In **R**, the log-rank test is performed by the 
 `coxph`\index{Functions!`coxph`} function in the
-package survival (there are other options). With the data in our example,
-see Table \@ref(tab:exlr), we get:
-\begin{table}
-%%\begin{center}
-\tabletitle{Data in a simple example.}
-\label{tab:exlr}
-\begin{tabular}{lcc}
-group & time & event \\ \hline
-numbers   & 4.0 & 1 \\
-numbers   & 2.0 & 0 \\
-numbers   & 6.0 & 1 \\
-numbers   & 1.0 & 1 \\
-numbers   & 3.5 & 0 \\
-letters & 5.0 & 1 \\
-letters & 3.0 & 1 \\
-letters & 6.0 & 0 \\
-letters & 1.0 & 1 \\
-letters & 2.5 & 0
-\end{tabular}
-%%\end{center}
-\end{table}
-<<example.logrank>>=
-library(survival)
-ex.data <- read.table("exlr.dat", header = TRUE)
-fit <- coxph(Surv(time, event) ~ group, data = ex.data)
-summary(fit)
-@
-Obviously, there is a lot of information here. We have in fact performed
-a \emph{Cox regression} ahead of schedule! This also tells
-us that
-the simplest way of performing a logrank test in **R** is to run a Cox
-regression. The result of the
-logrank test is displayed on the last line of output. The $p$-value is
-$0.891$, i.e., there is no significant difference between groups
-whatsoever. This is not very surprising, since we are using a toy example
-with almost no information, only six events in total.
+package survival (there are other options). 
 
 Let us now look at a real data example, the old age mortality data set
-`oldmort` in `eha`.
-<<lrreal3>>=
-require(eha) # Loads 'survival' as well.
-data(oldmort)
-fit <- coxph(Surv(enter, exit, event) ~ sex, data = oldmort)
+`oldmort` in `eha`. See Table \@ref(tab:lrreal3dat) for a sample of six records with selected columns. 
+
+
+```{r lrreal3dat,echo = FALSE}
+options(show.signif.stars = FALSE)
+library(eha) # Loads 'survival' as well.
+om <- age.window(oldmort, c(60, 85))
+knitr::kable(head(om[-(1:1000), c("id", "enter", "exit", "event", "sex", "civ")]), booktabs=TRUE, caption = "Old age mortality.", row.names = FALSE)
+```
+
+We are interested in comparing male and female mortality in the ages 60--85 with a logrank test, and for that purpose we run a *Cox regression* analysis:
+
+```{r noevallr, eval = FALSE}
+fit <- coxph(Surv(enter, exit, event) ~ sex, data = om)
+```
+
+The result is given by `summary(fit)`:
+
+```{r lrreal3,comment = NA, echo = FALSE}
+fit <- coxph(Surv(enter, exit, event) ~ sex, data = om)
 summary(fit)
-@ 
-As in the trivial example, the last line of the output gives the $p$-value
-of the logrank test, $p = 0.0000225$ (in ``exponential notation'' in the
-output). This is very small, and we can conclude that the mortality
-difference between women and men is highly statistically significant. But
-how large is it, i.e., what is the value of the proportionality constant?
-The answer to that question is found five rows up, where `sexfemale`
-reports the value 0.8245 for `exp(Coef)`. The interpretation of this is
-that female mortality is about $82.45$ per cent of the male mortality,
-i.e., $17.55$ per cent lower. This is for ages above 60, because this data
-set contains only information in that range. 
+```
+
+Obviously, we got a lot of information here, more than we actually need. We have in fact performed
+a Cox regression slightly ahead of schedule! The result of the
+logrank test is displayed on the last line of output. The $p$-value is
+$1.179 \times 10^{-5}$, a very small number. Thus, there is a very significant difference in mortality between men and women.
+But *how large* is the difference? The answer is found at `exp(coef) = 0.8135`, which tells us that the female risk of dying is about 81% of the male risk, *at each age between 60 and 85*.
 
 Remember that this result depends on the proportional hazards
 assumption. We can graphically check it as follows.
-<<grch,fig=TRUE,include=FALSE>>=
-##plot(Surv(oldmort$enter, oldmort$exit, oldmort$event), 
-  ##   strata = oldmort$sex, fn = "cum")
-with(oldmort, plot(Surv(enter, exit, event), strata = sex))
-@ 
-First note that the out-commented (\#\#) version works equally well, but it
-is more tedious to type, and also harder to read. The \fun{with}
-\index{Functions!\fun{with}} function is very handy and will be used often
-throughout the book. 
-Note also that the grouping factor (`sex`) is given through the
-argument {\tt strata}. The
-result is shown in Figure~\ref{fig:phazom3}.
+
+```{r phazom3, fig.cap = "Old age mortality, women vs. men, cumulative hazards."}
+par(las = 1)
+with(om, plot(Surv(enter, exit, event), strata = sex, xlab = "Age"))
+```
+<!--
+First note that the out-commented  version works equally well, but it
+is more tedious to type, and also harder to read. The `with`
+\index{Functions!`with`}} function is very handy and will be used often
+throughout the book.
+-->
+Note that the grouping factor (`sex`) is given through the
+argument `strata`. The
+result is shown in Figure \@ref(fig:phazom3).
+
+<!--
 \begin{figure}[ht!]
 \includegraphics{{$HOME}/Documents/ehaBook/Sweave/figs/ch3-grch}
 \caption{Old age mortality, women vs.\ men, cumulative hazards.}
 \label{fig:phazom3}
 \end{figure}
+-->
+
 The proportionality assumption seems to be a good description from 60 to
 85--90 years of age, but it seems more doubtful in the very high ages. One
 reason for this may be that the high-age estimates are based on few
 observations (most of the individuals in the sample died earlier), so
 random fluctuations have a large impact in the high ages.
 
-\subsection{Several samples}
+## Several samples
 
 The result for the two-sample case is easily extended to the $k$-sample
 case. Instead of one $2\times 2$ table per observed event time we get one
@@ -425,16 +471,14 @@ $k\times 2$ table per observed event time and we have to calculate expected
 and observed numbers of events for $(k-1)$ groups at each failure time. The
 resulting test statistic will have $(k-1)$ degrees of freedom and still be
 approximately $\chi^2$ distributed. This is illustrated with the same data
-set, \data{oldmort}, as above, but with the covariate \var{birthplace},
+set, `oldmort`, as above, but with the covariate `birthplace`,
 which is a 
 `factor` with three levels, instead of `sex`.
-<<lrplace3>>=
+```{r lrplace3}
 require(eha) # Loads 'survival' as well.
-data(oldmort)
-fit <- coxph(Surv(enter, exit, event) ~ birthplace, 
-             data = oldmort)
+fit <- coxph(Surv(enter, exit, event) ~ birthplace,  data = oldmort)
 summary(fit)
-@ 
+```
 The degrees of freedom for the *score test*\index{Tests!score}
 is now $2$, equal to the number
 of levels in `birthplace` (`parish`, `region`, `remote`)
@@ -458,11 +502,15 @@ either.
 
 We do not go deeper into this matter here, mainly because the logrank test
 generally is a special case of Cox regression, which will be described in
-detail later in this chapter. There are however two special cases of the
-logrank test, the \emph{weighted} and \emph{stratified} versions, that may
+detail later in this chapter.
+
+<!--
+There are however two special cases of the
+logrank test, the *weighted* and *stratified* versions, that may
 be of interest on 
 their own. The interested reader may consult the text books by
 \citet[pp.\ 22-23]{kp02} or \citet[pp.\ 49--53]{collett}.
+-->
 
 ### Two samples
 
