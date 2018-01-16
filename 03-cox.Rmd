@@ -5,14 +5,13 @@ par(las = 1) # Doesn't work? Later?
 options(show.signif.stars = FALSE)
 ```
 
-## Introduction
 
 We move slowly from the two-sample case, via the $k$-sample case, to the
 general regression model. On this route, we  start with the *log-rank test*
 and end up with *Cox regression* and the *proportional hazards model* [@cox72]. 
 
-## Proportional Hazards
-\label{sec:ph3}\index{proportional hazards}
+## Proportional Hazards {#sec:ph3}
+\index{proportional hazards}
 
 The property of *proportional hazards* is fundamental in Cox
 regression. It is in fact the essence of Cox's simple yet ingenious
@@ -641,36 +640,36 @@ only its representation.
 With $(k + 1)$ groups, we need $k$ indicators. Let
 
 \begin{equation*}
-\symbf{x} = (x_{1}, x_{2}, \ldots, x_{k}).
+\mathbf{x} = (x_{1}, x_{2}, \ldots, x_{k}).
 \end{equation*}
 Then
 
 \begin{eqnarray*}
-\symbf{x} = (0, 0, \ldots, 0) & \Rightarrow & \mbox{in
+\mathbf{x} = (0, 0, \ldots, 0) & \Rightarrow & \mbox{in
 group 0} \\
-\symbf{x} = (1, 0, \ldots, 0) & \Rightarrow & \mbox{in
+\mathbf{x} = (1, 0, \ldots, 0) & \Rightarrow & \mbox{in
 group 1} \\
-\symbf{x} = (0, 1, \ldots, 0) & \Rightarrow & \mbox{in
+\mathbf{x} = (0, 1, \ldots, 0) & \Rightarrow & \mbox{in
 group 2} \\
 \cdots & & \cdots \\
-\symbf{x} = (0, 0, \ldots, 1) & \Rightarrow & \mbox{in
+\mathbf{x} = (0, 0, \ldots, 1) & \Rightarrow & \mbox{in
 group k}
 \end{eqnarray*}
 
 and
 
 \begin{equation*}
-h(t; \symbf{x}) = h_0(t) \prod_{\ell = 1}^k \psi_{\ell}^{x_{\ell}} =
+h(t; \mathbf{x}) = h_0(t) \prod_{\ell = 1}^k \psi_{\ell}^{x_{\ell}} =
 \left\{ \begin{array}{ll}
-  h_0(t), & \symbf{x} = (0, 0, \ldots, 0) \\
+  h_0(t), & \mathbf{x} = (0, 0, \ldots, 0) \\
   h_0(t) \psi_j, & x_{j} = 1, \quad j = 1, \ldots k
   \end{array}\right.
 \end{equation*}
 With $\psi_j = e^{\beta_j}, \; j = 1, \ldots, k$, we get
 
 \begin{equation}
-h(t; \symbf{x}) = h_0(t) e^{x_{1}\beta_1 + x_{2} \beta_2 + \cdots +
-x_{k} \beta_k} = h_0(t) e^{\symbf{x} \boldsymbol{\beta}},
+h(t; \mathbf{x}) = h_0(t) e^{x_{1}\beta_1 + x_{2} \beta_2 + \cdots +
+x_{k} \beta_k} = h_0(t) e^{\mathbf{x} \boldsymbol{\beta}},
 (\#eq:kgroups)
 \end{equation}
 
@@ -679,29 +678,29 @@ where $\boldsymbol{\beta} = (\beta_1, \beta_2, \ldots, \beta_k)$.
 ### The General Proportional Hazards Regression Model
 
 We may now generalize \@ref(eq:kgroups) by letting the components of
-$\symbf{x}_i$ take *any value*. Let data and model take
+$\mathbf{x}_i$ take *any value*. Let data and model take
 the following form:
 
-**Data:** 
+Data: 
 
 \begin{equation}
-(t_{i0}, t_i, d_i, \symbf{x}_i), \; i = 1, \ldots, n,
+(t_{i0}, t_i, d_i, \mathbf{x}_i), \; i = 1, \ldots, n,
 \end{equation}
 
 where $t_{i0}$ is the *left truncation time point* (if $y_{i0} = 0$ for all $i$, then this variable may be omitted,
 $t_i$ is the *end time point*,
 $d_i$ is the *"event indicator"* ($1$ or *TRUE* if event, else $0$ or *FALSE*), and
-$\symbf{x}_i$ is a vector of *explanatory variables*.
+$\mathbf{x}_i$ is a vector of *explanatory variables*.
 
-**Model:**
+Model:
 
 \begin{equation}
-h(t; \symbf{x}_i) = h_0(t) e^{\symbf{x}_i \boldsymbol{\beta}}, \quad t > 0.
+h(t; \mathbf{x}_i) = h_0(t) e^{\mathbf{x}_i \boldsymbol{\beta}}, \quad t > 0.
 (\#eq:pl)
 \end{equation}
 
 This is a *regression model* where the *response variable* is $(t_0, t, d)$ (we will call it a *survival object*)
-and the *explanatory variable* is $\symbf{x}$, possibly (often) vector valued.
+and the *explanatory variable* is $\mathbf{x}$, possibly (often) vector valued.
 
 In \@ref(eq:pl) there are two components to estimate, the
 regression coefficients $\boldsymbol{\beta}$, and the 
@@ -717,7 +716,7 @@ function is
 
 \begin{equation}
 \hat{H}_0(t) = \sum_{j:t_j \le t} \frac{d_j}{\sum_{m \in R_j}
-e^{\symbf{x}_m \hat{\boldsymbol{beta}}}},
+e^{\mathbf{x}_m \hat{\boldsymbol{\beta}}}},
 (\#eq:bashaz)
 \end{equation}
 
@@ -739,21 +738,21 @@ the design matrix; this makes a difference for factors).
 
 \begin{equation}
 \hat{H}_0(t) = \sum_{j:t_j \le t} \frac{d_j}{\sum_{m \in R_j}
-e^{(\symbf{x}_m - \bar{\symbf{x}})\hat{\boldsymbol{\beta}}}},
+e^{(\mathbf{x}_m - \bar{\mathbf{x}})\hat{\boldsymbol{\beta}}}},
 (\#eq:bashazeha)
 \end{equation}
 
 In order to calculate the cumulative hazards function for an individual
-with a specific covariate vector $\symbf{x}$, use the formula
+with a specific covariate vector $\mathbf{x}$, use the formula
 
 \begin{equation*}
-\hat{H}(t; \symbf{x}) = \hat{H}_0(t) e^{(\symbf{x} - \bar{\symbf{x}})\hat{\boldsymbol{\beta}}}.
+\hat{H}(t; \mathbf{x}) = \hat{H}_0(t) e^{(\mathbf{x} - \bar{\mathbf{x}})\hat{\boldsymbol{\beta}}}.
 \end{equation*}
 
 The corresponding survival functions may be estimated by the relation
 
 \begin{equation*}
-\hat{S}(t; \symbf{x}) = \exp\bigl(-\hat{H}(t; \symbf{x})\bigr)
+\hat{S}(t; \mathbf{x}) = \exp\bigl(-\hat{H}(t; \mathbf{x})\bigr)
 \end{equation*}
 
 It is also possible to use the terms in the sum \@ref(eq:bashaz) to build
@@ -797,7 +796,7 @@ of distinct values is called a
 *categorical variable*\index{categorical variable}. In **R**
 language, it is called a 
 *factor*\index{factor}. Examples of such variables are
-  `gender`, `socio-economic status`, `birth place`. Students of
+  *gender*, *socio-economic status*, *birth place*. Students of
 statistics have long been taught to create *dummy variables* in such
 situations, in the following way: 
 
@@ -834,15 +833,14 @@ variable\index{indicator variable}, can always be treated as a continuous
 covariate, if coded 
 numerically (e.g., 0 and 1).
 
-\begin{example} Infant mortality and mother's age \end{example}
-Consider a demographic example, the
-influence of mother's age (a continuous covariate) on infant mortality.
+```{example, name="Infant mortality and age of mother"}
+Consider a demographic example, the influence of mother's age (a continuous covariate) on infant mortality.
 It is considered well-known that a *young* mother means high risk for
 the infant, and
 also that *old* mother means high risk, compared to
 *"in-between-aged"* mothers. So the risk order is not the same (or
 reverse) as the age order. 
-
+```
 One solution (not necessarily the best) to this problem is to *factorize*: Let, for instance,
 
 \begin{equation*}
@@ -879,5 +877,95 @@ example) or above the largest value (48) are reported as *missing values*\index{
 For further information about the use of the `cut` function, see the
 help page. $\Box$
 
+
 ## Interactions
 
+The meaning of *interaction* between two explanatory variables is
+described by an example, walking through the three possible combinations of covariate types.
+We return to the `oldmort` data set, slightly modified, see Table \@ref(tab:ommod), where the first six of a total to 6495 rows are shown. 
+
+```{r ommod, echo = FALSE}
+om <- age.window(oldmort, c(60, 85))
+om$farmer <- om$ses.50 == "farmer"
+om$farmer <- factor(om$farmer, labels = "no", "yes")
+om <- om[, c("birthdate", "enter", "exit", "event", "sex", "farmer", "imr.birth")]
+knitr::kable(head(om), booktabs = TRUE, caption = "Old age mortality, Sundsvall 1860-1880", row.names = FALSE)
+```
+
+The sampling frame is a rectangle in the Lexis diagram, see Figure \@ref(fig:lexmort).
+
+```{r lexmort, fig.cap = "Old age mortality sampling frame"}
+plot(c(1860, 1880), c(60, 60), type = "l", ylim = c(50, 100), axes = FALSE, lwd = 1.5)
+lines(c(1860, 1880), c(85, 85), lwd = 1.5)
+```
+
+```{example, name = "Old age mortality"}
+
+There are four possible explanatory variables behind survival after age 60 in the example, 
+\begin{eqnarray*}
+\mbox{farmer} & = & \left\{ \begin{array}{ll}
+             \mbox{no} & \\
+             \mbox{yes} & \left(e^{\alpha}\right)
+            \end{array} \right. \\
+%\end{equation*}
+%\begin{equation*}
+\mbox{sex} & = & \left\{ \begin{array}{ll}
+             \mbox{male} & \\
+             \mbox{female} & \left(e^{\beta}\right)
+            \end{array} \right. \\
+\mbox{birthdate } (x_1) & & \mspace{90mu} \left(e^{\gamma_1 x_1}\right) \\
+\mbox{IMR at birth } (x_2) & & \mspace{90mu} \left(e^{\gamma_2 x_2}\right) \\
+\end{eqnarray*}
+
+The two first are factors, and the last two are continuous covariates. We
+go through the three distinct combinations and illustrate the meaning of
+interaction in each. $\Box$
+```
+
+### Two factors
+
+The concept of interaction is easiest to explain with two factors, see
+Table \@ref(tab:twofactor).
+
+
+           | No tumor | Small tumor     | Large tumor     
+-----------|----------|-----------------|-----------------
+Non-smoker | 1        | $\exp(\beta_1)$ | $\exp(\beta_2)$
+
+<!--
+\begin{table}[ht!]
+  \tabletitle[Interaction, two factors]{ The role of interaction, two factors.}
+\label{tab:twofactor}
+\begin{tabular}{lllll}
+   & & \multicolumn{3}{c}{\bf Tumor size} \\
+   & & no tumor & small & large \\ \hline
+\multicolumn{5}{c}{No interaction} \\
+{\bf Smoking} & non-smoker & 1 & $e^{\beta_1}$ &   $e^{\beta_2}$ \\
+\bf habits   & smoker & $e^{\alpha_1}$ & $e^{\alpha_1 + \beta_1}$ &
+$e^{\alpha_1 + \beta_2}$ \\
+%\end{tabular}
+%\vspace{\baselineskip}
+\multicolumn{5}{c}{With interaction} \\
+%\begin{tabular}{lllll}
+%   & & \multicolumn{3}{c}{\bf Tumor size} \\
+%   & & no tumor & small & large \\ \hline
+{\bf Smoking} & non-smoker & 1 & $e^{\beta_1}$ &   $e^{\beta_2}$ \\
+\bf habits   & smoker & $e^{\alpha_1}$ & $e^{\alpha_1 + \beta_1 +
+   \theta_{11}}$ & $e^{\alpha_1 + \beta_2 + \theta_{12}}$
+\end{tabular}
+\end{table}
+-->
+
+With no interaction, the model is called *multiplicative*. The reason
+is that with no interactions, the (relative) effect of smoking is *the
+  same for each level* of tumor size, $\exp(\alpha)$, and vice
+  versa. The model
+with interaction is sometimes called *saturated*, and the reason is
+that each combination of the two levels has its own parameter. Except for
+the *reference* cell, to which all other effects are compared. 
+
+In this example, two extra parameters, $\theta_{11}$ and $\theta_{12}$
+measure interaction. If both are zero, we get the multiplicative model in
+the upper part of Table \@ref(tab:twofactor).
+
+### One factor and one continuous covariate
