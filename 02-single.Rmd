@@ -223,7 +223,8 @@ The *survival function* $S(t), \; t > 0$, is defined as
   the probability of surviving past $t$, $t > 0$, or with a formula,
 
 \begin{equation}
-S(t) = P(T \ge t), \quad t > 0, \label{eq:surv}
+S(t) = P(T \ge t), \quad t > 0, 
+(\#eq:surv)
 \end{equation}
 
 where $T$ is the (random) life length under study. The symbol $P(T \ge t)$
@@ -242,7 +243,8 @@ are unambiguous.\index{survival function|)}
 The *density function* is defined as minus the derivative of the survival function, or
 
 \begin{equation}
-f(t) = -\frac{d}{dt} S(t), \quad t > 0 \label{eq:dens}
+f(t) = -\frac{d}{dt} S(t), \quad t > 0
+(\#eq:dens)
 \end{equation}
 
 The intuitive interpretation of this definition is that, for small enough $s$, the following approximation is good:
@@ -282,7 +284,8 @@ polygon(cord.x, cord.y, col = "lightgrey")
 For a short enough interval $(t_0, t_0 +s]$, the probability of an observation falling in that interval is well approximated by the area of a rectangle with sides of lengths $s$ and $f(t_0)$, or $sf(t_0)$. The formal mathematical definition as a limit is given in equation \@ref(eq:denslim).
 
 \begin{equation}
-f(t) = \lim_{s \rightarrow 0} \frac{P(t \le T < t + s)}{s}, \quad t > 0. \label{eq:denslim}
+f(t) = \lim_{s \rightarrow 0} \frac{P(t \le T < t + s)}{s}, \quad t > 0.
+(\#eq:denslim)
 \end{equation}
 
 ### The hazard function
@@ -435,9 +438,9 @@ F(t)  =  \sum_{i: r_i \le t} p_i, \quad x -\infty < t < \infty,
 
 is the cumulative distribution function, and
 
-\begin{equation}
+\begin{equation*}
 S(t) = \sum_{i: r_i \ge x} p_i, \quad x -\infty < t < \infty,
-\end{equation}
+\end{equation*}
 
 is the survival function.
 
@@ -494,7 +497,8 @@ The discrete time hazard function is defined as
 
 \begin{equation}
 h_i = P(R = r_i \mid R \ge r_i) = \frac{p_i}{\sum_{j=i}^k p_j},
-\quad i = 1, \ldots, k.\label{eq:alpha}
+\quad i = 1, \ldots, k.
+(\#eq:alpha)
 \end{equation}
 
 Note that here, the hazard at any given time point is a *conditional
@@ -515,7 +519,8 @@ found by recursion:
 
 \begin{equation}
 p_i = h_i \prod_{j=1}^{i-1} (1 - h_j), \quad i = 1, \ldots, k.
-\end{equation}\label{eq:sol}
+(\#eq:sol)
+\end{equation}
 
 From this we get the discrete time survival function at each support point as
 
@@ -528,7 +533,8 @@ and the general definition
 
 \begin{equation}
 S(t)  =  \prod_{j: r_j < t} \left(1 - h_j\right), \quad t \ge 0
-\end{equation}\label{eq:discsur}
+(\#eq:discsur)
+\end{equation}
 
 It is easily seen that $S$ is decreasing, $S(0) = 1$, and $S(\infty) = 0$,
 as it should be.
@@ -538,9 +544,9 @@ The \emph{geometric} distribution\index{Distributions!geometric|(} has
 support on $\{1, 2, \ldots\}$ (another version also includes zero in the
 support, this is the case for the one in **R**), and the hazard function $h$ is constant:
 
-\begin{equation}
+\begin{equation*}
 h_i = h, \quad 0 < h < 1, \; i = 1, 2, \ldots.
-\end{equation}
+\end{equation*}
 Thus, the geometric distribution is the discrete analogue to the
 exponential distribution in that it implies no aging. The probability mass
 function is, from \eqref{eq:sol},
@@ -742,8 +748,9 @@ abline(v = c(1, 4, 6), lty = 2)
 The risk set $R(t)$ at duration $t, \; t > 0$ is defined mathematically
 as
 
-\begin{equation}\label{eq:rs}
-R(t) = \{\text{all individuals under observation at $t-$}\} ,
+\begin{equation}
+R(t) = \{\text{all individuals under observation at $t-$}\},
+(\#eq:rs)
 \end{equation}
 or in words, the risk set at time $t$ consists of all individuals present and under
 observation just prior to $t$. The reason we do not say ``present at time $t$'' is
@@ -751,27 +758,28 @@ that it is vital to include those individuals who have an event or are right
 censored at the exact time $t$.  In our example, the risk sets $R(1)$, $R(4)$, and
 $R(6)$ are the interesting ones. They are:
 
-\begin{equation}
+\begin{equation*}
 \begin{split}
 R(1) &= \{1, 2, 3, 4, 5\} \\
 R(4) &= \{1, 3\} \\
 R(6) &= \{3\} \\
 \end{split}
-\end{equation}
+\end{equation*}
 
-\begin{equation}\label{tab:estatoms}
+\begin{equation}
 \begin{split}
 \hat{h}(1) &= \frac{1}{5} = 0.2 \\
 \hat{h}(4) &= \frac{1}{2} = 0.5 \\
 \hat{h}(6) &= \frac{1}{1} = 1 \\
 \end{split}
+(\#eq:estatoms)
 \end{equation}
 
 The estimation of the hazard atoms is simple. First, we assume that the
 probability of an event at times where no event is observed, is zero. Then, at
 times where events do occur, we count the number of events and divides that
 number
-by the size of the corresponding risk set. The result is shown in  Table \@ref(tab:estatoms).
+by the size of the corresponding risk set. The result is shown in  \@ref(eq:estatoms).
 
 
 ```{r esthaz, fig.cap = "Nonparametric estimation of the hazard function.", fig.height = 3, echo=FALSE}
@@ -854,13 +862,13 @@ box()
 
 From the theoretical relation we immediately get
 
-\begin{equation}
+\begin{equation*}
 \hat{H}(t) =  \sum_{s \le t} \hat{h}(s), \quad t \ge 0
-\end{equation}
+\end{equation*}
 
 which is the *Nelson-Aalen* estimator [@nel72; @aa78], see
 Figure \@ref(fig:na). The sizes of the jumps are equal to the heights of the
-``spikes'' in Figure \@ref(fig:esthaz).
+"spikes" in Figure \@ref(fig:esthaz).
 
 <!--
 \begin{figure}[ht!]
@@ -896,8 +904,9 @@ Figure \@ref(fig:na). The sizes of the jumps are equal to the heights of the
 
 From the theoretical relation \@ref(eq:discsur) we get
 
-\begin{equation}\label{eq:km2}
+\begin{equation}
 \hat{S}(t) =  \prod_{s < t} \bigl(1 - \hat{h}(s)\bigr), \quad t \ge 0,
+(\#eq:km2)
 \end{equation}
 
 see also Figure \@ref(fig:km2). Equation \@ref(eq:km2) may be given a

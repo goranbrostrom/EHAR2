@@ -29,6 +29,8 @@ options(
 lapply(c('DT', 'citr', 'formatR', 'svglite'), function(pkg) {
   if (system.file(package = pkg) == '') install.packages(pkg)
 })
+
+library(eha)
 ```
 
 # Preface {-}
@@ -38,7 +40,7 @@ Instead, for the time being, I will try to keep you and myself updated about the
 ongoing work with the second edition. You will find the *Preface to the First Edition*
 two pages ahead.
 
-*The First Edition* was written with the aid of  *Sweave* and $\text{\LaTeX}$, but for the second edition 
+*The First Edition* was written with the aid of  *Sweave* and $\text{\small \LaTeX}$, but for the second edition 
 I have switched to *knitr* and *bookdown*. So now in the beginning, there will be a 
 lot of work with translation (much more than I anticipated) from the former to the latter. For the moment (mid 
 January 2018), Chapters 1 and 2 are translated (but not finished), and I
@@ -46,7 +48,7 @@ am currently working on translating *Chapter 3*.
 
 
 The R session information when last compiling this book is shown below:
-y
+
 ```{r include=FALSE}
 # only show versions of very relevant packages
 sessionInfo = function() {
@@ -87,35 +89,35 @@ environment of R  in the package **eha** [@eha].
 
 There are already several good text books in the field of survival and event
 history analysis on the market,
- \cite{abg08}, \cite{abgk93},
-\cite{coxoakes84}, \cite{ph00},
-\cite{kp02}, and \cite{jl03} to mention a few. Some of these are already
+ @abg08, @abgk93,
+@coxoakes84, @ph00,
+@kp02, and @jl03 to mention a few. Some of these are already
 classical, but they all are aimed at an audience with solid mathematical
-and statistical background. On the other hand, the  \cite{pm95},
-\cite{pa84}, \cite{pasas95},
-\cite{km03},
-\cite{collett}, and
-\cite{ejj99} books are all more basic but lack the special treatment
-demographic applications needs today, and also the connection to R.
+and statistical background. On the other hand, the  @pm95,
+@pa84, @pasas95,
+@km03,
+@collett, and
+@ejj99 books are all more basic but lack the special treatment
+demographic applications needs today, and also the connection to **R**.
 
 In the late seventies, large databases with individual life histories began
 to appear. One of the
-absolutely first was \emph{The Demographic Data Base} (DDB) at Umeå
+absolutely first was *The Demographic Data Base* (DDB) at Umeå
 University. I started working there as a researcher in 1980, and at that
 time the data base contained individual data for seven Swedish
 parishes scattered all over the country. Statistical software for Cox
 regression [@cox72] did not exist at that time, so we began a
-development, with the handling of large data sets in mind, of $\sc Fortran$
+development, with the handling of large data sets in mind, of Fortran
 programs for analyzing censored survival data. The starting point was Appendix 3 of
-@kp80. It contained ``Fortran programs for the proportional hazards
-model''.
+@kp80. It contained "Fortran programs for the proportional hazards
+model".
 
 The beginning of the eighties was also important because then the first
 text books on survival analysis
 began to appear. Of special importance (for me) was the books by
 @kp80, and, four years later, @coxoakes84.
 
-The time period covered by the DDB data is approximately the $19^{th}$
+The time period covered by the DDB data is approximately the 19th
 century. Today the geographical content is expanded to cover four large
 regions, with more than 60 parishes in total.
 
@@ -123,11 +125,11 @@ This book is closely tied to the _R Environment for Statistics and
 Computing_ [@cran]. This fact has one specific advantage: Software and
 this book can be totally synchronized, not only by adapting the book to the
 software, but also vice versa. This is possible because R and its packages
-are \emph{open source}, and one of the survival analysis packages [@eha]
-in R and this book have the author in common. The **eha** package
+are *open source*, and one of the survival analysis packages [@eha]
+in R and this book have the author in common. The `eha` package
 contains some research results not found in other software
 [@brli08; @gb02; @gb87]. However, it is important to emphasize that the real
-work horse in survival analysis in R is the recommended package **survival**
+work horse in survival analysis in R is the recommended package `survival`
 [@survival].
 
 The mathematical and
@@ -153,7 +155,7 @@ the fundamental concept in survival analysis. The functions that can be
 derived from the hazard function, the survival and the cumulative hazard
 functions, are introduced. Then the methods for estimating the fundamental
 functions non-parametrically are introduced, most important the
-Kaplan-Meier and Nelson-Aalen estimators. By ``nonparametric'' is meant
+Kaplan-Meier and Nelson-Aalen estimators. By "nonparametric" is meant
 that in the estimation procedures, no restrictions are put on the class of
 allowed distributions, except that it must consist of distributions on the
 positive real line; a life length cannot

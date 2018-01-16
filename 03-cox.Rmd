@@ -1,5 +1,10 @@
 # Cox Regression
 
+```{r setup3,include=FALSE}
+par(las = 1) # Doesn't work? Later?
+options(show.signif.stars = FALSE)
+```
+
 ## Introduction
 
 We move slowly from the two-sample case, via the $k$-sample case, to the
@@ -17,8 +22,9 @@ idea. The definition is as follows.
 If $h_1(t)$ and $h_0(t)$ are hazard functions from two separate
 distributions, we say that they are *proportional* if
 
-\begin{equation}\label{eq:prophaz}
+\begin{equation}
 h_1(t)  =  \psi h_0(t), \quad \text{for all } t \ge 0,
+(\#eq:prophaz)
 \end{equation}
 for some positive constant $\psi$ and *all* $t \ge 0$. Further, if
 \eqref{eq:prophaz} holds, then the same 
@@ -26,8 +32,9 @@ property holds for the corresponding
 *cumulative hazard functions* $H_1(t)$ and $H_0(t)$.
 \index{cumulative hazard function}
 
-\begin{equation}\label{eq:propcumhaz}
+\begin{equation}
 H_1(t)  =  \psi H_0(t), \quad \text{for all } t \ge 0,
+(\#eq:propcumhaz)
 \end{equation}
 with the same proportionality constant $\psi$ as in \@ref(eq:prophaz).$\Box$
 ```
@@ -314,7 +321,7 @@ $t_{(5)}$ &  {\tt numbers}  &   1    &    0      & 1 \\
 & Total &   1    &    1      & 2 \\ \hline \hline
 \end{tabular}
 \end{table}
--->
+
 
 Table: (\#tab:lr1) The $2 \times 2$ table for the first event time.
 
@@ -324,6 +331,14 @@ Table: (\#tab:lr1) The $2 \times 2$ table for the first event time.
 | letters |  1     |  4        |  5    |
 | **Total**   |  2     |  8        | 10    |  
 
+-->
+
+```{r lr1, echo = FALSE}
+xx <- matrix(c(1,1,2,4,4,8,5,5,10), ncol = 3)
+rownames(xx) <- c("numbers", "letters", "Total")
+colnames(xx) <- c("Deaths", "Survivals", "Total")
+knitr::kable(xx, caption = "The 2x2 table for the first event time.", booktabs = TRUE)
+```
 
 
 Let us look at the table at failure time $t_{(1)} = 1$, i.e., Table \@ref(tab:lr1), 
@@ -335,8 +350,6 @@ from the viewpoint of the `numbers`.
 The *expected* number is calculated under $H_0$, i.e., as if there is
 no difference between `letters` and `numbers` regarding mortality. It is further
 assumed that the two margins (Total) are given (fixed). 
-
-\newpage
 
 Then, given two deaths in
 total and five out of ten observations are from the group `numbers`,
@@ -386,7 +399,7 @@ T = \frac{0.2^2}{1.41} \approx 0.028
 Under the null hypothesis, this is an observed value from a 
 $\chi^2(1)$\index{Distributions!chi-square@$\chi^2$}
 distribution, and $H_0$ should be rejected for *large* values of
-$T$. Using a \emph{level of significance} of 5%, the cutting point for the
+$T$. Using a *level of significance* of 5%, the cutting point for the
 value of $T$ is 3.84, far from our observed value of 1.41. The
 conclusion is
 therefore that there is no (statistically significant) difference in
@@ -403,14 +416,14 @@ In **R**, the log-rank test is performed by the
 package survival (there are other options). 
 
 Let us now look at a real data example, the old age mortality data set
-`oldmort` in `eha`. See Table \@ref(tab:lrreal3dat) for a sample of six records with selected columns. 
+`oldmort` in `eha`. See Table \@ref(tab:lrreal3dat) for a sample of five records with selected columns. 
 
 
 ```{r lrreal3dat,echo = FALSE}
 options(show.signif.stars = FALSE)
 library(eha) # Loads 'survival' as well.
 om <- age.window(oldmort, c(60, 85))
-knitr::kable(head(om[-(1:1000), c("id", "enter", "exit", "event", "sex", "civ")]), booktabs=TRUE, caption = "Old age mortality.", row.names = FALSE)
+knitr::kable(head(om[-(1:1000), c("id", "enter", "exit", "event", "sex", "civ")], 5), booktabs=TRUE, caption = "Old age mortality.", row.names = FALSE)
 ```
 
 We are interested in comparing male and female mortality in the ages 60--85 with a logrank test, and for that purpose we run a *Cox regression* analysis:
@@ -435,19 +448,26 @@ But *how large* is the difference? The answer is found at `exp(coef) = 0.8135`, 
 Remember that this result depends on the proportional hazards
 assumption. We can graphically check it as follows.
 
-```{r phazom3, fig.cap = "Old age mortality, women vs. men, cumulative hazards."}
-par(las = 1)
+```
 with(om, plot(Surv(enter, exit, event), strata = sex, xlab = "Age"))
 ```
+
+Note that the grouping factor (`sex`) is given through the
+argument `strata`. The result is shown in Figure \@ref(fig:phazom3).
+
+```{r phazom3, fig.cap = "Old age mortality, women vs. men, cumulative hazards.", echo = FALSE, fig.height = 4}
+par(las = 1)
+##plot(survfit(fit))
+plot(Surv(om$enter, om$exit, om$event), strata = om$sex, xlab = "Age", main = "")
+```
+
 <!--
 First note that the out-commented  version works equally well, but it
 is more tedious to type, and also harder to read. The `with`
 \index{Functions!`with`}} function is very handy and will be used often
 throughout the book.
 -->
-Note that the grouping factor (`sex`) is given through the
-argument `strata`. The
-result is shown in Figure \@ref(fig:phazom3).
+
 
 <!--
 \begin{figure}[ht!]
@@ -463,32 +483,34 @@ reason for this may be that the high-age estimates are based on few
 observations (most of the individuals in the sample died earlier), so
 random fluctuations have a large impact in the high ages.
 
-## Several samples
+### Several samples
 
 The result for the two-sample case is easily extended to the $k$-sample
-case. Instead of one $2\times 2$ table per observed event time we get one
+case. Instead of one $2 \times 2$ table per observed event time we get one
 $k\times 2$ table per observed event time and we have to calculate expected
 and observed numbers of events for $(k-1)$ groups at each failure time. The
 resulting test statistic will have $(k-1)$ degrees of freedom and still be
 approximately $\chi^2$ distributed. This is illustrated with the same data
-set, `oldmort`, as above, but with the covariate `birthplace`,
-which is a 
-`factor` with three levels, instead of `sex`.
-```{r lrplace3}
-require(eha) # Loads 'survival' as well.
-fit <- coxph(Surv(enter, exit, event) ~ birthplace,  data = oldmort)
-summary(fit)
+set, `oldmort`, as above, but with the covariate `civ`,
+which is a `factor` with three levels (`unmarried`, `married`, `widow`), instead of `sex`.
+Furthermoree, the investigation is limited to *male mortality*.
+
+```{r lrplace3, echo = FALSE, comment = NA}
+summary(fit <- coxph(Surv(enter, exit, event) ~ civ,  
+                     data = om[om$sex == "male", ]))
 ```
 The degrees of freedom for the *score test*\index{Tests!score}
-is now $2$, equal to the number
-of levels in `birthplace` (`parish`, `region`, `remote`)
-minus one. The birthplace thus does not seem to have any great impact on
+is now 2, equal to the number
+of levels in `civ` 
+minus one. Being `unmarried` seem to have great impact on
 old age mortality. It is however recommended to check the proportionality
 assumption graphically, see Figure \@ref(fig:grbp3).
 
-```{r grbp3,fig=TRUE,include=TRUE, fig.cap = "Old age mortality by birthplace, cumulative hazards"}
-with(oldmort, plot(Surv(enter, exit, event), strata = birthplace), main = "", xlab = "Age", ylab = "", las = 1)
+```{r grbp3, fig.cap = "Old age male mortality by civil status, cumulative hazards.", echo=FALSE}
+par(las = 1)
+with(om[om$sex == "male", ], plot(Surv(enter, exit, event), strata = civ, main = "", xlab = "Age", ylab = "", las = 1))
 ```
+
 <!--
 \begin{figure}[ht!]
 \includegraphics{{$HOME}/Documents/ehaBook/Sweave/figs/ch3-grbp3}
@@ -498,7 +520,8 @@ with(oldmort, plot(Surv(enter, exit, event), strata = birthplace), main = "", xl
 -->
 
 There is obviously nothing that indicates non-proportionality in this case
-either. 
+either. Furthermore, the `unmarried` have have significantly higher mortality than both `married`
+and `widows`.
 
 We do not go deeper into this matter here, mainly because the logrank test
 generally is a special case of Cox regression, which will be described in
@@ -512,22 +535,349 @@ their own. The interested reader may consult the text books by
 \citet[pp.\ 22-23]{kp02} or \citet[pp.\ 49--53]{collett}.
 -->
 
-### Two samples
 
-### Several samples
 
-## Proportional Hazards in Continuous Time
+## Proportional Hazards Regression Models
+\index{proportional hazards!regression}
 
-### Proportional Hazards, Two Groups
+The definition in Section \@ref(sec:ph3) is valid for models in continuous
+time. 
+Figure \@ref(fig:prophazfig2) shows the relationships between the cumulative
+hazards functions, the density functions, and the survival functions when
+the hazard functions are proportional. Note that the cumulative hazards
+functions are proportional by implication, with the same proportionality
+constant ($\psi = 2$ in this case). On the other hand, for the density and
+survival functions, proportionality does not hold; it is in fact
+theoretically impossible except in the trivial case that the
+proportionality constant is unity.
 
-### Proportional Hazards, Several Groups
+
+```{r prophazfig2,fig=TRUE,echo=FALSE,height=5, fig.cap="The effect of proportional hazards on the density and survival functions.",fig.scap="Effect of proportional hazards."}
+oldpar <- par(mfrow = c(2, 2))
+x <- seq(0,2.5, length = 500)
+library(eha)
+y <- hweibull(x, scale = 1, shape = 3)
+z <- hweibull(x, scale = 2^(1/3), shape = 3)
+plot(x, y, type = "l", main = "Hazards", xlab = "Time", ylab = "Hazards")
+lines(x, z, lty = 2)
+abline(h = 0)
+y <- Hweibull(x, scale = 1, shape = 3)
+z <- Hweibull(x, scale = 2^(1/3), shape = 3)
+plot(x, y, type = "l", main = "Cumulative hazards", xlab = "Time", ylab = "Cum. hazards")
+lines(x, z, lty = 2)
+abline(h = 0)
+y <- dweibull(x, scale = 1, shape = 3)
+z <- dweibull(x, scale = 2^(1/3), shape = 3)
+plot(x, y, type = "l", main = "Density functions", xlab = "Time", ylab = "Density")
+lines(x, z, lty = 2)
+abline(h = 0)
+y <- pweibull(x, scale = 1, shape = 3, lower.tail = FALSE)
+z <- pweibull(x, scale = 2^(1/3), shape = 3, lower.tail = FALSE)
+plot(x, y, type = "l", main = "Survival functions", xlab = "Time", ylab = "Survival", ylim = c(0, 1))
+lines(x, z, lty = 2)
+abline(h = 0)
+##
+par(oldpar)
+```
+
+### Two Groups
+
+The definition of proportionality, given in equation \@ref(eq:prophaz), can
+equivalently be written as
+
+\begin{equation}
+h_x(t) = \psi^x h_0(t), \quad t > 0, \; x = 0, 1, \; \psi > 0.
+(\#eq:ph2)
+\end{equation}
+
+It is easy to see that this "trick" is equivalent to \@ref(eq:prophaz):
+When $x = 0$ it simply says that $h_0(t) = h_0(t)$, and when $x = 1$ it
+says that $h_1(t) = \psi h_0(t)$. Since $\psi > 0$, we can calculate $\beta =
+\log(\psi)$, and rewrite \@ref(eq:ph2) as
+
+\begin{equation*}
+h_x(t) = e^{\beta x} h_0(t), \quad t > 0; \; x = 0, 1; \; -\infty < \beta < \infty,
+\end{equation*}
+or with a slight change in notation,
+
+\begin{equation}
+h(t; x) = e^{\beta x} h_0(t), \quad t > 0; \; x = 0, 1; \; -\infty < \beta
+< \infty.
+(\#eq:phsimple)
+\end{equation}
+
+The sole idea by this rewriting is to pave the way for the introduction of
+*Cox's regression model* [@cox72], which in its elementary form is a
+proportional hazards model. In fact, we can already interpret
+equation \@ref(eq:phsimple) as a Cox regression model with an explanatory
+variable $x$ with corresponding regression coefficient (to be estimated
+from data) $\beta$. The covariate $x$ is still only a dichotomous variate,
+but we will now show how it is possible to generalize this to a situation
+with explanatory variables of any form. The first step is to go from the
+two-sample situation to a $k$-sample one.
+
+### Many Groups
+
+Can we generalize to $(k + 1)$ groups, $k \ge 2$? Yes, by expanding the
+procedure in the previous subsection:
+
+\begin{eqnarray*}
+h_0(t) &\sim& \mbox{group 0} \\
+h_1(t) &\sim& \mbox{group 1} \\
+\cdots & & \cdots \\
+h_k(t) &\sim& \mbox{group k}
+\end{eqnarray*}
+
+The underlying model is: $h_j(t) = \psi_j h_0(t), \quad t \ge 0$, $j = 1, 2,
+\ldots, k$. That is, with $(k+1)$ groups, we need $k$ proportionality
+constants $\psi_1, \ldots, \psi_k$ in order to define proportional
+hazards. Note also that in this formulation (there are others), one group
+is "marked" as a *reference group*, that is, to this group there is no
+proportionality constant attached. All relations are relative to the
+reference group. Note also that it essentially doesn't matter which group
+is chosen as the reference. This choice does not change the model itself,
+only its representation.
+
+With $(k + 1)$ groups, we need $k$ indicators. Let
+
+\begin{equation*}
+\symbf{x} = (x_{1}, x_{2}, \ldots, x_{k}).
+\end{equation*}
+Then
+
+\begin{eqnarray*}
+\symbf{x} = (0, 0, \ldots, 0) & \Rightarrow & \mbox{in
+group 0} \\
+\symbf{x} = (1, 0, \ldots, 0) & \Rightarrow & \mbox{in
+group 1} \\
+\symbf{x} = (0, 1, \ldots, 0) & \Rightarrow & \mbox{in
+group 2} \\
+\cdots & & \cdots \\
+\symbf{x} = (0, 0, \ldots, 1) & \Rightarrow & \mbox{in
+group k}
+\end{eqnarray*}
+
+and
+
+\begin{equation*}
+h(t; \symbf{x}) = h_0(t) \prod_{\ell = 1}^k \psi_{\ell}^{x_{\ell}} =
+\left\{ \begin{array}{ll}
+  h_0(t), & \symbf{x} = (0, 0, \ldots, 0) \\
+  h_0(t) \psi_j, & x_{j} = 1, \quad j = 1, \ldots k
+  \end{array}\right.
+\end{equation*}
+With $\psi_j = e^{\beta_j}, \; j = 1, \ldots, k$, we get
+
+\begin{equation}
+h(t; \symbf{x}) = h_0(t) e^{x_{1}\beta_1 + x_{2} \beta_2 + \cdots +
+x_{k} \beta_k} = h_0(t) e^{\symbf{x} \boldsymbol{\beta}},
+(\#eq:kgroups)
+\end{equation}
+
+where $\boldsymbol{\beta} = (\beta_1, \beta_2, \ldots, \beta_k)$.
 
 ### The General Proportional Hazards Regression Model
 
+We may now generalize \@ref(eq:kgroups) by letting the components of
+$\symbf{x}_i$ take *any value*. Let data and model take
+the following form:
+
+**Data:** 
+
+\begin{equation}
+(t_{i0}, t_i, d_i, \symbf{x}_i), \; i = 1, \ldots, n,
+\end{equation}
+
+where $t_{i0}$ is the *left truncation time point* (if $y_{i0} = 0$ for all $i$, then this variable may be omitted,
+$t_i$ is the *end time point*,
+$d_i$ is the *"event indicator"* ($1$ or *TRUE* if event, else $0$ or *FALSE*), and
+$\symbf{x}_i$ is a vector of *explanatory variables*.
+
+**Model:**
+
+\begin{equation}
+h(t; \symbf{x}_i) = h_0(t) e^{\symbf{x}_i \boldsymbol{\beta}}, \quad t > 0.
+(\#eq:pl)
+\end{equation}
+
+This is a *regression model* where the *response variable* is $(t_0, t, d)$ (we will call it a *survival object*)
+and the *explanatory variable* is $\symbf{x}$, possibly (often) vector valued.
+
+In \@ref(eq:pl) there are two components to estimate, the
+regression coefficients $\boldsymbol{\beta}$, and the 
+*baseline hazard function*\index{baseline hazard function} $h_0(t),
+\; t > 0$. For the former task, the *partial likelihood* [@cox75]
+is used. See Appendix A for a brief summary.
+
 ## Estimation of the Baseline Hazard
+\index{baseline hazard function!estimation of|(}
+
+The usual estimator (continuous time) of the baseline cumulative hazard
+function is 
+
+\begin{equation}
+\hat{H}_0(t) = \sum_{j:t_j \le t} \frac{d_j}{\sum_{m \in R_j}
+e^{\symbf{x}_m \hat{\boldsymbol{beta}}}},
+(\#eq:bashaz)
+\end{equation}
+
+where $d_j$ is the number of events at $t_j$. Note that if
+$\hat{\boldsymbol{\beta}} = 0$, this 
+reduces to 
+
+\begin{equation}
+\hat{H}_0(t) = \sum_{j:t_j \le t} \frac{d_j}{n_j},
+(\#eq:km3)
+\end{equation}
+
+the Nelson-Aalen\index{Nelson-Aalen estimator} estimator. In
+\@ref(eq:km3), $n_j$ is the size of $R_j$. 
+
+In the **R** package  **eha**, the baseline hazard is estimated at the
+means of the covariates (or, more precisely, at the means of the columns of
+the design matrix; this makes a difference for factors).
+
+\begin{equation}
+\hat{H}_0(t) = \sum_{j:t_j \le t} \frac{d_j}{\sum_{m \in R_j}
+e^{(\symbf{x}_m - \bar{\symbf{x}})\hat{\boldsymbol{\beta}}}},
+(\#eq:bashazeha)
+\end{equation}
+
+In order to calculate the cumulative hazards function for an individual
+with a specific covariate vector $\symbf{x}$, use the formula
+
+\begin{equation*}
+\hat{H}(t; \symbf{x}) = \hat{H}_0(t) e^{(\symbf{x} - \bar{\symbf{x}})\hat{\boldsymbol{\beta}}}.
+\end{equation*}
+
+The corresponding survival functions may be estimated by the relation
+
+\begin{equation*}
+\hat{S}(t; \symbf{x}) = \exp\bigl(-\hat{H}(t; \symbf{x})\bigr)
+\end{equation*}
+
+It is also possible to use the terms in the sum \@ref(eq:bashaz) to build
+an estimator analogous to the Kaplan-Meier estimator \@ref(eq:km2). In
+practice, there is no big difference between the two methods. 
+\index{baseline hazard function!estimation of|)}
+
 
 ## Explanatory Variables
 
+Explanatory variables, or *covariates*\index{covariate}, may be of
+essentially two 
+different types *continuous* and *discrete*. The discrete type
+usually takes only a finite number of distinct values and is often called a
+`factor`, e.g., in **R**. A special case of a factor is one that takes
+only two distinct values, say 0 and 1. Such a factor is called an
+*indicator*, because we can let the value 1 indicate the presence of a
+certain property and 0 denote its absence. To summarize, there is 
+
+*    **Covariate**: taking values in an *interval* (e.g., *age*, *blood pressure*).
+*    **Factor**: taking a *finite* number of values (e.g., *civil status*, *occupation*).\index{factor}
+*    **Indicator**: a factor taking *two* values (e.g., *gender*).
+
+
 ### Continuous Covariates
 
+We use the qualifier *continuous* to stress that factors are
+excluded, because often the term *covariate* is used as a synonym for
+*explanatory variable*. 
+
+Values taken by a continuous covariate are *ordered*. The *effect* on the response is by model definition ordered in
+the *same* or *reverse* order.
+On the other hand, values taken by a factor are 
+*unordered*\index{factor!unordered} (but may be defined as 
+  ordered\index{factor!ordered} in **R**). 
+
 ### Factor Covariates
+
+An explanatory variable that can take only a finite (usually small) number
+of distinct values is called a 
+*categorical variable*\index{categorical variable}. In **R**
+language, it is called a 
+*factor*\index{factor}. Examples of such variables are
+  `gender`, `socio-economic status`, `birth place`. Students of
+statistics have long been taught to create *dummy variables* in such
+situations, in the following way: 
+
+*    Given a categorical variable $F$ with $(k+1)$ levels $(f_0, f_1, f_2, \ldots f_k)$ ($k+1$ levels),
+*    Create $k$ *indicator* (``dummy'') variables $(I_1, I_2, \ldots I_k)$.
+
+<!--
+\begin{tabular}{c|cccccc|l}
+$F$   & $I_1$ & $I_2$ & $I_3$ & $\cdots$ & $I_{k-1}$ & $I_k$ & Comment\\ \hline
+$f_0$ &  0    &  0    &  0    & $\cdots$ & 0         & 0  & *reference}   \\
+$f_1$ &  1    &  0    &  0    & $\cdots$ & 0         & 0     \\
+$f_2$ &  0    &  1    &  0    & $\cdots$ & 0         & 0     \\
+$f_3$ &  0    &  0    &  1    & $\cdots$ & 0         & 0     \\
+$\cdots$ &  $\cdots$  &  $\cdots$  &  $\cdots$  & $\cdots$ & $\cdots$
+& $\cdots$     \\
+$f_{k-1}$ &  0    &  0    &  0    & $\cdots$ & 1         & 0 \\
+$f_k$ &  0    &  0    &  0    & $\cdots$ & 0         & 1
+\end{tabular}
+
+-->
+The level $f_0$ is the reference category, characterized by that all indicator
+variables are zero for an individual with this value. Generally, for
+the level, $f_i, \; i = 1,\ldots, k$, the indicator variable $I_i$ is one,
+the rest are zero. In other words, for a single individual, at most one
+indicator is one, and the rest are zero.
+
+In **R**, there is no need to explicitly create dummy variables, it is done
+behind the scenes by the functions 
+`factor`\index{Functions!factor} and 
+`as.factor`\index{Functions!as.factor}.
+
+Note that a factor with *two* levels, i.e., an indicator
+variable\index{indicator variable}, can always be treated as a continuous
+covariate, if coded 
+numerically (e.g., 0 and 1).
+
+\begin{example} Infant mortality and mother's age \end{example}
+Consider a demographic example, the
+influence of mother's age (a continuous covariate) on infant mortality.
+It is considered well-known that a *young* mother means high risk for
+the infant, and
+also that *old* mother means high risk, compared to
+*"in-between-aged"* mothers. So the risk order is not the same (or
+reverse) as the age order. 
+
+One solution (not necessarily the best) to this problem is to *factorize*: Let, for instance,
+
+\begin{equation*}
+\mbox{mother's age} = \left\{\begin{array}{ll}
+                           \mbox{low}, & 15 < \mbox{age} \le 25 \\
+                           \mbox{middle}, & 25 < \mbox{age} \le 35 \\
+                           \mbox{high}, & 35 < \mbox{age}
+                            \end{array} \right.
+\end{equation*}
+
+In this layout, there will be two parameters measuring the deviation from
+the reference category, which will be the first category by default.
+
+In **R**, this is easily achieved with the aid of the 
+`cut`\index{Functions!cut} function. It
+works like this:
+
+```{r cut}
+age <- rnorm(100, 30, 6)
+age.group <- cut(age, c(15, 25, 35, 48))
+summary(age.group)      
+```
+
+Note that the created intervals by default are closed to the right and open
+to the left. This has consequences for how observations exactly on a
+boundary are treated; they belong to the lower-valued interval. The
+argument `right` in the call to `cut` can be used switch this
+behaviour the other way around. 
+
+Note further that values falling below the smallest value (15 in our
+example) or above the largest value (48) are reported as *missing values*\index{missing values}
+(`NA` in **R** terminology, `Not Available`).
+
+For further information about the use of the `cut` function, see the
+help page. $\Box$
+
+## Interactions
+
