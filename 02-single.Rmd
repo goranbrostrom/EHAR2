@@ -565,7 +565,7 @@ geometric distribution with $h = 0.25$ are plotted. $\Box$
 \index{Distributions!geometric|)}
 
 ```{r geom2,echo=FALSE,fig.height=5, fig.cap = "The geometric distribution with success probability 0.25.", fig.scap="The geometric distribution.",echo=FALSE}
-source("plgeo.R")
+source("R/plgeo.R")
 par(las = 1)
 plgeo(h = 0.25, maxval = 10)
 ```

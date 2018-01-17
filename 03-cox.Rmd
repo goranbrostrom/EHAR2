@@ -289,7 +289,7 @@ We are interested in investigating whether `letters` and `numbers`
 have the same survival chances or not. Therefore, the hypothesis
 
 \begin{equation*}
-H_0: \text{No difference in survival between {\tt numbers} and {\tt letters}}
+H_0: \text{No difference in survival between numbers and letters}
 \end{equation*}
 is formulated. In order to test $H_0$, we make five tables, one
 for each observed *event time*\index{event time}, see
@@ -645,15 +645,11 @@ With $(k + 1)$ groups, we need $k$ indicators. Let
 Then
 
 \begin{eqnarray*}
-\mathbf{x} = (0, 0, \ldots, 0) & \Rightarrow & \mbox{in
-group 0} \\
-\mathbf{x} = (1, 0, \ldots, 0) & \Rightarrow & \mbox{in
-group 1} \\
-\mathbf{x} = (0, 1, \ldots, 0) & \Rightarrow & \mbox{in
-group 2} \\
+\mathbf{x} = (0, 0, \ldots, 0) & \Rightarrow & \mbox{group 0} \\
+\mathbf{x} = (1, 0, \ldots, 0) & \Rightarrow & \mbox{group 1} \\
+\mathbf{x} = (0, 1, \ldots, 0) & \Rightarrow & \mbox{group 2} \\
 \cdots & & \cdots \\
-\mathbf{x} = (0, 0, \ldots, 1) & \Rightarrow & \mbox{in
-group k}
+\mathbf{x} = (0, 0, \ldots, 1) & \Rightarrow & \mbox{group k}
 \end{eqnarray*}
 
 and
@@ -738,7 +734,7 @@ the design matrix; this makes a difference for factors).
 
 \begin{equation}
 \hat{H}_0(t) = \sum_{j:t_j \le t} \frac{d_j}{\sum_{m \in R_j}
-e^{(\mathbf{x}_m - \bar{\mathbf{x}})\hat{\boldsymbol{\beta}}}},
+e^{(\mathbf{x}_m - \bar{\mbox{$\mathbf{x}$}})\hat{\boldsymbol{\beta}}}},
 (\#eq:bashazeha)
 \end{equation}
 
@@ -746,7 +742,7 @@ In order to calculate the cumulative hazards function for an individual
 with a specific covariate vector $\mathbf{x}$, use the formula
 
 \begin{equation*}
-\hat{H}(t; \mathbf{x}) = \hat{H}_0(t) e^{(\mathbf{x} - \bar{\mathbf{x}})\hat{\boldsymbol{\beta}}}.
+\hat{H}(t; \mathbf{x}) = \hat{H}_0(t) e^{(\mathbf{x} - \bar{\mbox{$\mathbf{x}$}})\hat{\boldsymbol{\beta}}}.
 \end{equation*}
 
 The corresponding survival functions may be estimated by the relation
@@ -887,21 +883,31 @@ We return to the `oldmort` data set, slightly modified, see Table \@ref(tab:ommo
 ```{r ommod, echo = FALSE}
 om <- age.window(oldmort, c(60, 85))
 om$farmer <- om$ses.50 == "farmer"
-om$farmer <- factor(om$farmer, labels = "no", "yes")
+om$farmer <- factor(om$farmer, labels = c("no", "yes"))
 om <- om[, c("birthdate", "enter", "exit", "event", "sex", "farmer", "imr.birth")]
 knitr::kable(head(om), booktabs = TRUE, caption = "Old age mortality, Sundsvall 1860-1880", row.names = FALSE)
 ```
 
-The sampling frame is a rectangle in the Lexis diagram, see Figure \@ref(fig:lexmort).
+The sampling frame is a rectangle in the Lexis diagram, see Figure \@ref(fig:lexmort). It can be described as all persons born between January 1, 1775 and January 1, 1881, and present in the solid rectangle at some moment.
 
-```{r lexmort, fig.cap = "Old age mortality sampling frame"}
-plot(c(1860, 1880), c(60, 60), type = "l", ylim = c(50, 100), axes = FALSE, lwd = 1.5)
-lines(c(1860, 1880), c(85, 85), lwd = 1.5)
+```{r lexmort, fig.cap = "Old age mortality sampling frame, Lexis diagram.", echo = FALSE}
+plot(c(1860, 1880), c(60, 60), type = "l", ylim = c(0, 100), xlim = c(1770, 1890), axes = FALSE, lwd = 1.5, xlab = "Year", ylab = "Age")
+axis(1, at = c(1775, 1821, 1860, 1881))
+axis(2, at = c(0, 60, 85, 100), las = 1)
+box()
+lines(c(1860, 1881), c(85, 85), lwd = 1.5)
+lines(c(1860, 1860), c(60, 85), lwd = 1.5)
+lines(c(1881, 1881), c(60, 85), lwd = 1.5)
+abline(h = c(60, 85), lty = 3)
+abline(v = c(1860, 1881), lty = 3)
+lines(c(1775, 1860), c(0, 85), lty = 2)
+lines(c(1821, 1881), c(0, 60), lty = 2)
+abline(h = 0)
 ```
 
 ```{example, name = "Old age mortality"}
-
-There are four possible explanatory variables behind survival after age 60 in the example, 
+There are four possible explanatory variables behind survival after age 60 in the example. 
+```
 \begin{eqnarray*}
 \mbox{farmer} & = & \left\{ \begin{array}{ll}
              \mbox{no} & \\
@@ -920,52 +926,51 @@ There are four possible explanatory variables behind survival after age 60 in th
 The two first are factors, and the last two are continuous covariates. We
 go through the three distinct combinations and illustrate the meaning of
 interaction in each. $\Box$
-```
+
 
 ### Two factors
 
-The concept of interaction is easiest to explain with two factors, see
-Table \@ref(tab:twofactor).
+Assume that we, in the oldmort example, only have the factors `sex` and `farmer` at our 
+disposal as explanatory variables. We may fit a Cox regression model like this:
+
+```{r coxtwofacfit, comment = NA}
+fit <- coxph(Surv(enter, exit, event) ~ sex + farmer, data = om)
+```
 
 
-           | No tumor | Small tumor     | Large tumor     
------------|----------|-----------------|-----------------
-Non-smoker | 1        | $\exp(\beta_1)$ | $\exp(\beta_2)$
+The output from `coxph` (the *model fit*) is saved in the object `fit`, which is investigated,
+first by the the function `drop1`, which performs successive $\chi^2$ tests of the significance of 
+the estimated regression coefficients (the null hypothesis in each case is that the true coefficient 
+is zero). 
 
-<!--
-\begin{table}[ht!]
-  \tabletitle[Interaction, two factors]{ The role of interaction, two factors.}
-\label{tab:twofactor}
-\begin{tabular}{lllll}
-   & & \multicolumn{3}{c}{\bf Tumor size} \\
-   & & no tumor & small & large \\ \hline
-\multicolumn{5}{c}{No interaction} \\
-{\bf Smoking} & non-smoker & 1 & $e^{\beta_1}$ &   $e^{\beta_2}$ \\
-\bf habits   & smoker & $e^{\alpha_1}$ & $e^{\alpha_1 + \beta_1}$ &
-$e^{\alpha_1 + \beta_2}$ \\
-%\end{tabular}
-%\vspace{\baselineskip}
-\multicolumn{5}{c}{With interaction} \\
-%\begin{tabular}{lllll}
-%   & & \multicolumn{3}{c}{\bf Tumor size} \\
-%   & & no tumor & small & large \\ \hline
-{\bf Smoking} & non-smoker & 1 & $e^{\beta_1}$ &   $e^{\beta_2}$ \\
-\bf habits   & smoker & $e^{\alpha_1}$ & $e^{\alpha_1 + \beta_1 +
-   \theta_{11}}$ & $e^{\alpha_1 + \beta_2 + \theta_{12}}$
-\end{tabular}
-\end{table}
--->
+```{r coxtwofacdrop, comment = NA}
+drop1(fit, test = "Chisq")
+```
 
-With no interaction, the model is called *multiplicative*. The reason
-is that with no interactions, the (relative) effect of smoking is *the
-  same for each level* of tumor size, $\exp(\alpha)$, and vice
-  versa. The model
-with interaction is sometimes called *saturated*, and the reason is
-that each combination of the two levels has its own parameter. Except for
-the *reference* cell, to which all other effects are compared. 
+The $p$-value corresponding to the coefficient for `sex` is *very* small, meaning that there 
+is a strongly significant difference in mortality between women and men. The difference in mortality 
+between farmers and non-farmers is also statistically significant, but with a larger $p$-value.
 
-In this example, two extra parameters, $\theta_{11}$ and $\theta_{12}$
-measure interaction. If both are zero, we get the multiplicative model in
-the upper part of Table \@ref(tab:twofactor).
+Next, we want to see the *size* of the difference in mortality between women and men, and between farmers 
+and non-farmers, so the estimates are printed (rounded to three decimal places).
+
+```{r coxtwofaccoef, comment = NA}
+round(summary(fit)$coefficients, 3)
+```
+
+This result tells us that female mortality is 79.3 per cent of the male mortality, and that the farmer
+mortality is 88 per cent of the non-farmer mortality (from the column "exp(coef)"). Furthermore, this model 
+is *multiplicative* (additive on the log scale), so we can conclude that the mortality of a female farmer is 
+$0.793 \times 0.880 \times 100$ = `r round(0.793 * 0.880 * 100, 1)` per cent of that of a male non-farmer.
+
+We can also illustrate the sex difference graphically, see Figure \@ref(fig:coxtwofaccoefgr).
+
+```{r coxtwofaccoefgr, fig.cap = "Cumulative hazards for men and women"}
+fit2 <- coxph(Surv(enter, exit, event) ~ strata(sex) + farmer, data = om)
+plot(survfit(fit2), fun = "cumhaz", xlim = c(60, 85), lty = 1:2, xlab = "Age")
+abline(h = 0)
+legend()
+```
+
 
 ### One factor and one continuous covariate
