@@ -965,12 +965,22 @@ $0.793 \times 0.880 \times 100$ = `r round(0.793 * 0.880 * 100, 1)` per cent of 
 
 We can also illustrate the sex difference graphically, see Figure \@ref(fig:coxtwofaccoefgr).
 
-```{r coxtwofaccoefgr, fig.cap = "Cumulative hazards for men and women"}
-fit2 <- coxph(Surv(enter, exit, event) ~ strata(sex) + farmer, data = om)
-plot(survfit(fit2), fun = "cumhaz", xlim = c(60, 85), lty = 1:2, xlab = "Age")
+```{r coxtwofaccoefgr, fig.cap = "Cumulative hazards for men and women."}
+fit2 <- coxph(Surv(enter, exit, event) ~ strata(sex) + farmer, 
+              data = om)
+plot(survfit(fit2), fun = "cumhaz", xlim = c(60, 85), 
+     lty = 1:2, xlab = "Age")
 abline(h = 0)
-legend()
+legend("topleft", legend = c("Men", "Women"), lty = 1:2)
 ```
+
+Obviously the proportionality assumption is well met: It can also be formally tested as follows:
+
+```{r testprop}
+(pczp <- cox.zph(fit2))
+
+```
+
 
 
 ### One factor and one continuous covariate
