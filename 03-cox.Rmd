@@ -977,9 +977,33 @@ legend("topleft", legend = c("Men", "Women"), lty = 1:2)
 Obviously the proportionality assumption is well met: It can also be formally tested as follows:
 
 ```{r testprop}
-(pczp <- cox.zph(fit2))
-
+fit3 <- coxph(Surv(enter, exit, event) ~ sex + farmer, 
+              data = om)
+(pczp <- cox.zph(fit3))
 ```
+
+First look at the $p$-value corresponding to *GLOBAL*: it gives an overall verdict of the proportionality
+assumption. Values below 0.05 (say) are suspicious: It tells us that some variable is bad, and it is time 
+to look at the individual $p$-values. There are no problems here.
+
+As always, you should interpret these tests with care. With large data sets, you will frequently get small $p$-values, and still the graph shows a reasonable agreement with proportionality. Then do not bother about the proportionality.
+
+An obvious question to ask: Is the sex difference in mortality the same among farmers as among non-farmers? In other words: Is there an *interaction* between sex and farmer/non-farmer regarding the effect on mortality?
+
+In order to test for an interaction in **R**, the plus ($+$) sign in the formula is changed to a multiplication sign ($*$):
+
+```{r multsign}
+fit4 <- coxph(Surv(enter, exit, event) ~ sex * farmer, 
+              data = om)
+(x <- drop1(fit4, test = "Chisq"))
+```
+
+The small $p$-value (`r round(x[[4]][2], 4) * 100` per cent) indicates that there is a *statistically* significant (at the 5 per cent level) interaction effect. The *size* of the interaction effect is seen in the table of estimated coefficients (rounded to three decimal places):
+
+```{r tablecoef}
+round(summary(fit4)$coefficients[, 1:2], 3)
+```
+
 
 
 
