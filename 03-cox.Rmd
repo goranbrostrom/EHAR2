@@ -1043,7 +1043,9 @@ fit7 <- coxph(Surv(enter, exit, event) ~ sex * birthdate, data = om)
 
 This is more reasonable-looking: At the beginning of the year 1810, woman had a mortality of 76.8 per cent of that of men.
 
-To summarize: The effects can be illustrated by two curves, one for women and one for men. The coefficients for `sex` (0 and 'r round(x[1, 1], 5)`) are the respective intercepts, and `
+To summarize: The effects can be illustrated by two curves, one for women and one for men. The coefficients for `sex` (0 and 'r round(x[1, 1], 5)`) are the respective intercepts, and `r round(x[2, 1], 5)` and 
+`r round(x[2, 1], 5)` +  `r round(x[3, 1], 5)`
+
 ### Two continuous covariates
 
 In our example data, the covariates `birthdate` and `imr.birth` are continuous, and we get
