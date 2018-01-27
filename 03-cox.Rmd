@@ -1035,16 +1035,41 @@ $$\exp(9.12285 - 0.00327 \times 1801.003 - 0.00519 \times 1801.003) = 0.00185$$
 compared to a man with `birthdate`= 0, the reference values! Obviously, it is ridiculous to extrapolate the model 1800 years back in time, but this is nevertheless the correct way to interpret the coefficients. So, at `birthdate` = 0, women's mortality is 9162 times higher than that of men!
 (ii) With interactions involved, it is strongly recommended to *center* continuous covariates. In our example, we could do that by subtracting 1810 (say) from `birthdate`. That makes `sex = "male", birthdate = 1800` the new *reference values*. The result is
 
-```{r centering}
+```{r centering, echo = FALSE}
 om$birthdate <- om$birthdate - 1810
 fit7 <- coxph(Surv(enter, exit, event) ~ sex * birthdate, data = om)
 (res <- round(summary(fit7)$coefficients[, 1:2], 5))
 ```
 
+```{r echo=FALSE}
+int0 <- 0
+int1 <- res[1, 1]
+sl0 <- res[2, 1]
+sl1 <- sl0 + res[3, 1]
+```
+
 This is more reasonable-looking: At the beginning of the year 1810, woman had a mortality of 76.8 per cent of that of men.
 
-To summarize: The effects can be illustrated by two curves, one for women and one for men. The coefficients for `sex` (0 and 'r round(x[1, 1], 5)`) are the respective intercepts, and `r round(x[2, 1], 5)` and 
-`r round(x[2, 1], 5)` +  `r round(x[3, 1], 5)`
+To summarize: The effects can be illustrated by two curves, one for men and one for women. The coefficients for `sex`, 0 and `r int1`, are the respective intercepts, and `r sl0` and 
+`r sl1` are the slopes. See Figure \@ref(fig:figgraphill3) for a graphical illustration.
+
+```{r figgraphill3, fig.cap="The effect of birthdate on relative mortality for men and women. Reference: Men, birthdate = 1810.", echo=FALSE, fig.height = 4}
+x <- seq(min(om$birthdate), max(om$birthdate), length = 1000)
+y0 <- exp(int0 + x * sl0)
+y1 <- exp(int1 + x * sl1)
+plot(x, y0, type = "l", ylim = c(min(y0, y1), max(y0, y1)), lty = 4, xlab = "Birthdate.", ylab = "Relative risk", axes = FALSE)
+att <- c(-30, -20, -10, 0, 10)
+axis(1, at = att, labels = att + 1810)
+axis(2, las = 1)
+box()
+lines(x, y1, lty = 2)
+points(0, 1)
+abline(h = 1)
+abline(v = 0)
+text(-10, 1.06, "Men")
+text(-10, 0.89, "Women")
+```
+
 
 ### Two continuous covariates
 
@@ -1055,4 +1080,240 @@ fit8 <- coxph(Surv(enter, exit, event) ~ birthdate * imr.birth, data = om)
 (res <- round(summary(fit8)$coefficients[, 1:2], 5))
 ```
 
-The interpretation of the coefficients
+The interpretation of the coefficients are: The reference point is `birthdate = 0` (1810) and `imr.birth = 0`, and if `birthdate = x` and `imr.birth = y`, then the relative risk is  
+$$ \exp(-0.03024 x + 0.02004 y + 0.00158 x y),$$
+analogous to the calculation in the case with one continuous and one factor covariate.
+
+## Interpretation of parameter estimates
+
+In the proportional hazards model the parameter estimates are logarithms of
+risk ratios relative to the baseline hazard. The precise interpretations of
+the coefficients for the two types of covariates are discussed. 
+The conclusion is that $e^\beta$ has a more direct and intuitive
+interpretation than $\beta$ itself.
+
+### Continuous covariate 
+
+If $x$ is a continuous covariate, and
+$h(t; x) = h_0(t)e^{\beta x}$,
+then
+
+\begin{equation*}
+\frac{h(t; x+1)}{h(t; x)} = \frac{h_0(t)e^{\beta (x+1)}}
+{h_0(t)e^{\beta x}} = e^\beta.
+\end{equation*}
+so the risk increases with a factor $e^\beta$, when $x$ is
+increased by one unit. In other words,
+$e^\beta$ is a *relative risk*\index{relative risk} (or a *hazard
+  ratio*\index{hazard ratio}, which often is a preferred term in certain professions).
+
+### Factor
+
+For a factor covariate, in the usual coding with a reference category,
+$e^\beta$ is the relative risk compared to that reference
+category.
+
+## Proportional hazards in discrete time
+\index{proportional hazards!discrete time}
+
+In discrete time, the hazard function is, as we saw earlier, a set of
+conditional 
+probabilities\index{conditional probability}, and so its range is restricted
+to the interval $(0, 1)$. Therefore, the definition of proportional hazards
+used for continuous time is unpractical; the multiplication of a
+probability by a constant may result in a quantity larger than one.
+
+One way of introducing proportional hazards in discrete time is to regard
+the discreteness as a result of grouping true continuous time data, for
+which the proportional hazards assumption hold. For
+instance, in a follow-up study of human mortality, we may only have data
+recorded once a year, and so life length can only be measured in
+years. Thus, we assume that there is a true exact life length $T$, but we
+can only observe that it falls in an interval $(t_i, t_{i+1})$.
+
+Assume *continuous* proportional hazards, and a *partition* of
+time: 
+
+$$
+0 = t_0 < t_1 < t_2 < \cdots < t_k = \infty.
+$$ 
+Then
+\begin{multline}\label{eq:dischaz}
+P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x}) =
+\frac{S(t_{j-1}\mid \mathbf{x}) - S(t_j\mid \mathbf{x})}{S(t_{j-1} \mid \mathbf{x})} \\
+ =  1 - \frac{S(t_j \mid \mathbf{x})}{S(t_{j-1} \mid \mathbf{x})}
+ =  1 -
+\left(\frac{S_0(t_j)}{S_0(t_{j-1})}\right)^{\exp(\boldsymbol{\beta}\mathbf{x})} \\
+= 1 - (1 - h_i)^{\exp(\boldsymbol{\beta}\mathbf{x})}
+\end{multline}
+with $h_i = P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x} =
+\mathbf{0})$, $j = 1, \ldots, k$. We take \eqref{eq:dischaz} as the
+\emph{definition} of proportional hazards in discrete time.
+
+### Logistic regression
+
+It turns out that a proportional hazards model in discrete time, according
+to definition \eqref{eq:dischaz}, is nothing else than a *logistic
+  regression*\index{logistic regression}
+model with the *cloglog link*\index{cloglog link function} (cloglog is
+short for "complementary log-log" or $\boldsymbol{\beta}\mathbf{x} =\log(-\log(p))$). In order
+to see that, let 
+
+\begin{equation}
+  (1 - h_j) = \exp(-\exp(\alpha_j)), \; j = 1, \ldots, k
+\end{equation}
+and
+
+\begin{equation*}
+X_j = \left\{ \begin{array}{ll}
+          1, & t_{j-1} \le T < t_j \\
+          0, & \text{otherwise}%t_1 \le T < t_2 \\
+         \end{array} \right., \quad j = 1, \ldots, k
+\end{equation*}
+Then 
+
+\begin{equation*}
+  \begin{split}
+  P(X_1 = 1; \; \mathbf{x}) &=  1 - \exp(-\exp\big(\alpha_1 +
+  \boldsymbol{\beta}\mathbf{x})\big)  \\
+  P(X_j = 1 \mid X_1 = \cdots = X_{j-1} = 0; \; \mathbf{x}) &=  1 - \exp(-\exp\big(\alpha_j
++ \boldsymbol{\beta}\mathbf{x})\big), \\
+\quad j = 2, \ldots, k.
+\end{split}
+\end{equation*}
+This is logistic regression with a cloglog link. Note that extra parameters
+$\alpha_1, \ldots, \alpha_k$ are introduced, one for each potential event
+age. They correspond to the baseline hazard function in continuous time,
+but are be estimated simultaneously with the regression parameters.
+
+## Model selection
+
+In regression modeling, there is often several competing models for
+describing data. In general, there are no strict rules for ``correct
+selection''. However, for *nested* models\index{nested model}, there
+are some formal guidelines. For a precise definition of this concept, see
+Appendix A. 
+
+
+### Model selection in general
+
+Some general advise regarding model selection is given here. 
+
+*    Remember, there are no \emph{true} models, only some *useful*
+  ones. This statement is attributed to G.E.P.\ Box.
+*    More than one model may be useful.
+*    Keep \emph{important} covariates in the model.
+*    Avoid automatic stepwise procedures!
+*    If interaction effects are present, the corresponding main
+effects *must* be there.
+
+
+## Doing it in **R**
+\index{Functions!coxreg|(}
+
+We utilize the male mortality data, Skellefteå 1800--1820, to
+illustrate the aspects of an ordinary Cox regression. Males aged 20 (exact)
+are sampled between 1820 and 1840 and followed to death or reaching the age
+of 40, when they are right censored. So in effect male mortality in the
+ages 20--40 are studied. The survival time starts counting at zero for each
+individual at his 21st birthdate (that is, at exact age 20 years).
+
+There are two **R** functions that are handy for a quick look at a data
+frame, `str`\index{str} and `head`\index{head}. The first give a
+summary description of the *structure* of an **R** object, often a
+*data frame* \index{data frame}
+
+```{r str,echo=TRUE}
+library(eha) #Loads also the data frame 'mort'
+str(mort)
+```
+
+```{r getd,echo=FALSE}
+n.obj <- NROW(mort)
+```
+First, there is information about the data frame: It *is* a 
+`data.frame`, with six variables measured on `r n.obj` objects. Then
+each 
+variable is individually described: name, type, and a few of the first values.
+The values are usually rounded to a few digits. The *Factor* line is
+worth noticing: It is of course a `factor` covariate, it takes two
+levels, `lower` and `upper`. Internally, the levels are coded 1, 2,
+respectively. Then (by default), `lower` (with internal code equal to
+1) is the `reference category`. If desired, this can be changed with the
+`relevel` function.
+
+```{r relevel}
+mort$ses2 <- relevel(mort$ses, ref = "upper")
+str(mort)
+```
+Comparing the information about the variables `ses` and `ses2`, you
+find that the codings, and also the reference categories, are
+reversed. Otherwise the variables are identical, and any analysis involving
+any of
+them as an explanatory variable would lead to identical *conclusions*,
+but not identical parameter estimates, see below.
+
+The function `head` prints the first few lines (observations) of a data
+frame  (there is also a corresponding `tail` function that prints a few
+of the *last* rows). 
+
+```{r str3}
+head(mort)
+```
+Apparently, the variables `ses` and `ses2` are identical, but we know
+that behind the scenes they are formally different; different coding and
+(therefore) different reference category. This shows up in analyzes
+involving the two variables, one at a time.
+
+First the analysis is run with `ses`.
+
+```{r mortreg}
+res <- coxreg(Surv(enter, exit, event) ~ ses + birthdate, 
+              data = mort)
+res
+```
+Then the variable `ses2` is inserted instead.
+
+```{r mortreg2}
+res2 <- coxreg(Surv(enter, exit, event) ~ ses2 + birthdate, 
+               data = mort)
+res2
+```
+Notice the difference; it is only formal. The substantial results are
+completely equivalent.
+
+### Likelihood Ratio Test
+
+If we judge the result by the Wald $p$-values, it seems as if both
+variables are highly significant. To be sure it is advisable to apply the
+likelihood ratio test. In **R**, this is easily achieved by applying the 
+  `drop1` function on the result, `res`,  of the Cox regression.
+
+```{r drop}
+drop1(res, test = "Chisq")
+```
+In fact, we have performed *two* likelihood ratio tests here. First,
+the effect of removing `ses` from the full model. The $p$-value for
+this test is very small, $p = 0.00005998$. The scientific notation,
+5.998e-05 means that the decimal point should be moved five steps to the
+left (that's the minus sign). The reason for this notation is essentially
+space-saving. Then, the second LR test concerns the absence or presence of
+`birthdate` in the full model. This also gives a small $p$-value, $p =
+0.006972$. 
+
+The earlier conclusion is not altered; both variables are highly significant.
+
+### The estimated baseline cumulative hazard function
+\index{cumulative hazard function|(} 
+
+The estimated baseline cumulative function (see Equation \@ref(eq:bashaz)) is best
+plotted by the `plot` command, see Figure \@ref(fig:basl).
+
+```{r basl,fig=TRUE,echo=FALSE, fig.cap="Estimated cumulative baseline hazard function."}
+plot(res)
+```
+
+The figure shows the baseline cumulative hazard function for an
+*average* individual (i.e., with the value zero on all covariates when
+all covariates are *centered* around their weighted means. 
+\index{cumulative hazard function|)} 
