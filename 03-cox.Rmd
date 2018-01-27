@@ -1004,7 +1004,53 @@ The small $p$-value (`r round(x[[4]][2], 4) * 100` per cent) indicates that ther
 round(summary(fit4)$coefficients[, 1:2], 3)
 ```
 
+Interpretation: The mortality of female farmers is  $100 \times 0.743 = 74.3$ per cent of the mortality of male farmers. Hovever, moving to the non-farmer group, this relation has to be multiplied by $1.338$, the interaction effect. The result is that among non-farmers, the female mortality is `r round(74.3 * 1.338, 1)` per cent of the male mortality.
 
+In cases like this, it is often recommended to perform separate analyses for women and men, or, alternatively, for farmers and non-farmers. Do that as an exercise and interpret your results.
 
 
 ### One factor and one continuous covariate
+
+Now the covariates `sex` (factor) and `birthdate` (continuous) are in focus. First the model without interaction is fitted.
+
+```{r facconmul}
+fit5 <- coxph(Surv(enter, exit, event) ~ sex + birthdate, data = om)
+drop1(fit5, test = "Chisq")
+```
+
+Obviously `sex` is statistically significant, while `imr.birth` is not. We go directly to the estimated coefficients after adding an interaction term to the model:
+
+```{r facconmulint}
+fit6 <- coxph(Surv(enter, exit, event) ~ sex * birthdate, data = om)
+round(summary(fit6)$coefficients[, 1:2], 5)
+```
+
+What is going on here? The main effect of `sex` is huge! The answer lies in the interpretation of the coefficients: 
+(i) To evaluate the effect on mortality for an 
+individual with given values of the covariates, you must involve the interaction coefficient. For instance, a female born on January 2, 1801 (`birthdate` = `r round(toTime("1801-01-02"), 3)`)
+will have the relative risk 
+
+$$\exp(9.12285 - 0.00327 \times 1801.003 - 0.00519 \times 1801.003) = 0.00185$$
+
+compared to a man with `birthdate`= 0, the reference values! Obviously, it is ridiculous to extrapolate the model 1800 years back in time, but this is nevertheless the correct way to interpret the coefficients. So, at `birthdate` = 0, women's mortality is 9162 times higher than that of men!
+(ii) With interactions involved, it is strongly recommended to *center* continuous covariates. In our example, we could do that by subtracting 1810 (say) from `birthdate`. That makes `sex = "male", birthdate = 1800` the new *reference values*. The result is
+
+```{r centering}
+om$birthdate <- om$birthdate - 1810
+fit7 <- coxph(Surv(enter, exit, event) ~ sex * birthdate, data = om)
+(res <- round(summary(fit7)$coefficients[, 1:2], 5))
+```
+
+This is more reasonable-looking: At the beginning of the year 1810, woman had a mortality of 76.8 per cent of that of men.
+
+To summarize: The effects can be illustrated by two curves, one for women and one for men. The coefficients for `sex` (0 and 'r round(x[1, 1], 5)`) are the respective intercepts, and `
+### Two continuous covariates
+
+In our example data, the covariates `birthdate` and `imr.birth` are continuous, and we get
+
+```{r botcont}
+fit8 <- coxph(Surv(enter, exit, event) ~ birthdate * imr.birth, data = om)
+(res <- round(summary(fit8)$coefficients[, 1:2], 5))
+```
+
+The interpretation of the coefficients
