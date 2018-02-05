@@ -1,8 +1,89 @@
 # Poisson Regression
 
-Poisson regression is introduced and its connection to Cox regression is
-discussed. We start by ....
+Here \emph{Poisson regression}\index{Poisson regression} is introduced and
+its connection to Cox regression\index{Cox regression} is discussed. We
+start by defining the Poisson distribution, then discuss the
+connection to Cox regression and tabular lifetime data.
 
 ## The Poisson Distribution
+\index{Distributions!Poisson|(}
 
-The Poisson distribution is ...
+The *Poisson distribution* is used for
+*count data*, i.e., when the result may be any positive integer *0, 1, 2,
+...*, without upper limit. The *probability density function* (pdf)
+$P$ of a random variable $X$ 
+following a Poisson distribution is
+
+\begin{equation}\label{eq:poisdist}
+P(X = k) = \frac{\lambda^k}{k!}\exp(-\lambda), \quad \lambda > 0; \; k = 0,
+1, 2, \ldots, 
+\end{equation}
+
+The parameter $\lambda$ is both the mean and the variance of the
+distribution. In 
+Figure \@ref(fig:poisdist) the pdf \eqref{eq:poisdist} is plotted for some
+values of $\lambda$.
+
+
+```{r poisdist,fig=TRUE,echo=FALSE,fig.cap="The Poisson cdf for different values of the mean.", fig.scap="The Poisson cdf."}
+oldpar <- par(mfrow = c(2, 2))
+lambda <- c(0.5, 1, 5, 25)
+x <- list(x0 = 0:5,
+          x1 = 0:8,
+          x2 = 0:15,
+          x3 = 0:45
+          )
+##for (i in 1:4){
+    xx <- x[[1]]
+    names(xx) <- xx
+##    yy <- lambda[i]
+    barplot(dpois(xx, lambda = lambda[1]), axes = FALSE,
+##            main = paste(expression(lambda), "=", yy))
+            main = expression(paste(lambda, " = ", 0.5)))
+    xx <- x[[2]]
+    names(xx) <- xx
+##    yy <- lambda[i]
+    barplot(dpois(xx, lambda = lambda[2]), axes = FALSE,
+##            main = paste(expression(lambda), "=", yy))
+            main = expression(paste(lambda, " = ", 1)))
+    xx <- x[[3]]
+    names(xx) <- xx
+##    yy <- lambda[i]
+    barplot(dpois(xx, lambda = lambda[3]), axes = FALSE,
+##            main = paste(expression(lambda), "=", yy))
+            main = expression(paste(lambda, " = ", 5)))
+    xx <- x[[4]]
+    names(xx) <- xx
+##    yy <- lambda[i]
+    barplot(dpois(xx, lambda = lambda[4]), axes = FALSE,
+##            main = paste(expression(lambda), "=", yy))
+            main = expression(paste(lambda, " = ", 25)))
+##}
+par(oldpar)
+```
+
+Note that when $\lambda$ increases, the distribution looks more and more
+like a normal distribution.
+
+In **R**, the Poisson distribution is represented by four functions, `dpois`
+  `ppois`, `qpois`, and `rpois`, representing the
+  probability density function (pdf), the cumulative distribution function
+  (cdf), the quantile function (the inverse of the cdf), and random number
+  generation, 
+  respectively. See the help page for the Poisson distribution for more
+  detail. In fact, this is the scheme present for all probability
+  distributions available in **R**.
+
+For example, the upper left bar plot in Figure \@ref(fig:poisdist) is
+produced in **R** by
+```{r poisfig,fig=FALSE}
+barplot(dpois(0:5, lambda = 0.5), axes = FALSE, 
+        main = expression(paste(lambda, " = ", 0.5)))
+```
+\index{Functions!barplot}
+Note that the function 
+`dpois`\index{Functions!dpois} is *vectorizing*:
+```{r poisvec}
+dpois(0:5, lambda = 0.5)
+```
+
