@@ -1,6 +1,6 @@
 # Poisson Regression
 
-Here \emph{Poisson regression}\index{Poisson regression} is introduced and
+Here *Poisson regression*\index{Poisson regression} is introduced and
 its connection to Cox regression\index{Cox regression} is discussed. We
 start by defining the Poisson distribution, then discuss the
 connection to Cox regression and tabular lifetime data.
