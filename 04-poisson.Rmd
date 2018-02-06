@@ -87,3 +87,54 @@ Note that the function
 dpois(0:5, lambda = 0.5)
 ```
 
+```{example, name = "Marital fertility"}
+
+As an example where the Poisson distribution may be relevant, we look at
+the number of children born to a woman after marriage. The data frame 
+*fert* in `eha` can be used to calculate the number of births per married
+woman i Skellefteå during the 19th century; however, this data set
+contains only marriages with one or more births. Let us instead count the
+number of births beyond one.
+```{r b2}
+library(eha)
+f0 <- fert[fert$event == 1, ]
+kids <- tapply(f0$id, f0$id, length) - 1
+barplot(table(kids))
+```
+
+The result is shown in Figure \@ref(fig:b2fig).
+
+
+```{r b2fig,fig=TRUE,echo=FALSE,fig.cap = "Number of children beyond one for married women with at lest one child.", fig.scap="Number of children beyond one for married women"}
+barplot(table(kids)[1:13])
+```
+
+
+The question is: Does this look like a Poisson distribution? One way of
+checking this is to plot the *theoretic* distribution with the same
+mean (the parameter $\lambda$) as the sample mean in the data.
+
+```{r thpois, eval = FALSE}
+lam <- mean(kids)
+barplot(dpois(0:12, lambda = lam))
+```
+
+The result is shown in Figure \@ref(fig:b2figt).
+
+```{r b2figt,echo=FALSE,fig=TRUE,fig.cap ="Theoretical Poisson distribution."}
+lam <- mean(kids)
+barplot(dpois(0:12, lambda = lam), names.arg = 0:12)
+```
+
+
+Obviously, the fertility data do not follow the Poisson distribution so
+well. It is in fact *over-dispersed* compared to the Poisson
+distribution. A simple way to check that is to calculate the sample mean
+and variance of the data. If data come from a Poisson distribution, these
+numbers should be equal (theoretically) or reasonably close.
+```{r meanvar}
+mean(kids)
+var(kids)
+```
+
+They are not very close, which also is obvious from comparing the graphs. $\Box$
