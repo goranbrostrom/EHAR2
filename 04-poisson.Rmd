@@ -138,3 +138,92 @@ var(kids)
 ```
 
 They are not very close, which also is obvious from comparing the graphs. $\Box$
+
+## The connection to Cox regression
+\index{Cox regression|(}
+
+There is an interesting connection between Cox regression and Poisson
+regression, which can be illustrated as follows.
+
+```{r coxpois}
+dat <- data.frame(enter = rep(0, 4), exit = 1:4, 
+                  event = rep(1, 4), x = c(0, 1, 0, 1))
+dat
+```
+
+We have generated a very simple data set, `dat`. It consists of four
+life lengths with a covariate $x$. A Cox regression, where the covariate
+$x$ is related to survival is given by\index{Functions!\coxreg}
+
+```{r coxbb}
+library(eha)
+fit <- coxreg(Surv(enter, exit, event) ~ x, data = dat)
+fit
+fit$hazards
+```
+
+Note that fit$hazards is a `list` with one component per
+stratum. In this case there is only one stratum, so the list has one
+component. This component is a matrix with two columns; the first contains
+the observed distinct failure times, and the second the corresponding
+estimates of the hazard "atoms".
+
+Now, this can be replicated by Poisson regression! First the data set
+is summarized around each observed failure time. That is, a snapshot of the
+risk set at each failure time is created by the function `toBinary`. 
+
+```{r toB}
+library(eha)
+datB <- toBinary(dat)
+datB
+``` 
+
+Note that three new "covariates" are created, `riskset`, `risktime`,
+and `orig.row`. In the Poisson regression to follow, the factor 
+  `riskset` must be included as a *cluster*. Formally, this is
+equivalent to including it as a factor covariate, but for data set with
+many distinct failure times, the number of levels will be too large to be
+run by `glm`. The function `glmmboot` in `eha` is better suited. 
+
+```{r poisreg}
+fit2 <- glmmboot(event ~ x, cluster = riskset, 
+                 family = poisson, data = datB)
+coefficients(fit2)
+``` 
+
+The parameter estimate corresponding to $x$ is exactly the same as in the
+Cox regression. The baseline hazard function is estimated with the aid of
+the *frailty* estimates for the clustering based on `riskset`.
+
+```{r baserisk}
+exp(fit2$frail)
+``` 
+
+These numbers are the hazard atoms in the baseline hazard estimation, so
+they should be equal to the output from {\tt fit\$hazards} in the Cox
+regression. This is not the case, and this depends on the fact that {\tt
+  coxreg} estimates the baseline hazards at the mean of the covariate,
+i.e., at $x = 0.5$ in our toy example. The easiest way to make the numbers
+comparable is
+by subtracting 0.5 from $x$ in the Poisson regression.
+
+```{r poisreg2}
+datB$x <- datB$x - fit$means
+fit2 <- glmmboot(event ~ x, cluster = riskset, 
+                 family = poisson, data = datB)
+exp(fit2$frail)
+```
+ 
+This is exactly what `coxreg` produced.
+
+This correspondence between Poisson and Cox regression was pointed out by
+S{\o}ren Johansen @joh83. 
+\index{Cox regression|)}
+
+## The connection to the piecewise constant hazards model
+
+For completeness the connection between the Poisson distribution and the
+*piecewise constant hazard model*\index{piecewise constant
+  hazard}\index{Distributions!piecewise constant hazard}
+is mentioned here.  This is explored in detail in Section \@ref(sec:pch6)
+(Chapter 6).
