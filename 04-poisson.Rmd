@@ -219,7 +219,7 @@ exp(co)
 This is exactly what `coxreg` produced.
 
 This correspondence between Poisson and Cox regression was pointed out by
-S{\o}ren Johansen @joh83. 
+ @joh83. 
 \index{Cox regression|)}
 
 ## The connection to the piecewise constant hazards model
@@ -236,32 +236,38 @@ Although it is possible to use Poisson regression in place of Cox
 regression, the most useful application of Poisson regression in survival
 analysis is with tabular data.
 
-\begin{example} {Mortality in ages 61--80, Sweden 2007} \end{example}
+```{example, name = "Mortality in ages 61--80, Sweden 2007."}
 \label{ex:sw07}
-In {\tt eha}, there is the data set {\tt swe07}, which contains population
+In `eha`, there is the data set `swe07`, which contains population
 size and number of deaths by age and sex in Sweden 2007. The age span is
 restricted to ages 61--80.
-<<swe07>>=
-data(swe07)
+
+```{r swe07}
 head(swe07)
 tail(swe07)
-@
+```
+
 The Poisson model is, where $D_{ij}$ is number of deaths and $P_{ij}$
-population size for {\tt age} $i$ and {\tt sex} $j$, $i = 61, \ldots, 80$;
+population size for `age` $i$ and `sex` $j$, $i = 61, \ldots, 80$;
 $j = \text{female (0)}, \text{male (1)}$, and $\lambda_{ij}$ is the corresponding
-\emph{mortality}, 
+*mortality*, 
+
 \begin{equation*}
 D_{ij} \sim \text{Poisson}(\lambda_{ij} P_{ij}), \quad i = 61, 62, \ldots,
 80; \; j = 0, 1,
 \end{equation*}
+
 with
+
 \begin{equation*}
   \begin{split}
   \lambda_{61,j} P_{61,j} &= P_{61,j}\exp(\gamma + \beta * j) \\
     &= \exp(\log(P_{61,j}) + \gamma + \beta * j), \quad j = 0, 1,
     \end{split}
 \end{equation*}
+
 and
+
 \begin{equation*}
   \begin{split}
   \lambda_{ij} P_{ij} &= P_{ij} \exp(\gamma + \alpha_i + \beta * j) \\
@@ -269,119 +275,121 @@ and
   \ldots, 80; \; j = 0, 1.
   \end{split}
 \end{equation*}
+
 This calculation shows that it is the log of the population sizes
-($\log(P_{ij}$) that is the correct \emph{offset} to use in the Poisson regression.
-First we want {\tt age} to be a factor (no restrictions like linearity),
-then the \R\ function {\tt glm} (``generalized linear model'') is used to
+($\log(P_{ij}$) that is the correct *offset* to use in the Poisson regression.
+First we want `age` to be a factor (no restrictions like linearity),
+then the **R** function `glm` ("generalized linear model") is used to
 fit a Poisson regression model. 
-<<poisreg>>=
+
+```{r poisreg3}
 swe07$age <- factor(swe07$age)
 fit <- glm(deaths ~ offset(log.pop) + sex + age, family = poisson, 
            data = swe07)
 drop1(fit, test = "Chisq")
-@
-The function {\tt drop1} is used above to perform two LR tests. The results
+```
+
+The function `drop1` is used above to perform two LR tests. The results
 are that both variables are highly statistically significant, meaning that
 both are very important in describing the variation in mortality over sex
-and age. To know \emph{how}, we present the parameter estimates.
-<<parest>>=
+and age. To know *how*, we present the parameter estimates.
+
+```{r parest}
 summary(fit)
-@
+```
+
 The results so tell us that males have a distinctly higher mortality than
 females, and that mortality steadily increases with age (no
-surprises!). The parameter estimates for {\tt age} also opens up the
+surprises!). The parameter estimates for `age` also opens up the
 possibility to simplify the model by assuming a linear or quadratic effect
 of age on mortality. We leave that possibility for later. 
 
 One question remains: Is the female advantage relatively the
 same over ages? 
 To answer that question, we introduce an interaction:
-<<point>>=
+
+```{r point}
 fit1 <- glm(deaths ~ offset(log.pop) + sex * age, 
             family = poisson, data = swe07)
 drop1(fit1, test = "Chisq")
-@
-Note that the {\tt drop1} function only tests the interaction term. This is
+```
+
+Note that the `drop1` function only tests the interaction term. This is
 because, as we saw before, the main effects tend to be meaningless in the
 presence of interaction. However, here there is no sign of interaction, and
-we can conclude that in a survival model with {\tt sex} as covariate, we
-have \emph{proportional hazards}! This is most easily seen in
-\emph{graphs}. The first plot is based on the estimated Poisson model
+we can conclude that in a survival model with `sex` as covariate, we
+have *proportional hazards*! This is most easily seen in
+*graphs*. The first plot is based on the estimated Poisson model
 without interaction. Some calculations are first needed.
-<<modgrcalc>>=
+
+```{r modgrcalc}
 beta <- coefficients(fit)[2]
 alpha <- coefficients(fit)[-2] # Remove sex
 alpha[2:length(alpha)] <- alpha[2:length(alpha)] + alpha[1]
 lambda.females <- exp(alpha)
 lambda.males <- exp(alpha + beta)
-@
+```
+
 Then the plot of the hazard functions by
-<<modfig,fig=FALSE>>=
+
+```{r modfig,fig=FALSE}
 plot(61:80, lambda.males, ylim = c(0, 0.06), xlab = "Age", 
      type = "s")
 lines(61:80, lambda.females, type = "s", lty = 2)
 abline(h = 0)
-@
-Note the parameter {\tt ylim}. It sets the scale on the $y$ axis, and some
+```
+
+Note the parameter `ylim`. It sets the scale on the $y$ axis, and some
 trial and error may be necessary to get a good choice.
-The function \fun{line}\index{Functions!\fun{line}} adds a curve to an already
-existing plot, and the function \fun{abline}\index{Functions!\fun{abline}}
-adds a straight line; the argument {\tt h = 0} results in a
-\emph{horizontal} line. See the help pages for these functions for further
+The function `line`\index{Functions!line} adds a curve to an already
+existing plot, and the function `abline`\index{Functions!abline}
+adds a straight line; the argument `h = 0` results in a
+*horizontal* line. See the help pages for these functions for further
 information. 
-at 0. 
-The result is shown in Figure~\ref{fig:poishaz}.
-\begin{figure}[ht!]
-\begin{center}
-<<modfig,fig=TRUE,echo=FALSE>>=
+ 
+The result is shown in Figure \@ref(fig:poishaz).
+
+```{r poishaz,fig=TRUE,echo=FALSE,fig.cap = "Model based hazard functions for males (upper) and females (lower).", fig.scap = "Hazard functions for males and females, model based."}
 plot(61:80, lambda.males, ylim = c(0, 0.06), xlab = "Age", 
      type = "s")
 lines(61:80, lambda.females, type = "s", lty = 2)
 abline(h = 0)
-@
-\caption[Hazard functions for males and females, model based]{Model based hazard functions for males (upper) and females (lower).}
-\label{fig:poishaz}
-\end{center}
-\end{figure}
+```
 
 We can also make a plot based only on raw data. For that it is only
-necessary to calculate the \emph{occurrence-exposure
-  rates}\index{occurrence-exposure rate}. An occurrence-exposure rate is
+necessary to calculate the *occurrence-exposure
+  rates*\index{occurrence-exposure rate}. An occurrence-exposure rate is
 simply the ratio between the number of occurrences (of some event) divided
 by total exposure (waiting) time. In the present example, mean population
 size during one year is a very good approximation of the exact total
 exposure time (in years).
-<<rawcal>>=
+
+```{r rawcal}
 femal <- swe07[swe07$sex == "female", ]
 mal <- swe07[swe07$sex == "male", ]
 f.rate <- femal$deaths / femal$pop
 m.rate <- mal$deaths / mal$pop
-@
-And finally the plot of the raw death rates is created as follows.
+```
 
-<<raw,fig=FALSE>>=
+And finally the plot of the raw death rates is created as follows,
+
+```{r eval=FALSE, echo=TRUE}
 plot(61:80, m.rate, ylim = c(0, 0.06), xlab = "Age", 
      ylab = "Mortality", type = "s")
-lines(61:80, f.rate, col = "red", type = "s")
+lines(61:80, f.rate, lty = 2, type = "s")
 abline(h = 0)
-@
-with the result as shown in Figure~\ref{fig:rawplot}.
-\begin{figure}[ht!]
-\begin{center}
-<<rawplot,fig=TRUE,echo=FALSE>>=
+```
+
+with the result as shown in Figure \@ref(fig:rawplot).
+
+```{r rawplot,fig=TRUE,echo=FALSE, fig.cap = "Hazard functions for males (upper) and females (lower) based on raw data.", fig.scap = "Hazard functions for males and females, raw data"}
 plot(61:80, m.rate, ylim = c(0, 0.06), xlab = "Age", 
      ylab = "Mortality", type = "s")
 lines(61:80, f.rate, type = "s", lty = 2)
 abline(h = 0)
-@
-\caption[Hazard functions for males and females,
-  raw data]{Hazard functions for males (upper) and females (lower) based on
-  raw data.}
-\label{fig:rawplot}
-\end{center}
-\end{figure}
+```
 
-The differences between Figure~\ref{fig:poishaz} and
-Figure~\ref{fig:rawplot} are very small, showing that the Poisson model
-without interaction fits the Swedish old age mortality data very well. \eex
+The differences between Figure \@ref(fig:poishaz) and
+Figure \@ref(fig:rawplot) are very small, showing that the Poisson model
+without interaction fits the Swedish old age mortality data very well. $\Box$
 \index{Distributions!Poisson|)}
