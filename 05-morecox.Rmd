@@ -1,5 +1,147 @@
 # More on Cox Regression
 
-Necessary and vital concepts ...
+Necessary and vital concepts like
+*time-dependent covariates*, *communal covariates*, handling of
+*ties*, *model checking*, *sensitivity analysis*, etc, are introduced in this chapter.
+
 
 ## Time-varying covariates
+
+Only a special kind of time-varying covariates can be treated in **R** by the
+packages `eha` and `survival`, and that is so-called
+*piecewise constant* functions. How this is done is best described by
+an example.
+
+\begin{example} {Civil status} \end{example}
+
+The covariate (factor) `civil status` (called  $civst$ in the **R** data
+frame) is an explanatory variable in a
+mortality study, which changes value from 0 to 1 at marriage. How should this be
+coded in the data file? The 
+solution is to create *two* records (for individuals that marry),
+  each with a *fixed* value of $civ\_st$:
+
+1.   Original record: $(t_0, t, d, x(s), t_0 < s \le t)$, married
+at time $T$, $t_0 < T < t$:
+
+$$
+\text{civst}(s) = \left\{\begin{array}{ll}
+             \text{unmarried} , & s < T \\
+              \text{married}, & s \ge T
+              \end{array}\right.
+$$
+
+2.    First new record: $(t_0, T, 0, \text{unmarried})$, *always censored*.
+
+3.    Second new record: $(T, t, d, \text{married})$.
+
+
+The data file will contain two records like (with $T = 30$) what you can see
+in Table \@ref(tab:timevar).
+
+```{r timevar,echo=FALSE}
+x <- data.frame(id = c(23, 23),
+                enter = c(0, 30),
+                exit = c(30, 80),
+                event = c(0, 1),
+                civst = as.factor(c("unmarried", "married"))
+                )
+knitr::kable(x, caption = "The coding of a time-varying covariate.")
+```
+
+
+In this way, a time-varying covariate can always be handled by utilizing
+left truncation\index{left truncation} and 
+right censoring\index{censoring!right}. See also Figure \@ref(fig:civ) for
+an illustration.  
+
+```{r civ,fig=TRUE,echo=FALSE,fig.cap="A time-varying covariate (unmarried or married). Right censored and left truncated at age 30 (at marriage).",fig.scap="A time-varying covariate"}
+#plot(rnorm(100))
+plot(1, 2, type = "n", xlim = c(0, 90), ylim = c(0, 3), xlab = "Age", ylab = "", yaxt="n", xaxt = "n")
+lines(c(0, 30), c(1,1))
+points(30, 1, pch = "c", cex = 1.5)
+lines(c(30, 80), c(2, 2))
+points(30, 2, pch = "|")
+points(83, 2, pch = "+", cex = 1.5)
+text(13, 1.2, labels = "civst = unmarried", cex = 1)
+text(52, 2.2, labels = "civst = married", cex = 1)
+abline(v = 0)
+abline(v = 30, lty = 2)
+axis(1, at = c(0, 30, 60, 80))
+```
+
+And note
+that this situation is formally equivalent to a situation with *two
+  individuals*, one unmarried and one married. The first one is right
+censored at exactly the same time as the second one enters the study (left
+truncation).  $\Box$
+
+A word of caution: Marriage status may be interpreted as an
+*internal* covariate, i.e., the change of marriage status is
+individual, and may depend on health status. For instance, maybe only
+healthy persons get married. If so, a vital condition in Cox regression is
+violated; the risk of dying may only be modeled by conditions from the
+strict history of each individual. Generally, the use of time dependent
+covariates is dangerous, and one should always think of possible reversed
+causality taking place when allowing for it.
+
+## Communal covariates
+
+Communal\index{communal covariate} (external)\index{external
+  covariate} covariates are covariates that vary in time 
+outside any individual, and is common to all individuals at each specific
+\emph{calendar} time. In econometric literature, such a variable is often
+called \emph{exogenous}\index{exogenous covariate}. This could be viewed
+upon as a special case of a time-varying covariate, but without the danger
+of reversed causality that was discussed above. 
+
+```{example, name = "Did food prices affect mortality in the 19th century?"}
+
+For some 19th century parishes in southern Sweden, yearly time series of
+food prices are available. In this example we use deviation from the log
+trend in annual rye prices, shown in Figure \@ref(fig:logrye).
+```
+
+
+```{r logrye,fig=TRUE,echo=FALSE,fig.cap = "Log rye price deviations from trend, 19th century southern Sweden.", fig.scap="Log rye price deviations from trend"}
+require(eha)
+data(logrye)
+##head(logrye)
+plot(logrye$year, logrye$foodprices, xlab = "Year", ylab = "Log price", type = "l")
+abline(h = 0)
+```
+
+The idea behind this choice of transformation is to focus on deviations
+from the "normal" as a proxy for *short-term variation in economic
+  stress*. 
+
+```{r scan,echo=TRUE}
+##data(scania)
+##summary(scania)
+scania[scania$id == 1, c("enter", "exit", "event", "ses", "sex", "birthdate")]
+```
+
+Now, to put on the food prices as a time-varying covariate, use the function
+```make.communal```.
+
+```{r communal}
+library(eha)
+scania <- make.communal(scania, logrye[, 2, drop = FALSE], 
+                        start = 1801.75)
+scania[scania$id == 1, c("enter", "exit", "event", "birthdate", "ses", "sex", "foodprices")]
+```
+
+A new variable, `foodprices` is added, and each individual's duration
+is split up in one year long intervals (except the first and last). This is
+the way of treating `foodprices` as a time-varying covariate. 
+
+```{r analcomm}
+fit <- coxph(Surv(enter, exit, event) ~ ses + sex + foodprices, 
+                data = scania)
+round(summary(fit)$coefficients, 3)
+```
+
+
+Socio-economic status and sex do not matter much, but food prices do; the
+effect is almost significant at the 5 per cent level. $\Box$
+
