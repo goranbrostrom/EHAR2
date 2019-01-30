@@ -39,7 +39,7 @@ We start with a motivating example, the life table, and its connection to
 death risks and survival probabilities in a population, see
 Table&nbsp;\@ref(tab:lifewomen).
 
-```{example, sw16, name = "Swedish female and male life tables 2016."}
+```{example, sw16, name = "Swedish female and male life tables 2016"}
 \index{life table|(}
 
 Statistics Sweden (SCB) is a government agency that produces
@@ -55,7 +55,6 @@ the number of deaths by the same categories. Tables are available for age
 intervals of lengths 1, 5, and 10 years. We always prefer data with as much
 information as possible. so we choose the age interval length one. It is always
 possible to _aggregate_ later, if that is prefered.
-```
 
 First, the population data is read from the CSV file downloaded from SCB.
 
@@ -182,7 +181,7 @@ way through the last two columns. Note, though, that the last interval
 (100+) is an open interval, i.e., it has no fixed upper limit.
 
 Note the difference in interpretation between the numbers in the second
-column ("pop"") and those in the last ("alive"); the former
+column ("pop") and those in the last ("alive"); the former
 gives the age distribution in a population a given year (referred to as
 _period data_), while the latter constitutes \emph{synthetic cohort
   data}\index{synthetic cohort}, i.e., a group of newborn are followed from
@@ -359,10 +358,10 @@ The cumulative hazard function is important because it is fairly easy to
 estimate nonparametrically\index{nonparametric estimation} (i.e., without
 any restrictions), in contrast to the hazard and density functions. 
 
-\begin{example} The exponential distribution \end{example}
+```{example, name = "The exponential distribution"}
 
 Perhaps the simplest continuous life length distribution is the
-\emph{exponential distribution}. It is simple because its hazard function
+*exponential distribution*. It is simple because its hazard function
 is constant:
 
 \begin{equation*}
@@ -506,7 +505,7 @@ Note that here, the hazard at any given time point is a *conditional
 one. In the continuous case, on the other hand, the hazard function may
 take any positive value. Further note that if, like here, the support is finite,
 the last "hazard atom" is always equal to one (having lived to the "last
-station"", one is bound to die).
+station", one is bound to die).
 
 The system \@ref(eq:alpha) of equations has a unique solution, easily
 found by recursion:
@@ -539,7 +538,7 @@ S(t)  =  \prod_{j: r_j < t} \left(1 - h_j\right), \quad t \ge 0
 It is easily seen that $S$ is decreasing, $S(0) = 1$, and $S(\infty) = 0$,
 as it should be.
 
-\begin{example}The geometric distribution\end{example}
+```{example, name = "The geometric distribution"}
 The \emph{geometric} distribution\index{Distributions!geometric|(} has
 support on $\{1, 2, \ldots\}$ (another version also includes zero in the
 support, this is the case for the one in **R**), and the hazard function $h$ is constant:
@@ -988,23 +987,27 @@ Kaplan-Meier
 curves. The code for the Nelson-Aalen and Kaplan-Meier plots is
 
 ```{r esthas,fig=FALSE, eval = FALSE}
-par(mfrow = c(1, 2))# Two plots, "one row, two columns".
-with(mort, plot(Surv(enter, exit, event), fn = "cum"))
-with(mort, plot(Surv(enter, exit, event), fn = "surv"))
+par(mfrow = c(1, 2))# Two panels, "one row, two columns".
+with(mort, plot(Surv(enter, exit, event), fun = "cumhaz", 
+     main = "Cumulativa hazards function",
+     xlab = "Duration"))
+with(mort, plot(Surv(enter, exit, event),
+                main = "Survivor function",
+                xlab = "Duration"))
 ```
 
-and the result is seen in Figure \@ref(fig:pshazsur).
+and the result is seen in Figure \@ref(fig:pshazsur), with 95 per cent pointwise confidence intervals.
 
 
 ```{r pshazsur,fig=TRUE,echo=FALSE,fig.cap="Nelson-Aalen plot (left panel) and Kaplan-Meier plot (right panel), male mortality data. The dashed lines in the Survival function plot are 95 percent confidence limits.", scap = "Male mortality, Nelson-Aalen and Kaplan-Meier plots.", fig.height = 3}
 par(mfrow = c(1, 2)) 
 par(las = 1, cex.main = 0.9)
-with(mort, plot(Surv(enter, exit, event), axes = FALSE, fn = "cum"))
-axis(1)
-axis(2, at = c(0, 0.1, 0.2, 0.3))
-box()
-with(mort, plot(Surv(enter, exit, event), fn = "surv",
-     col.con = "black")) # See > ?plot.Surv
+with(mort, plot(Surv(enter, exit, event), fun = "cumhaz",
+                main = "Cumulative hazards function",
+                xlab = "Duration"))
+with(mort, plot(Surv(enter, exit, event), 
+                main = "Survivor function",
+                xlab = "Duration"))
 ```
 
 The package `eha` must be loaded for this to work. Note the use of the

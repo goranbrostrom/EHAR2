@@ -1,8 +1,14 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # More on Cox Regression
 
 Necessary and vital concepts like
 *time-dependent covariates*, *communal covariates*, handling of
-*ties*, *model checking*, *sensitivity analysis*, etc, are introduced in this chapter.
+*ties*, *model checking*, *sensitivity analysis*, etc, 
+are introduced in this chapter.
 
 
 ## Time-varying covariates
@@ -57,7 +63,8 @@ an illustration.
 
 ```{r civ,fig=TRUE,echo=FALSE,fig.cap="A time-varying covariate (unmarried or married). Right censored and left truncated at age 30 (at marriage).",fig.scap="A time-varying covariate"}
 #plot(rnorm(100))
-plot(1, 2, type = "n", xlim = c(0, 90), ylim = c(0, 3), xlab = "Age", ylab = "", yaxt="n", xaxt = "n")
+plot(1, 2, type = "n", xlim = c(0, 90), ylim = c(0, 3), xlab = "Age",
+     ylab = "", yaxt="n", xaxt = "n")
 lines(c(0, 30), c(1,1))
 points(30, 1, pch = "c", cex = 1.5)
 lines(c(30, 80), c(2, 2))
@@ -104,21 +111,22 @@ trend in annual rye prices, shown in Figure \@ref(fig:logrye).
 
 
 ```{r logrye,fig=TRUE,echo=FALSE,fig.cap = "Log rye price deviations from trend, 19th century southern Sweden.", fig.scap="Log rye price deviations from trend"}
-require(eha)
+library(eha)
 data(logrye)
-##head(logrye)
-plot(logrye$year, logrye$foodprices, xlab = "Year", ylab = "Log price", type = "l")
+plot(logrye$year, logrye$foodprices, xlab = "Year", ylab = "Log price",
+     type = "l")
 abline(h = 0)
 ```
 
 The idea behind this choice of transformation is to focus on deviations
 from the "normal" as a proxy for *short-term variation in economic
-  stress*. 
+  stress*. We illustrate the idea with a subset of the built-in data set `scania`.
 
-```{r scan,echo=TRUE}
-##data(scania)
-##summary(scania)
-scania[scania$id == 1, c("enter", "exit", "event", "ses", "sex", "birthdate")]
+```{r scand,echo=TRUE}
+library(eha)
+scand <- scania[, c("id", "enter", "exit", "event", "birthdate", "sex", "ses")]
+summary(scand)
+scand[scand$id == 1, ]
 ```
 
 Now, to put on the food prices as a time-varying covariate, use the function
@@ -126,9 +134,9 @@ Now, to put on the food prices as a time-varying covariate, use the function
 
 ```{r communal}
 library(eha)
-scania <- make.communal(scania, logrye[, 2, drop = FALSE], 
+scand <- make.communal(scand, logrye[, 2, drop = FALSE], 
                         start = 1801.75)
-scania[scania$id == 1, c("enter", "exit", "event", "birthdate", "ses", "sex", "foodprices")]
+scand[scand$id == 1, ]
 ```
 
 A new variable, `foodprices` is added, and each individual's duration
@@ -137,7 +145,7 @@ the way of treating `foodprices` as a time-varying covariate.
 
 ```{r analcomm}
 fit <- coxph(Surv(enter, exit, event) ~ ses + sex + foodprices, 
-                data = scania)
+                data = scand)
 round(summary(fit)$coefficients, 3)
 ```
 
@@ -145,3 +153,142 @@ round(summary(fit)$coefficients, 3)
 Socio-economic status and sex do not matter much, but food prices do; the
 effect is almost significant at the 5 per cent level. $\Box$
 
+
+## Tied event times
+
+Tied event times can in theory not occur with continuous-time data, but it
+is impossible to measure duration and life lengths with infinite
+precision. Data are always more or less rounded, tied event times occur
+frequently in practice. This may cause problems (biased estimates) if
+occurring too frequently. There are a few ways to handle tied data, and the
+so-called exact method considers all possible permutations of the tied
+event times in each risk set. It works as shown in the following example.
+
+```{example, name = "Likelihood contribution at tied event time"}
+
+$R_i = \{1, 2, 3\}$, 1 and 2 are events; two
+possible orderings:
+  
+\begin{eqnarray*}
+L_i(\boldsymbol{\beta}) & = & \frac{\psi(1)}{\psi(1) + \psi(2) + \psi(3)} \times
+            \frac{\psi(2)}{\psi(2) + \psi(3)} \\ & + &
+\frac{\psi(2)}{\psi(1) + \psi(2) + \psi(3)} \times
+            \frac{\psi(1)}{\psi(1) + \psi(3)} \\
+ & = & \frac{\psi(1)\psi(2)}{\psi(1) + \psi(2) + \psi(3)}
+ \left\{\frac{1}{\psi(2) + \psi(3)}
+            + \frac{1}{\psi(1) + \psi(3)}\right\}
+\end{eqnarray*}
+$\Box$
+
+The main drawback with the exact method is that it easily becomes
+unacceptably slow, because of the huge number of permutations that may be
+necessary to consider. It is however available in the function `coxph` in the
+`survival` package as an option.
+
+Fortunately, there are a few excellent approximations, most notably
+Efron's\index{Efron's approximation}, which is the default method in most
+survival packages in 
+**R**. Another common approximation, due to Breslow\index{Breslow approximation}, 
+is the default in some
+statistical software and also possible to choose in the `eha` and 
+  `survival` packages in **R**. Finally, there is no cost involved in using
+these approximations in the case of no ties at all; they will all give
+identical results.
+
+With too much ties in the data, there is always the possibility to use
+discrete time methods. One simple way of doing it is to use the option 
+`method = "ml"` in
+the `coxreg` function in the **R** package `eha`.
+
+```{example, name = "Birth intervals."}
+	We look at length of birth intervals
+  between first and second births for married women in 19th century
+  northern Sweden, a subset of the data set 'fert', available in the
+  `eha`   package.  
+Four runs with `coxreg` are performed, with all the possible ways of
+treating ties. 
+
+```{r 5ties, echo=TRUE}
+library(eha)
+first <- fert[fert$parity == 1, ]
+## Default method (not necessary to specify method = "efron"
+fit.e <- coxreg(Surv(next.ivl, event) ~ year + age, data = first, 
+                method = "efron")
+## Breslow
+fit.b <- coxreg(Surv(next.ivl, event) ~ year + age, data = first, 
+                method = "breslow")
+## The hybrid mppl:
+fit.mp <- coxreg(Surv(next.ivl, event) ~ year + age, data = first, 
+                 method = "mppl")
+## True discrete:
+fit.ml <- coxreg(Surv(next.ivl, event) ~ year + age, data = first, 
+                 method = "ml")
+```
+
+Then we compose a table of the four results, see Table \ref(tab:5comt). 
+
+```{r 5compt,echo=FALSE}
+out <- rbind(fit.e$coefficients, fit.b$coefficients, 
+             fit.mp$coefficients, fit.ml$coefficients)
+rownames(out) <- c("Efron", "Breslow", "MPPL", "ML")
+colnames(out) <- c("year", "age")
+knitr::kable(out, booktabs = TRUE, digits = 4, 
+      caption = "Comparison of four methods of handling ties, estimated coefficients.")
+```
+
+
+There are almost no difference in results between the four methods. For the
+`exact` method mentioned above, the number of permutations is 
+$\sim 7 \times 10^{192}$, which is impossible to handle.
+$\Box$
+
+With the help of the function `risksets` in `eha`, it is easy to
+check the composition of risk sets in general and the frequency of ties in
+particular. 
+```{r 5rs,echo=TRUE}
+rs <- risksets(Surv(first$next.ivl, first$event))
+tt <- table(rs$n.event)
+tt
+```
+This output says that `r tt[1]` risk sets have only one event each (no
+ties), `r tt[2]` risk sets have exactly two events each, etc.
+
+The object `rs` is a `list` with seven components. Two of them are
+`n.event`, which counts the number of events in each risk set, and `size`, 
+which gives the size (number of individuals under observation) of
+each risk set. Both these vectors are ordered after the `risktimes`,
+which is another component of the list. For the rest of the components, see
+the help page for `risksets`.
+
+It is easy to produce the *Nelson-Aalen plot*\index{Nelson-Aalen plot}
+with the output from `risksets`. The code is
+```{r 5nal,fig=FALSE}
+plot(rs$risktimes, cumsum(rs$n.event / rs$size), type = "s", 
+     xlab = "Duration (years)", ylab = "Cumulative hazards")
+abline(h = 0)
+```
+and the result is shown in Figure \@ref(fig:5nalplot).
+
+```{r 5nalplot,fig=TRUE,echo=FALSE,caption="Nelson-Aalen plot with the aid of the function risksets"}
+plot(rs$risktimes, cumsum(rs$n.event / rs$size), type = "s", 
+     xlab = "Duration (years)", ylab = "Cumulative hazards")
+abline(h = 0)
+```
+
+One version of the corresponding survival can be constructed by
+```{r 5km,fig=FALSE}
+sur <- exp(-cumsum(rs$n.event / rs$size))
+plot(rs$risktimes, sur, type = "s", 
+     xlab = "Duration (years)", ylab = "Surviving fraction")
+abline(h = 0)
+```
+and the result is shown in Figure \@ref(fig:5km)
+
+```{r 5kmout,fig=TRUE,echo=FALSE,cap="Survival plot with the aid of the function risksets.",scap="Survival plot with the aid of the function risksets"}
+sur <- exp(-cumsum(rs$n.event / rs$size))
+plot(rs$risktimes, sur, type = "s", 
+     xlab = "Duration (years)", ylab = "Surviving fraction")
+abline(h = 0)
+```
+
+	 
