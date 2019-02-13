@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # More on Cox Regression
 
@@ -120,20 +120,18 @@ abline(h = 0)
 
 The idea behind this choice of transformation is to focus on deviations
 from the "normal" as a proxy for *short-term variation in economic
-  stress*. We illustrate the idea with a subset of the built-in data set `scania`.
+  stress*. We illustrate the idea with a subset of the built-in data set `scania`, and we show the information for individual No. 1.
 
 ```{r scand,echo=TRUE}
 library(eha)
 scand <- scania[, c("id", "enter", "exit", "event", "birthdate", "sex", "ses")]
-summary(scand)
 scand[scand$id == 1, ]
 ```
 
 Now, to put on the food prices as a time-varying covariate, use the function
-```make.communal```.
+```make.communal```. We show what happens to individual No. 1.
 
 ```{r communal}
-library(eha)
 scand <- make.communal(scand, logrye[, 2, drop = FALSE], 
                         start = 1801.75)
 scand[scand$id == 1, ]

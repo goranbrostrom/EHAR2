@@ -559,7 +559,7 @@ and the survival function becomes, from \eqref{eq:discsur},
 S(t) = (1-h)^{[t]}, \quad t > 0,
 \end{equation*}
 where $[t]$ denotes the largest integer smaller than or equal to $t$
-(rounding downwards). In Figure \@ref(fig:geom2) the four functions for a
+(rounding towards zero). In Figure \@ref(fig:geom2) the four functions for a
 geometric distribution with $h = 0.25$ are plotted. $\Box$
 \index{Distributions!geometric|)}
 
