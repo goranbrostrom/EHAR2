@@ -1010,7 +1010,7 @@ with(mort, plot(Surv(enter, exit, event),
                 xlab = "Duration"))
 ```
 
-The package `eha` must be loaded for this to work. Note the use of the
+The package `survival` must be loaded for this to work. Note the use of the
 function `with`\index{Functions!`with`}; it tells the `plot`
 function that it should get its data `(enter, exit, event)` from the
 data frame `mort`. The function `Surv`\index{Functions!`Surv`}
