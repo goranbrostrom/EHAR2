@@ -1,7 +1,36 @@
 # Parametric Models
 
-So far we have ...
+So far we have exclusively studied nonparametric methods for survival
+analysis. This is a tradition that has its roots in medical (cancer)
+research. In technical applications, on the other hand, parametric models
+dominate; of special interest is the *Weibull* model \citep{ww51}. The text
+book by \cite{jl03} is a good source for the study of parametric survival
+models. 
+More technical detail about parametric distributions is found in Appendix B .
+
+In {\tt eha} three kinds of parametric models are available; the
+\emph{proportional 
+  hazards}\index{model!parametric!PH}, the \emph{accelerated failure
+  time}\index{model!parametric!AFT} in continuous time, and the \emph{discrete 
+  time proportional hazards}\index{model!parametric!discrete}  models.
+
+
 
 ## Proportional Hazards Models
+
+A proportional hazards family of distributions is generated from one
+specific continuous distribution by multiplying the hazard function of that
+distribution by a strictly positive constant, and letting that constant
+vary over the full positive real line. So, if $h_0$ is the hazard function
+corresponding to the generating distribution, the family of distributions
+can be described by saying that $h$ is a member of the family if
+\begin{equation*}
+  h_1(t) = c h_0(t) \quad \text{for some } c > 0, \; \text{and all } t > 0.
+\end{equation*}
+Note that it is possible to choose any hazard function (on the positive
+real line) as the generating function. The resulting proportional hazards
+class of distributions may or may not be a well recognized family of
+distributions. 
+
 
 ## Accelerated Failure Time Models
