@@ -497,7 +497,7 @@ resulting test statistic will have $(k-1)$ degrees of freedom and still be
 approximately $\chi^2$ distributed. This is illustrated with the same data
 set, `oldmort`, as above, but with the covariate `civ`,
 which is a `factor` with three levels (`unmarried`, `married`, `widow`), instead of `sex`.
-Furthermoree, the investigation is limited to *male mortality*.
+Furthermore, the investigation is limited to *male mortality*.
 
 ```{r lrplace3, echo = FALSE, comment = NA}
 summary(fit <- coxph(Surv(enter, exit, event) ~ civ,  
