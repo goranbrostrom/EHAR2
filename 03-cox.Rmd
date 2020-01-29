@@ -448,16 +448,21 @@ Remember that this result depends on the proportional hazards
 assumption. We can graphically check it as follows.
 
 ```
-with(om, plot(Surv(enter, exit, event), strata = sex, xlab = "Age"))
+sf <- survfit(Surv(enter, exit, event) ~ strata(sex), 
+              data = om, start.time = 60)
+plot(sf, xlab = "Age", fun = "cumhaz")
 ```
 
 Note that the grouping factor (`sex`) is given through the
-argument `strata`. The result is shown in Figure \@ref(fig:phazom3).
+function `strata` in the formula. The result is shown in Figure \@ref(fig:phazom3).
 
 ```{r phazom3, fig.cap = "Old age mortality, women vs. men, cumulative hazards.", echo = FALSE, fig.height = 4}
 par(las = 1)
 ##plot(survfit(fit))
-plot(Surv(om$enter, om$exit, om$event), strata = om$sex, xlab = "Age", main = "")
+sf <- survfit(Surv(enter, exit, event) ~ strata(sex), 
+              data = om, start.time = 60)
+plot(sf, xlab = "Age", main = "", fun = "cumhaz", lty = 1:2)
+legend("topleft", legend = c("Men", "Women"), lty = 1:2)
 ```
 
 <!--
@@ -492,7 +497,7 @@ resulting test statistic will have $(k-1)$ degrees of freedom and still be
 approximately $\chi^2$ distributed. This is illustrated with the same data
 set, `oldmort`, as above, but with the covariate `civ`,
 which is a `factor` with three levels (`unmarried`, `married`, `widow`), instead of `sex`.
-Furthermoree, the investigation is limited to *male mortality*.
+Furthermore, the investigation is limited to *male mortality*.
 
 ```{r lrplace3, echo = FALSE, comment = NA}
 summary(fit <- coxph(Surv(enter, exit, event) ~ civ,  
