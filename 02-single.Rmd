@@ -671,7 +671,7 @@ survival functions.
 
 ### The hazard atoms
 
-In Figure \@ref(fig:prelhaz), the observed event times in Figure \ref@(fig:simple)
+In Figure \@ref(fig:prelhaz), the observed event times in Figure \@ref(fig:simple)
 are marked, the vertical dashed lines at durations 1, 4, and 6, respectively. In
 the estimation of the hazard atoms, the concept of \emph{risk set} is of vital
 importance.

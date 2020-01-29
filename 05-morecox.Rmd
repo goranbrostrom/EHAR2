@@ -1,7 +1,7 @@
 ---
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 # More on Cox Regression
 
@@ -223,7 +223,7 @@ fit.ml <- coxreg(Surv(next.ivl, event) ~ year + age, data = first,
                  method = "ml")
 ```
 
-Then we compose a table of the four results, see Table \ref(tab:5comt). 
+Then we compose a table of the four results, see Table \@ref(tab:5compt). 
 
 ```{r 5compt,echo=FALSE}
 out <- rbind(fit.e$coefficients, fit.b$coefficients, 
@@ -267,7 +267,7 @@ abline(h = 0)
 ```
 and the result is shown in Figure \@ref(fig:5nalplot).
 
-```{r 5nalplot,fig=TRUE,echo=FALSE,caption="Nelson-Aalen plot with the aid of the function risksets"}
+```{r 5nalplot,fig=TRUE,echo=FALSE,fig.cap="Nelson-Aalen plot with the aid of the function risksets"}
 plot(rs$risktimes, cumsum(rs$n.event / rs$size), type = "s", 
      xlab = "Duration (years)", ylab = "Cumulative hazards")
 abline(h = 0)
@@ -280,9 +280,9 @@ plot(rs$risktimes, sur, type = "s",
      xlab = "Duration (years)", ylab = "Surviving fraction")
 abline(h = 0)
 ```
-and the result is shown in Figure \@ref(fig:5km)
+and the result is shown in Figure \@ref(fig:5kmout)
 
-```{r 5kmout,fig=TRUE,echo=FALSE,cap="Survival plot with the aid of the function risksets.",scap="Survival plot with the aid of the function risksets"}
+```{r 5kmout,fig=TRUE,echo=FALSE,fig.cap="Survival plot with the aid of the function risksets.",fig.scap="Survival plot with the aid of the function risksets"}
 sur <- exp(-cumsum(rs$n.event / rs$size))
 plot(rs$risktimes, sur, type = "s", 
      xlab = "Duration (years)", ylab = "Surviving fraction")
