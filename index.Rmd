@@ -22,7 +22,7 @@ cover-image: images/ehar.jpeg
 
 ```{r setup, include=FALSE}
 options(
-  htmltools.dir.version = FALSE, formatR.indent = 2,
+  htmltools.dir.version = FALSE, formatR.indent = 2, 
   width = 55, digits = 4, warnPartialMatchAttr = FALSE, warnPartialMatchDollar = FALSE
 )
 
@@ -30,6 +30,7 @@ lapply(c('DT', 'citr', 'formatR', 'svglite'), function(pkg) {
   if (system.file(package = pkg) == '') install.packages(pkg)
 })
 
+knitr::opts_chunk$set(message = FALSE, echo = FALSE)
 library(eha)
 ```
 

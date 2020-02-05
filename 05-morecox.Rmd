@@ -1,8 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # More on Cox Regression
 
 Necessary and vital concepts like
@@ -18,7 +13,7 @@ packages `eha` and `survival`, and that is so-called
 *piecewise constant* functions. How this is done is best described by
 an example.
 
-\begin{example} {Civil status} \end{example}
+```{example name = "Civil status"}
 
 The covariate (factor) `civil status` (called  $civst$ in the **R** data
 frame) is an explanatory variable in a
@@ -40,7 +35,7 @@ $$
 2.    First new record: $(t_0, T, 0, \text{unmarried})$, *always censored*.
 
 3.    Second new record: $(T, t, d, \text{married})$.
-
+```
 
 The data file will contain two records like (with $T = 30$) what you can see
 in Table \@ref(tab:timevar).

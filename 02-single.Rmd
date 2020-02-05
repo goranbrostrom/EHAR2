@@ -1,8 +1,3 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
 # Single sample data
 
 The basic model descriptions of survival data are introduced. Basically,
@@ -195,7 +190,7 @@ affairs regarding mortality a given year.
 
 
 
-```{r lifetablefig, fig.cap = "Life table and survival function, females, Sweden 2016.", fig.scap = "Life table and survival function, females, Sweden 2016.", echo = FALSE,fig.height=4}
+```{r lifetablefig, fig.cap = "Life table and survival function, females, Sweden 2016.", fig.scap = "Life table and survival function, females, Sweden 2016.", echo = FALSE,fig.height=4,message=FALSE}
 library(eha)
 x <- seq(0, 102, length = 1000)
 plot(x, ppch(x, 1:100, females$risk, lower.tail = FALSE), type = "l",
@@ -294,8 +289,8 @@ The \emph{hazard function}\index{hazard function} is central to the understandin
 analysis, so the reader is recommended to get at least an intuitive
 understanding of it. One way of thinking of it is as an ``instant
 probability''; at a given age $t$, it measures the risk of dying in a short
-interval $(t, t + s)$ immediately after $t$, for an individual \emph{who
-  still is alive at $t$}.
+interval $(t, t + s)$ immediately after $t$, for an individual *who
+  still is alive at* $t$.
 
 \begin{equation*}
 \begin{split}
@@ -383,13 +378,13 @@ and the density function is
 \begin{equation*}
 f(t) = \lambda e^{-\lambda t}, \quad \lambda > 0,\; t \ge 0.
 \end{equation*}
-The property of constant hazard implies \emph{no aging}. This is not a
+The property of constant hazard implies *no aging*. This is not a
 realistic property for human mortality, but, as we will see, a useful
 benchmark, and a useful model for modelling mortality over short time
 intervals (*piece-wise constant hazard*). 
 \index{cumulative hazard function|)} 
 The exponential distribution is described in detail in 
-Appendix \@ref{app:B}.\index{model!continuous|)}$\Box$
+Appendix \@ref(app:B).\index{model!continuous|)}$\Box$
 
 ## Discrete time models
 \index{model!discrete|(}

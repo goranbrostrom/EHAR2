@@ -1,8 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # Cox Regression
 
 ```{r setup3,include=FALSE}
@@ -10,6 +5,7 @@ par(las = 1) # Doesn't work? Later?
 options(show.signif.stars = FALSE)
 ```
 
+\fun{eha} is good
 
 We move slowly from the two-sample case, via the $k$-sample case, to the
 general regression model. On this route, we  start with the *log-rank test*
@@ -20,7 +16,7 @@ and end up with *Cox regression* and the *proportional hazards model* [@cox72].
 
 The property of *proportional hazards* is fundamental in Cox
 regression. It is in fact the essence of Cox's simple yet ingenious
-idea. The definition is as follows.
+idea. The definition is as follows:
 
 ```{definition, name="Proportional hazards"}
 If $h_1(t)$ and $h_0(t)$ are hazard functions from two separate
