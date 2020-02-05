@@ -130,8 +130,8 @@ The function **phreg** in package **eha** fits models like
 \@ref(eq:6weibreg) by default.
 
 ```{example name = "Length of birth intervals, Weibull model."}
-The data set **fert** in the **R** package {\tt eha} contains
-  birth intervals for married women in 19th century Skellefte{\aa}. It is
+The data set **fert** in the **R** package **eha** contains
+  birth intervals for married women in 19th century Skellefteå. It is
   described in detail in Chapter 1.
 ```
   Here only the
@@ -502,8 +502,8 @@ Note two things here. First the use of the function
 first makes an "age cut" in the Lexis diagram, i.e., all spells are
 censored at (exact) age 11. The second is more intricate; factors can be
 tricky to handle. The problem here is that after age.window, the new
-data frame contains only individuals with values {\tt 0, 1, \ldots, 11} on
-the factor variable {\tt ivl}, but it is still *defined* as a factor
+data frame contains only individuals with values $(0, 1, \ldots, 11)$ on
+the factor variable ***ivl**, but it is still *defined* as a factor
 with 14 levels. The call to **levels** collapses the last seven to "7-11".
 
 Now we rerun the analysis with the new data frame.
@@ -568,7 +568,7 @@ fc$agegrp <- cut(fc$age, c(0, 25, 30, 100),
                  labels = c("< 25", "25-30", ">= 30"))
 table(fc$agegrp)
 ``` 
-Note the use of the function {\tt cut}. It "cuts" a continuous variable
+Note the use of the function **cut**. It "cuts" a continuous variable
 into pieces, defined by the second argument. Note that we must give lower
 and upper bounds; I chose 0 and 100, respectively. They are of course not
 near real ages, but I am sure that no value falls outside the interval $(0,
@@ -596,7 +596,7 @@ parameters for **year** and **ses** are very different. Hint: They are not.
 
 
 For modeling survival data with parametric proportional hazards models,
-the distributions of the function {\tt phreg} in the package {\tt eha} are
+the distributions of the function **phreg** in the package **eha** are
 available. How to select a suitable parametric model is shown by a couple
 of examples.
 
@@ -605,7 +605,7 @@ of examples.
 The data set **oldmort** in the **R** package **eha** contains life
 histories for people aged 60 and above in the years 1860--1880, i.e., 21
 years. The data come from the *Demographic Data Base* at Umeå
-University, Ume{\aa}, Sweden, and cover the sawmill district of Sundsvall in
+University, Umeå, Sweden, and cover the sawmill district of Sundsvall in
 the middle of Sweden. This was one of the largest sawmill districts in
 Europe in the late 19th century. The town Sundsvall is located in the
 district, which also contains a rural area, where farming was the main
@@ -615,27 +615,27 @@ require(eha)
 data(oldmort)
 summary(oldmort)
 ``` 
-A short explanation of the variables: {\tt id} is an identification
+A short explanation of the variables: **id** is an identification
 number. It connects records (follow-up intervals) that belong to one
-person. {\tt m.id, f.id} are mother's and father's identification numbers,
-respectively. {\tt enter, exit} and {\tt event} are the components of the
-*survival object}, i.e., start of interval, end of interval, and an
+person. **m.id, f.id** are mother's and father's identification numbers,
+respectively. **enter, exit** and **event** are the components of the
+*survival object*, i.e., start of interval, end of interval, and an
 indicator of whether the interval ends with a death, respectively.
 
 Note that by design, individuals are followed from the day they are aged
 60. In order to calculate the follow-up times, we should subtract 60 from
-the two columns {\tt enter} and {\tt exit}. Otherwise, when specifying a
+the two columns enter and exit. Otherwise, when specifying a
 parametric survivor distribution, it would in fact correspond to a
 left-truncated (at 60) distribution. However, for a Cox
 regression\index{Cox regression}, this 
 makes no difference.
 
-The covariate (factor) {\tt ses.50} is the socio-economic status at
-(approximately) age 50. The largest category is {\tt unknown}. We have
+The covariate (factor) **ses.50** is the socio-economic status at
+(approximately) age 50. The largest category is **unknown**. We have
 chosen to include it as a level of its own, rather than treating it as
-missing. One reason is that we cannot assume *missing at random}
+missing. One reason is that we cannot assume *missing at random*
 here. On the contrary, a missing value strongly indicates that the person
-belongs to a ``lower'' class, or was born early.
+belongs to a lower class, or was born early.
 
 ```{r oldmort6.reg}
 om <- oldmort
@@ -705,7 +705,7 @@ Then we compare the *max log likelihoods*:
 `r round(fit.w1$loglik[2], digits = 3)`, respectively. The test
 statistic is 2 times the difference, 
 `r round(2 * (fit.w$loglik[2] - fit.w1$loglik[2]), digits = 3)`. 
-Under the null hypothesis of no {\tt birthplace} effect on mortality, 
+Under the null hypothesis of no **birthplace** effect on mortality, 
 this test statistic has an approximate
 $\chi^2$ distribution with 2 degrees of freedom. The degrees of freedom is
 the number of omitted parameters in the reduced model, two in this
