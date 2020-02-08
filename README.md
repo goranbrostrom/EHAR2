@@ -2,12 +2,9 @@
 
 This is the beginning of the Second Edition of the
 Chapman and Hall book "Event History Analysis with R" from 2012.
-A preliminary release date of the paper book is September 2019.
+A preliminary release date of the paper book was set to September 2019, but due to unforeseen 
+circumstances, there has been a significant delay. The project is now moving forward again.
 
-The html version of the Second Edition as it looks today (not so much so
-far) is found [here](http://capa.ddb.umu.se/EHAR2/).
+The html version of the Second Edition as it looks today (8 February 2020) is found [here](http://capa.ddb.umu.se/EHAR2/).
 
-**Note 2019-01-30:** Due to unforeseen circumstances, my work on the book
-has had a long break until now, but it will be over very soon.
-
-Suggestions and comments are still welcome!
+Suggestions and comments are welcome!

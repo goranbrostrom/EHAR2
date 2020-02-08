@@ -30,7 +30,7 @@ lapply(c('DT', 'citr', 'formatR', 'svglite'), function(pkg) {
   if (system.file(package = pkg) == '') install.packages(pkg)
 })
 
-knitr::opts_chunk$set(message = FALSE, echo = FALSE)
+knitr::opts_chunk$set(message = FALSE, echo = TRUE, comment = "")
 library(eha)
 ```
 
@@ -41,11 +41,11 @@ Instead, for the time being, I will try to keep you and myself updated about the
 ongoing work with the second edition. You will find the *Preface to the First Edition*
 two pages ahead.
 
-*The First Edition* was written with the aid of  *Sweave* and $\text{\small \LaTeX}$, but for the second edition 
-I have switched to *knitr* and *bookdown*. So now in the beginning, there will be a 
+*The First Edition* was written with the aid of  Sweave and LaTeX, but for the second edition 
+I have switched to **knitr** and **bookdown** (with some support by **LaTeX**). So now in the beginning, there will be a 
 lot of work with translation (much more than I anticipated) from the former to the latter. For the moment (mid 
-January 2018), Chapters 1--3  are translated (but not finished), and I
-am currently working on translating *Chapter 4*.
+Febuary 2020), Chapters 1--5  are translated (but not finished), and I
+am currently working on translating *Chapter 6*.
 
 
 The R session information when last compiling this book is shown below:
@@ -65,7 +65,7 @@ sessionInfo = function() {
 ```
 
 ```{r}
-sessionInfo()
+xfun::session_info()
 ```
 
 

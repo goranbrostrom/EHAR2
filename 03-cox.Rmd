@@ -838,14 +838,15 @@ variable\index{indicator variable}, can always be treated as a continuous
 covariate, if coded 
 numerically (e.g., 0 and 1).
 
-```{example, name="Infant mortality and age of mother"}
+```{example, name="Infant mortality and age of mother",echo=TRUE}
+```
 Consider a demographic example, the influence of mother's age (a continuous covariate) on infant mortality.
 It is considered well-known that a *young* mother means high risk for
 the infant, and
 also that *old* mother means high risk, compared to
 *"in-between-aged"* mothers. So the risk order is not the same (or
 reverse) as the age order. 
-```
+
 One solution (not necessarily the best) to this problem is to *factorize*: Let, for instance,
 
 \begin{equation*}
@@ -914,9 +915,9 @@ lines(c(1821, 1881), c(0, 60), lty = 2)
 abline(h = 0)
 ```
 
-```{example, name = "Old age mortality"}
-There are four possible explanatory variables behind survival after age 60 in the example. 
+```{example, name = "Old age mortality", echo=TRUE}
 ```
+There are four possible explanatory variables behind survival after age 60 in the example. 
 \begin{eqnarray*}
 \mbox{farmer} & = & \left\{ \begin{array}{ll}
              \mbox{no} & \\
@@ -931,7 +932,6 @@ There are four possible explanatory variables behind survival after age 60 in th
 \mbox{birthdate } (x_1) & & \mspace{90mu} \left(e^{\gamma_1 x_1}\right) \\
 \mbox{IMR at birth } (x_2) & & \mspace{90mu} \left(e^{\gamma_2 x_2}\right) \\
 \end{eqnarray*}
-
 The two first are factors, and the last two are continuous covariates. We
 go through the three distinct combinations and illustrate the meaning of
 interaction in each. $\Box$

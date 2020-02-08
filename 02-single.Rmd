@@ -30,26 +30,25 @@ choose and use in a particular application.
 ### The survival function
 \index{survival function|(}
 
-We start with a motivating example, the life table, and its connection to
-death risks and survival probabilities in a population, see
-Table&nbsp;\@ref(tab:lifewomen).
+We start with a motivating example (\@ref(exm:sw16)), the life table, and its connection to
+death risks and survival probabilities in a population, see 
+Table \@ref(tab:lifewomen).
 
-```{example, sw16, name = "Swedish female and male life tables 2016"}
-\index{life table|(}
-
+```{example, sw16, name = "Swedish life tables 2016", echo = TRUE}
+```
 Statistics Sweden (SCB) is a government agency that produces
 statistics and have a coordinating role for the official statistics
 of Sweden. From their home page (http://www.scb.se) it is possible to
 download vital
 population statistics, like population size and number of deaths by age,
-gender, and year. From such data it is possible to construct a _life
-table_.
+gender, and year. From such data it is possible to construct a *life
+table*.
 
 Two tables are needed, one with population size by age and sex, and one with
 the number of deaths by the same categories. Tables are available for age
 intervals of lengths 1, 5, and 10 years. We always prefer data with as much
-information as possible. so we choose the age interval length one. It is always
-possible to _aggregate_ later, if that is prefered.
+information as possible, so we choose the age interval length one. It is always
+possible to *aggregate* later, if that is prefered.
 
 First, the population data is read from the CSV file downloaded from SCB.
 
@@ -59,14 +58,15 @@ pop <- read.table("Data/BE0101A6.csv", header = TRUE,
                   fileEncoding = "latin1")
 ```
 
-The argument _stringsAsFactors = FALSE_ is needed in order to avoid character columns
-being converted to factors, and _fileEncoding_ is needed to take care of some
+The argument `stringsAsFactors = FALSE` is needed in order to avoid character columns
+being converted to factors, and `fileEncoding` is needed to take care of some
 strange Swedish characters (å, ä, ö) in variable names and labels.
 
 The result is shown in Table&nbsp;\@ref(tab:scbpoptab).
 
 ```{r scbpoptab,echo=FALSE}
 ##x <- list(t1 = pop[1:8, ], t2 = pop[195:202, ])
+
 x <- pop[1:4, ]
 x$X2016 <- as.character(round(x$X2016))
 x <- rbind(x, rep(".....", 3))
@@ -207,11 +207,11 @@ abline(h = 0.5, lty = 3)
 abline(v = 86.746, lty = 3)
 ```
 
-It makes sense to plot the life table, see Figure&nbsp;\@ref(fig:lifetablefig). Exactly how this is done will be shown later in the chapter. _Median life length_ is
+It makes sense to plot the life table, see Figure \@ref(fig:lifetablefig). Exactly how this is done will be shown later in the chapter. *Median life length* is
 `r round(qpch(0.5, 1:100, females$risk), 2)`, see construction in the figure.
 By
 dividing all numbers by the original cohort size (in our case 100000), they
-may be interpreted as _probabilities_.\index{life table|)}$\Box$
+may be interpreted as *probabilities*.\index{life table|)}$\Box$
 
 The *survival function* $S(t), \; t > 0$, is defined as
   the probability of surviving past $t$, $t > 0$, or with a formula,
@@ -224,8 +224,7 @@ S(t) = P(T \ge t), \quad t > 0,
 where $T$ is the (random) life length under study. The symbol $P(T \ge t)$
 reads *"the probability that $T$ is equal to or larger than
   $t$"*; here $t$ is a fixed number while $T$ denotes a "random
-quantity". In statistical language, $T$ is called a *random 
-  variable*. In our example, $T$ is the (future) life length of a randomly
+quantity". In statistical language, $T$ is called a *random variable*. In our example, $T$ is the (future) life length of a randomly
 chosen newborn female, of course unknown at birth.
 
 We will, for the time being, assume that $S$ is a ``nice'' function, smooth
@@ -354,6 +353,7 @@ estimate nonparametrically\index{nonparametric estimation} (i.e., without
 any restrictions), in contrast to the hazard and density functions. 
 
 ```{example, name = "The exponential distribution"}
+```
 
 Perhaps the simplest continuous life length distribution is the
 *exponential distribution*. It is simple because its hazard function
@@ -534,6 +534,7 @@ It is easily seen that $S$ is decreasing, $S(0) = 1$, and $S(\infty) = 0$,
 as it should be.
 
 ```{example, name = "The geometric distribution"}
+```
 The \emph{geometric} distribution\index{Distributions!geometric|(} has
 support on $\{1, 2, \ldots\}$ (another version also includes zero in the
 support, this is the case for the one in **R**), and the hazard function $h$ is constant:
@@ -548,7 +549,7 @@ function is, from \eqref{eq:sol},
 \begin{equation*}
 p_i = h (1-h)^{i-1}, i = 1, 2, \ldots,
 \end{equation*}
-and the survival function becomes, from \eqref{eq:discsur},
+and the survival function becomes, from \@ref(eq:discsur),
 
 \begin{equation*}
 S(t) = (1-h)^{[t]}, \quad t > 0,

@@ -1,8 +1,4 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
+
 # Parametric Models
 
 \fun{phreg}
@@ -130,10 +126,10 @@ The function **phreg** in package **eha** fits models like
 \@ref(eq:6weibreg) by default.
 
 ```{example name = "Length of birth intervals, Weibull model."}
+```
 The data set **fert** in the **R** package **eha** contains
   birth intervals for married women in 19th century Skellefteå. It is
   described in detail in Chapter 1.
-```
   Here only the
   intervals starting with the first birth for each woman are considered.
   First the data are extracted and examined.
@@ -192,7 +188,7 @@ plot(fit.w, fn = "haz")
 plot(fit.w, fn = "cum")
 par(oldpar)
 ``` 
-\eex
+$\Box$
 
 ## The Lognormal model
 
@@ -215,11 +211,10 @@ The lognormal proportional hazards model is
 possible to fit with the function **phreg**.
 
 ```{example, name = "Length of birth intervals, Lognormal model."}
+```
   The data are already extracted and examined in the previous example.
   Next, the proportional hazards *lognormal* regression and the likelihood
-  ratio 
-tests for an effect of each covariate are given.
-```
+  ratio tests for an effect of each covariate are given.
 
 ```{r phlognorm}
 fit.lognorm <- phreg(Y ~ age + year + ses, data = f12, 
@@ -699,7 +694,6 @@ birthplace:
 fit.w1 <- phreg(Y ~ sex + civ, data = om) 
 fit.w1
 ``` 
-%\end{example}
 Then we compare the *max log likelihoods*:
 `r round(fit.w$loglik[2], digits = 3)` and
 `r round(fit.w1$loglik[2], digits = 3)`, respectively. The test

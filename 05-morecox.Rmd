@@ -14,7 +14,7 @@ packages `eha` and `survival`, and that is so-called
 an example.
 
 ```{example name = "Civil status"}
-
+```
 The covariate (factor) `civil status` (called  $civst$ in the **R** data
 frame) is an explanatory variable in a
 mortality study, which changes value from 0 to 1 at marriage. How should this be
@@ -35,7 +35,7 @@ $$
 2.    First new record: $(t_0, T, 0, \text{unmarried})$, *always censored*.
 
 3.    Second new record: $(T, t, d, \text{married})$.
-```
+
 
 The data file will contain two records like (with $T = 30$) what you can see
 in Table \@ref(tab:timevar).
@@ -97,12 +97,11 @@ called \emph{exogenous}\index{exogenous covariate}. This could be viewed
 upon as a special case of a time-varying covariate, but without the danger
 of reversed causality that was discussed above. 
 
-```{example, name = "Did food prices affect mortality in the 19th century?"}
-
+```{example, name = "Did food prices affect mortality in the 19th century?", echo = TRUE}
+```
 For some 19th century parishes in southern Sweden, yearly time series of
 food prices are available. In this example we use deviation from the log
 trend in annual rye prices, shown in Figure \@ref(fig:logrye).
-```
 
 
 ```{r logrye,fig=TRUE,echo=FALSE,fig.cap = "Log rye price deviations from trend, 19th century southern Sweden.", fig.scap="Log rye price deviations from trend"}
@@ -158,7 +157,7 @@ so-called exact method considers all possible permutations of the tied
 event times in each risk set. It works as shown in the following example.
 
 ```{example, name = "Likelihood contribution at tied event time"}
-
+```
 $R_i = \{1, 2, 3\}$, 1 and 2 are events; two
 possible orderings:
   
@@ -194,6 +193,7 @@ discrete time methods. One simple way of doing it is to use the option
 the `coxreg` function in the **R** package `eha`.
 
 ```{example, name = "Birth intervals."}
+```
 	We look at length of birth intervals
   between first and second births for married women in 19th century
   northern Sweden, a subset of the data set 'fert', available in the
@@ -232,8 +232,7 @@ knitr::kable(out, booktabs = TRUE, digits = 4,
 
 There are almost no difference in results between the four methods. For the
 `exact` method mentioned above, the number of permutations is 
-$\sim 7 \times 10^{192}$, which is impossible to handle.
-$\Box$
+$\sim 7 \times 10^{192}$, which is impossible to handle.$\Box$
 
 With the help of the function `risksets` in `eha`, it is easy to
 check the composition of risk sets in general and the frequency of ties in

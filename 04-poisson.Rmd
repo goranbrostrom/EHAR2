@@ -87,8 +87,8 @@ Note that the function
 dpois(0:5, lambda = 0.5)
 ```
 
-```{example, name = "Marital fertility"}
-
+```{example, name = "Marital fertility",echo=TRUE}
+```
 As an example where the Poisson distribution may be relevant, we look at
 the number of children born to a woman after marriage. The data frame 
 *fert* in `eha` can be used to calculate the number of births per married
@@ -237,6 +237,7 @@ regression, the most useful application of Poisson regression in survival
 analysis is with tabular data.
 
 ```{example, name = "Mortality in ages 61--80, Sweden 2007."}
+```
 \label{ex:sw07}
 In `eha`, there is the data set `swe07`, which contains population
 size and number of deaths by age and sex in Sweden 2007. The age span is
