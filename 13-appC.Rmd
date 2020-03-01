@@ -1,0 +1,39 @@
+# A brief introduction to **R**
+
+There are already many excellent sources of information available for those
+who want to learn more about **R**. A visit to the **R** home page,
+[http:\\www.r-project.org](http:\\www.r-project.org), is highly recommendable. 
+When there, look under
+*Documentation*. When **R** is installed on a  computer, it is easy to
+access the the documentation that comes with the distribution; start
+**R** and read the help page `?help.start`. A good start for a
+beginner is also the book *Introductory Statistics with R* by
+[@pd08]. The book on 
+*S Programming* [@venrip2] is recommended for the more
+advanced studies of the topic that its title implies.
+
+## R in general
+
+In this section we investigate how to work with **R** ingeneral, without
+special reference to event history analysis, which will be treatsed
+separately in a later section in this chapter.
+
+## Some standard **R** functions
+
+## Writing functions
+
+## Graphics
+
+## Useful **R** functions
+
+## Help in **R**
+
+## Functions for survival analysis 
+
+Here some useful functions in `eha`` are listed. In most cases the
+description is very sparse, and the reader is recommended to consult the
+corresponding help page when more detail is wanted. 
+
+
+## Reading data into **R**
+

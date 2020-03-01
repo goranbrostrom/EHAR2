@@ -1,0 +1,29 @@
+# Survival distributions {#app:B}
+
+The survival distributions we discuss here are all available in **R**. The
+most basic survival distribution is the \emph{Exponential distribution},
+not because it is useful in demographic applications (it isn't), but
+because it is a reference distribution, a special case of other
+distributions, and a building block for in many useful models.
+
+The piecewise constant hazards, Gamma, and the Weibull
+distributions are 
+all generalizations of the exponential.
+
+## Relevant distributions in **R**
+
+In **R**, there are several families of distributions available. The ones that
+are relevant in survival analysis are characterized by having positive
+support. For each family of distributions, four functions are available; a
+*density* function (name prefix `d`), a *cumulative distribution*
+function (name prefix `p`), a *quantile* function (name prefix
+`q`), and a *random number* generator (name prefix `r` }).
+In the package **eha**, the two functions with prefix `h` and `H` are
+added for some distributions. For instance, for the *Weibull*
+distribution there are `hweibull` and `Hweibull`, where the first
+is the hazard function and the second is the cumulative hazards function.
+
+
+## Proportional hazards models
+
+## Accelerated failure time models
