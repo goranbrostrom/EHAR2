@@ -218,7 +218,6 @@ text(5, 5, "Alive")
 text(15, 5, "Dead")
 ```
 
-
 The ultimate study object
 in survival analysis is the time it takes from entering state *Alive*
 (e.g., becoming 60 years of age) until entering state *dead* (e.g.,

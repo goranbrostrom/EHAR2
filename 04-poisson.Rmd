@@ -227,7 +227,7 @@ This correspondence between Poisson and Cox regression was pointed out by
 For completeness the connection between the Poisson distribution and the
 *piecewise constant hazard model*\index{piecewise constant
   hazard}\index{Distributions!piecewise constant hazard}
-is mentioned here.  This is explored in detail in Section \@ref(sec:pch6)
+is mentioned here.  This is explored in detail in Section \@ref(pch6)
 (Chapter 6).
 
 ## Tabular lifetime data

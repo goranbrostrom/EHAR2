@@ -42,10 +42,9 @@ ongoing work with the second edition. You will find the *Preface to the First Ed
 two pages ahead.
 
 *The First Edition* was written with the aid of  Sweave and LaTeX, but for the second edition 
-I have switched to **knitr** and **bookdown** (with some support by **LaTeX**). So now in the beginning, there will be a 
-lot of work with translation (much more than I anticipated) from the former to the latter. For the moment (mid 
-Febuary 2020), Chapters 1--5  are translated (but not finished), and I
-am currently working on translating *Chapter 6*.
+I have switched to **knitr** and **bookdown** (with some support by **LaTeX**). So there has been, and still is,  a 
+lot of work with translation (much more than I anticipated) from the former to the latter. For the moment 
+(March 1, 2020), Chapters 1--6  are translated (but not finished).
 
 
 The R session information when last compiling this book is shown below:

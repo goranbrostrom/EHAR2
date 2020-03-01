@@ -82,13 +82,13 @@ knitr::kable(x, booktabs = TRUE, digits = 0, row.names = TRUE,
 
 Next the table of deaths by age and sex is read from disk.
 
-```{r deaths, echo = TRUE}
+```{r scbdeaths, echo = TRUE}
 deaths <- read.table("Data/BE0101D9.csv", header = TRUE,
                      stringsAsFactors = FALSE,
                      fileEncoding = "latin1")
 ```
 
-The result is shown in Table&nbsp;\@ref(tab:scbpoptab).
+The result is shown in Table&nbsp;\@ref(tab:scbdeathtab).
 
 ```{r scbdeathtab,echo=FALSE}
 ##x <- list(t1 = pop[1:8, ], t2 = pop[195:202, ])
