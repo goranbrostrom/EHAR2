@@ -1,7 +1,756 @@
-# Causality and Mediation
+# Causality and Matching
 
-Causality is a concept that statisticians and statistical science
-traditionally shy away from. Recently, however, ...
+Causality is a concept that statisticians and
+statistical science traditionally shy away from. Recently, however, many
+successful attempts have been made to include the concept of causality in
+the statistical theory and vocabulary.
+A good review of the topic, from a modern, event history analysis point of
+view, is given in @abg08, Chapter 9. Some of their interesting ideas
+are presented here.
 
-## Philosophical aspects of Causality
+The traditional standpoint among statisticians was that "we deal with
+association and correlation\index{correlation}, not
+causality\index{causality}", see @pearl00 for a 
+discussion. An exception was the clinical
+trial, and other situations, where
+*randomization*\index{randomization} could be used as a tool.
+However, during the last couple of decades, there has been an increasing
+interest in the possibility to make causal statements even without
+randomization, that is, in *observational*\index{observational data}
+studies [@rubin74; @robins86]. 
 
+*Matching*\index{matching} is statistical technique, which has an old
+history without an 
+explicit connection to causality. However, as we will see, matching is a
+very important tool in the modern treatment of causality.
+
+In the first edition of this book [@ehar12], I wrote
+
+>  "Unfortunately, the models for event history analysis presented here are not
+>   implemented in **R** or, to my knowledge, in any other publicly available
+>   software. One exception is *matched data analysis*, which, except
+>   the matching 
+>   itself, can be performed with ordinary stratified Cox regression."
+
+Since then things have changed.
+
+## Philosophical aspects on causality
+
+
+The concept of causality\index{causality} has a long history in philosophy,
+see for instance
+@abg08 for a concise review. A fundamental question, with a possibly
+unexpected answer, is "Does everything that happens have a
+cause?". According to @zei05, the answer is "No".
+
+>   "The discovery that individual events are
+>   irreducibly random is probably one of the most significant findings of the
+>   twentieth century. Before this, one could find comfort in the assumption
+>   that random events only seem random because of our ignorance ...
+>   But for the individual event in quantum physics, not only do we not know the
+>   cause, there is no cause."
+>
+>   `r tufte::quote_footer('--- Zeilinger (2005)')`
+
+Of course, this statement must not necessarily be taken literally, but it
+indicates that nothing is to be taken as granted.
+
+<!--
+%%Hume's concept of causality \citep{hume65}
+-->
+## Causal inference
+\index{causal inference}
+According to @abg08, there are three major schools in statistical
+causality, (i) graphical models\index{graphical models}, (ii) predictive
+causality\index{predictive causality}, and (iii)
+counterfactual causality\index{counterfactual causality}. They also introduce a new
+concept, *dynamic
+  path analysis*\index{dynamic path analysis}, which can be seen as a
+merging of (i) and (ii), with the addition that
+*time* is explicitly entering the models.
+
+### Graphical models
+
+\index{graphical models}
+Graphical models have a long history, emanating from @wri21 who
+introduced *path analysis*\index{path analysis}. The idea was to show
+by writing diagrams how variables influence one another. Graphical models has had
+a revival during the last decades with very active research, see
+@pearl00 and @laur96. A major drawback, for event history
+analysis purposes, is, according to @abg08, that *time* is not
+explicitly taken into account. Their idea is that causality evolves in time,
+that is, a *cause* must precede an *effect*.
+
+### Predictive causality
+
+The concept of predictive causality is based on *stochastic processes*, and 
+that a cause must *precede* an effect in time. This
+may seem obvious, but very often you do not see it clearly stated. This leads
+sometimes to confusion, for instance to questions like "What is the cause,
+and what is the effect?". 
+
+One early example is *Granger causality* [@gran69] in time series
+analysis. Another early example with more relevance in event history
+analysis is the concept of *local dependence*. It was introduced by
+Tore Schweder [@schw70].
+
+<!--
+% \item \emph{Predictive causality in {\em longitudinal studies}.} 
+% Arjas \& Eerola (1993). 
+% \item \emph{\em Granger causality.} Granger (1969).
+% \begin{itemize}
+% \item {\sms Time series,}
+% \item {\sms Macro (aggregated) data.}
+% \end{itemize}  
+% \item \emph{\em Local dependence.} Schweder (1970). 
+% \begin{itemize}
+% \item {\sms Markov chains,}
+% \item {\sms Micro (individual) data.}
+% \end{itemize}  
+% \end{itemize}
+% \end{slide}
+
+% % ------------------------------- SLIDE ---------------------------
+
+%\subsubsection{Local dependence}
+-->
+
+  Local dependency is exemplified in Figure \@ref(fig:ldep9). 
+
+```{r ldep9, fig.cap = "Local dependence.", echo = FALSE, fig.align = 'center'}
+knitr::include_graphics("images/localdep.png", auto_pdf = TRUE)
+```
+
+<!--
+\begin{figure}[ht!]
+\begin{center}
+%\pspicture(0, 0)(6, 6)
+$
+\psmatrix[mnode=oval,colsep=3,rowsep=3]
+A^cB^c & AB^c \\
+A^cB & AB 
+\endpsmatrix
+\psset{nodesep=3pt,arrows=->}
+\ncline{1,1}{1,2}
+\tbput{\alpha(t)}
+\ncline{1,1}{2,1}
+\trput{\beta(t)}
+\ncline{2,1}{2,2}
+\tbput{\alpha(t)}
+\ncline{1,2}{2,2}
+\trput{\delta(t)}
+$
+%\endpspicture
+\caption{Local dependence.}
+\label{fig:ldep9}
+\end{center}
+\end{figure}
+-->
+Here $A$ and $B$ are events, and the superscript ($c$) indicates their
+complements, i.e.\ they have not (yet) occurred if superscripted. This
+model is used in the matched data example concerning infant and maternal mortality
+in a nineteenth century environment later in this chapter. There $A$
+stands for *mother dead* and $B$ means *infant dead*. The mother
+and her new-born (alive) infant is followed from the birth to the death of
+the infant (but at most a one-year follow-up). During this follow-up both
+mother and infant are observed and the eventual death of the mother is
+reported. The question is whether mother's death influences the survival
+chances of the infant (it does!). 
+
+In Figure \@ref(fig:ldep9): If $\beta(t) \ne \delta(t)$, then
+$B$ is *locally dependent* on $A$, but $A$ is *locally independent*
+  on $B$: The vertical transition intensities are different, which means
+  that the intensity of $B$ happening is influenced by $A$ happening or
+  not. On the other hand, the horizontal transitions are equal, meaning
+  that the intensity of $A$ happening is not influenced by $B$ happening or
+  not. In our example this means that mother's death influences the
+  survival chances of the infant, but mother's survival chances are
+  unaffected by the eventual death of her infant (maybe not probable in the
+  real world).
+  
+### Counterfactuals
+\index{counterfactuals|(}
+
+In situations, where interest lies in estimating a 
+*treatment effect*\index{treatment effect} (in a wide sense),
+the idea of *counterfactual outcomes*\index{counterfactual outcome} is an
+essential ingredient in 
+the causal inference theory advocated by @rubin74 and
+@robins86. A good introduction to the field is given by
+@hero20. 
+
+Suppose we have a sample of individuals, some treated and some not treated,
+and we wish to estimate a *marginal* (in contrast to *conditional*) treatment 
+effect in the sample at
+hand. If the sample is the result of randomization, that is, individuals are
+randomly allocated to treatment or not treatment (placebo), then there are
+in principle no problems. If, on the other hand, the sample is
+self-allocated to treatment or placebo\index{placebo} (an
+observational\index{observational data} study), then the risk of
+*confounders*\index{confounder} destroying the analysis is
+overwhelming. A *confounder* is a variable that is correlated both with
+treatment and effect, eventually causing biased effect estimates.
+
+The theory of counterfactuals tries to solve this dilemma by allowing each
+individual to be its own control. More precisely, for each individual, two
+hypothetical outcomes are defined; the outcome if treated and the outcome
+if not treated. Let us call them $Y_1$ and $Y_0$, respectively. They are
+counterfactual (counter to fact), because none of them can be
+observed. However, since an individual cannot be both treated and
+untreated, in the real data, each individual has exactly one observed
+outcome $Y$. If the individual was treated, then $Y = Y_0$, otherwise 
+$Y = Y_1$. The individual treatment effect is $Y_1 - Y_0$, but this quantity is
+not possible to observe, so how to proceed?
+
+The Rubin school fixes balance in the data by *matching*\index{matching}, 
+while the Robins school advocates *inverse probability weighting*
+\index{inverse probability weighting}. Both these 
+methods are possible to apply to event history research problems 
+[@hbr02; @hcmcr05], but
+unfortunately there is few, if any, publicly available **R** packages for performing these
+kinds of analyzes, partly with the exception of matching, of which an
+example is given later in this chapter. However, with the programming power
+of **R**, it is fairly straightforward to write own functions for specific
+problems. This is however out of the scope of this presentation.
+
+The whole theory based on counterfactuals relies on the assumption that
+*there are no unmeasured confounders*. Unfortunately, this assumption
+is completely un-testable, and even worse, it never holds in practice.
+
+<!--
+% \subsubsection{Counterfactual causality}
+
+% Two \emph{subschools}:
+
+% \begin{itemize}
+% \item \emph{Rubin} (1974). 
+% \begin{itemize}
+% \item { \emph{potential outcome},}
+% \item { \emph{propensity score}.}
+%   \item { matching}
+% \end{itemize}
+% \item {\em Robins} et al.\ (2000). 
+% \begin{itemize}
+% \item { \emph{counterfactual},}
+% \item { \emph{data weighting} to mimic ``uncomplicated'' data.}
+% \begin{itemize} 
+% \item { Generalization of the \emph{Horwitz-Thomson} estimator.}
+% \end{itemize}
+% \item { \emph{\red Treatment plan}.}
+
+% \item {\green Pearl (2000)}. 
+% \begin{itemize}
+% \item { Points out the relation to classical \emph{graphical models}.}
+% \end{itemize}
+% \end{itemize}
+% \end{itemize}
+
+
+% -------------------------------- SLIDE --------------------------
+
+% \begin{slide}{Simpson's paradox}
+
+% \begin{tabular}{crr|r|rr}
+% Treat & Cured & Not Cured & $\sum$ & Rate & OR\\ \hline
+% \multicolumn{3}{c|}{\em Males} & & & {\em 0.86}\\
+% $T^c$ & 7 & 3 & 10  & 0.7 \\
+% $T$ & 18 & 12 & 30 &  0.6 \\ \hline
+% \multicolumn{3}{c|}{\em Females} & & & {\em 0.67}\\
+% $T^c$ &9  & 21 & 30 & 0.3 \\
+% $T$ & 2 & 8 & 10 & 0.2 \\ \hline
+% \multicolumn{3}{c|}{\red Total} & & & {\red 1.25}\\
+% $T^c$ & 16 & 24 & 40 & 0.4 \\
+% $T$ & 20 & 20 & 40 & 0.5 \\ \hline
+% \end{tabular}
+
+% \end{slide}
+
+% % -------------------------------- SLIDE --------------------------
+
+% \begin{slide}{Simpson's counterfactuals}
+% \scriptsize
+% \begin{tabular}{ccrr|r|rr}
+% Treat & P. outcome & C & NC & $\sum$ & Rate & OR\\ \hline
+% \multicolumn{4}{c|}{\em Males} & & & {\em 0.86}\\
+% $T^c$ & $Y_0$ &7 & 3 & 10  & 0.7 \\
+%       & $Y_1$ & {\red ?} & {\red ?}  &  {\red 10}   &     \\
+% $T$   & $Y_0$ & {\red ?} & {\red ?}  &  {\red 30}  &    \\ 
+%       & $Y_1$ & 18 & 12 & 30 &  0.6 \\ \hline
+% \multicolumn{4}{c|}{\em Females} & & & {\em 0.67}\\
+% $T^c$ & $Y_0$ & 9  & 21 & 30 & 0.3 \\
+%       & $Y_1$ & {\red ?}   & {\red ?}   & {\red 30}   &   \\
+% $T$ & $Y_0$ &   {\red ?}   &  {\red ?}  &  {\red 10}  &  \\
+%     & $Y_1$ & 2 & 8 & 10 & 0.2 \\ \hline
+% \end{tabular}
+
+% \end{slide}
+
+% % -------------------------------- SLIDE --------------------------
+
+% \begin{slide}{Simpson's counterfactuals, II}
+% \scriptsize
+% \begin{tabular}{ccrr|r|rr}
+% Treat & P. outcome & C & NC & $\sum$ & Rate & OR\\ \hline
+% \multicolumn{4}{c|}{\em Males} & & & {\em 0.86}\\
+% $T^c$ & $Y_0$ &7 & 3 & 10  & 0.7 \\
+%       & $Y_1$ & {\red 6} & {\red 4}  &  {\red 10}   & {\red 0.6}    \\
+% $T$   & $Y_0$ & {\red 21} & {\red 9}  &  {\red 30}  & {\red 0.7}   \\ 
+%       & $Y_1$ & 18 & 12 & 30 &  0.6 \\ \hline
+% \multicolumn{4}{c|}{\em Females} & & & {\em 0.67}\\
+% $T^c$ & $Y_0$ & 9  & 21 & 30 & 0.3 \\
+%       & $Y_1$ & {\red 6}   & {\red 24}   & {\red 30}   & {\red 0.2}  \\
+% $T$ & $Y_0$ &   {\red 3}   &  {\red 7}  &  {\red 10}  &  {\red 0.3}\\
+%     & $Y_1$ & 2 & 8 & 10 & 0.2 \\ \hline
+% \end{tabular}
+
+% \end{slide}
+
+% % -------------------------------- SLIDE --------------------------
+
+% \begin{slide}{Simpson's paradox resolved}
+
+% \begin{tabular}{crr|r|rr}
+% P.\ outcome & Cured & Not Cured & $\sum$ & Rate & OR\\ \hline
+% \multicolumn{3}{c|}{\em Males} & & & {\em 0.86}\\
+% $Y_0$ & 28 & 12 & 40  & 0.7 \\
+% $Y_1$ & 24 & 16 & 40 &  0.6 \\ \hline
+% \multicolumn{3}{c|}{\em Females} & & & {\em 0.67}\\
+% $Y_0$ &12  & 28 & 40 & 0.3 \\
+% $Y_1$ & 8 & 32 & 40 & 0.2 \\ \hline
+% \multicolumn{3}{c|}{\red Total} & & & {\red 0.80}\\
+% $Y_0$ & 40 & 40 & 80 & 0.5 \\
+% $Y_1$ & 32 & 48 & 80 & 0.4 \\ \hline
+% \end{tabular}
+
+% \end{slide}
+% % -------------------------------- SLIDE --------------------------
+
+% \begin{slide}{Simpson's paradox, weighting }
+% \begin{center}
+% \begin{tabular}{crr|r|rr}
+% P.\ outcome & C & NC & $\sum$ & Rate & OR\\ \hline
+% \multicolumn{3}{c|}{\em Males} & & & {\em 0.86}\\
+% $T^c$ & 7 & 3 & 10  & 0.7 \\
+% $T$ & 18 & 12 & 30 &  0.6 \\ \hline
+% $Y_0$ & 28 & 12 & 40  & 0.7 \\
+% $Y_1$ & 24 & 16 & 40 &  0.6 \\ \hline
+% \end{tabular}
+% \end{center}
+
+% \emph{\em Inverse probability weighting (IPW):}
+% \begin{equation*}
+% \begin{split}
+% P(T^c \mid \text{male}) = 10/40 = 0.25 & \Rightarrow w(T^c) = 1 / 0.25 = {\em 4}\\
+% P(T \mid \text{male} ) = 30/40 = 0.75 & \Rightarrow w(T) = 1 / 0.75 = {\em 4 / 3}
+% \end{split}
+% \end{equation*}
+
+% {\em Matching} (Rubin) and {\em IPW} (Robins) are {\em
+%   equivalent} (here). 
+% \end{slide}
+
+% -------------------------------- SLIDE --------------------------
+\index{counterfactuals|)}
+% \subsection{Joint vs. marginal models}
+% \begin{itemize}
+% \item Marginal model 
+% \begin{itemize}
+% \item { estimate a treatment effect, adjusting for all other
+%   effects,}
+% \item { focus on populations like the sample at hand,}
+% \item { have low generalizibility,}
+% \item { not interested in explaining underlying causal relations,}
+% \item { less model dependent.}
+% \end{itemize}
+% \item Joint model
+% \begin{itemize}
+% \item { explicit modeling of all components in the process.}
+% \item { have higher generalizibility,}
+% \item { interested in explaining underlying causal relations,}
+% \item { more model dependent.}
+% \end{itemize}
+% \end{itemize}
+  
+% % -------------------------------- SLIDE --------------------------
+% \subsubsection{Structural vs. regression models}
+
+
+% \begin{description}
+% \item[A regression model] {\normalsize \emph{\em ignores} the {\em structure} among the
+%   explanatory variables.}
+% \item[A structural model] {\normalsize explicitly \emph{\em includes} the
+%   (dependence) 
+%   {\em structure} among the explanatory variables.} 
+% \end{description}
+
+
+%\section{Dynamic path analysis}
+-->
+
+## Aalen's additive hazards model
+\index{model!additive hazards}
+
+In certain applications it may be reasonable to assume that risk factors
+acts additively rather than multiplicatively on hazards. Aalen's additive
+hazards model [@aa89; @aa93] takes care of that.
+
+For comparison, recall that the *proportional hazards* model may be written
+\begin{equation*}
+h(t\mid \mathbf{x_i}) = h_0(t) r\bigl(\boldsymbol{\beta}, \mathbf{x_i(t)}\bigr), \quad t >
+0,
+\end{equation*}
+where $r(\boldsymbol{\beta}, \mathbf{x_i})$ is a *relative risk* function. 
+In *Cox regression*\index{Cox regression}
+we (usually) have: 
+$r(\boldsymbol{\beta}, \mathbf{x_i}) = \exp(\boldsymbol{\beta}^T \mathbf{x_i})$, 
+
+The additive hazards model is given by
+\begin{equation*}
+h(t \mid \mathbf{x_i}) = h_0(t) + \beta_1(t) x_{i1}(t) + \cdots
++\beta_p(t) x_{ip}(t), \quad t > 0, 
+\end{equation*}
+where $h_0(t)$ is the 
+*baseline hazard function*\index{baseline hazard function}, and 
+${\boldsymbol{\beta}(t)} = (\beta_0(t),
+\ldots, \beta_p(t))$ is a (multivariate) nonparametric *regression function*.
+
+
+Note that $h(t, \mathbf{x_i})$ may be negative, if some coefficients or
+variabless are negative. In contrast to the Cox regression model, there is
+no automatic protection against this.  
+
+The function `aareg` in the `survival` package fits the additive model. 
+```{r aareg9, echo = FALSE, message = FALSE}
+library(eha) # Attaches the data set 'oldmort'
+fit <- aareg(Surv(enter-60, exit-60, event) ~ sex, data = oldmort)
+fit
+```
+Obviously `sex` is an important variable, females have lower mortality than men.
+Plots of the time-varying intercept and regression coefficient are given by
+``` 
+oldpar <- par(mfrow = c(1, 2))
+plot(fit)
+par(oldpar)
+```
+See Figure \@ref(fig:aafig9), where 95\% confidence limits are added around
+the fitted time-varying coefficients. Also note the use of the function
+`par`\index{Functions!`par`}; the first call sets the plotting area
+to "one row and two columns" and saves the old `par` setting in
+`oldpar`. Then the plotting area is restored to what it was earlier. It is a 
+good habit to always clean up for the next plotting enterprise.
+
+```{r aafig9,echo=FALSE,fig.cap="Cumulative intercept (left) and cumulative regression coefficient (right)."}
+oldpar <- par(mfrow = c(1, 2))
+plot(fit)
+par(oldpar)
+```
+
+<!--
+% ---------------------------- SLIDE ---------------------------------
+%\subsubsection{Output from an additive analysis}
+
+%\includegraphics[width = \textwidth,height=0.2\textheight]{figs/ch9-aalen.eps}
+
+
+% ---------------------------- SLIDE ---------------------------------
+% \subsubsection{Why an additive model?}
+% \begin{itemize}
+% \item A ten-point list with strong arguments \ldots
+% \item ``7. Additivity allows the implementation of \emph{ dynamic path
+%   analysis} with decomposition in \emph{ direct} and \emph{ indirect}
+%   effects. This is \emph{ not possible} for nonlinear models.''
+%   (eg. Cox regression\index{Cox regression}). 
+% \item ``9. The additive model is useful when estimating the weights to be
+%   used in \emph{ inverse probability of censoring weighting (IPCW)}.''
+% \item ``10. Although \emph{ negative hazard estimates} may be seen,
+%   this is mainly \ldots'' 
+% \end{itemize}
+
+% --------------------------- SLIDE ----------------------------------
+-->
+
+## Dynamic path analysis
+The term *dynamic path analysis* was coined by Odd Aalen and coworkers
+[@abg08]. It is an extension, by explicitly introducing time, of *path analysis*
+described by @wri21.   
+
+The inclusion of time in the model implies that there are one path analysis
+at each time point, see Figure \@ref(fig:path9).
+
+```{r path9, fig.cap = "Dynamic path analysis", echo = FALSE, fig.align='center'}
+knitr::include_graphics("images/dynpath.png", auto_pdf = TRUE)
+```
+
+<!--
+\begin{figure}[ht!]
+\begin{center}
+$
+\psmatrix[colsep=3,rowsep=3]
+X_1 \\
+X_2(t) & dN(t)
+\endpsmatrix
+\psset{nodesep=3pt,arrows=->} 
+\ncline{1,1}{2,1}
+\trput{\theta_1(t)}
+\ncline{1,1}{2,2}
+\taput{\beta_1(t)}
+\ncline{2,1}{2,2}
+\taput{\beta_2(t)}
+\quad 0 < t < \infty
+$
+\caption[Dynamic path analysis]{Dynamic path analysis; $X_2$ is an
+  intermediate covariate, while $X_1$ is measured at baseline ($t =
+  0$). $dN(t)$ is the number of events at $t$.}
+\label{fig:path9}
+\end{center}
+\end{figure}
+-->
+$X_2$ is an intermediate covariate, while $X_1$ is measured at baseline 
+($t =0$). $dN(t)$ is the number of events at $t$.
+
+The *structural equations*\index{structural equations} 
+\begin{equation*}
+\begin{split}
+dN(t) &= \bigl(\beta_0(t) + \beta_1(t) X_1 + \beta_2(t) X_2(t)\bigr)dt +
+dM(t) \\
+X_2(t) &= \theta_0(t) + \theta_1(t) X_1 + \epsilon(t)
+\end{split}
+\end{equation*}
+are estimated by ordinary least squares (linear regression) at each $t$
+with $dN(t) > 0$.
+
+Then the second equation is inserted in the first:
+
+\begin{equation*}
+dN(t) = \{\beta_0(t) + \beta_2(t) \theta_0(t) + \bigl(\beta_1(t) +
+\theta_1(t) \beta_2(t)\bigr) X_1 + \beta_2(t) \epsilon(t)\}dt + dM(t)
+\end{equation*}
+
+and the *total treatment effect* is $\bigl(\beta_1(t) +
+\theta_1(t)\beta_2(t)\bigr)dt$, so it can be split into two parts according to
+\begin{equation*}
+\begin{split}
+\text{total effect} &= \text{direct effect} + \text{
+    indirect effect} \\ 
+&= \beta_1(t)dt + \theta_1(t)\beta_2(t)dt
+\end{split}
+\end{equation*}
+Some book-keeping is necessary in order to write an **R** function for this
+dynamic model. Of great help is the function
+`risksets`\index{Functions!`risksets`}  in `eha`;
+it keeps track of the composition of the riskset over time, which is
+exactly what is needed for implementing the dynamic path analysis.
+
+**Estimation:** Standard *least squares* at each $t, \; 0 < t < \infty$ (in
+principle).
+
+
+## Matching \label{sec:match}
+
+Matching is a way of eliminating the effect of
+*confounders*\index{confounder} and therefore 
+important to discuss in connection with causality. One reason for matching
+is the wish to follow the causal inference paradigm with
+counterfactuals\index{counterfactuals}. Another reason is that the exposure
+we want to study is 
+very rare in the population. It will then be inefficient to take a simple
+random sample from the population; in order to get enough cases in the
+sample, the sample size needs to be very large. On the other hand, today's
+register based research tends to analyze whole populations, and the
+limitations in terms of computer memory and process power are more or less
+gone. Nevertheless, small properly matched data sets may contain more
+information about the specific question at hand than whole register!
+
+When creating a matched data set, you have to decide how many controls you
+want per case. In the true counterfactual paradigm in "causal inference", 
+it is common practice to choose one control per case, to "fill in" the
+unobservable in the pair of counterfactuals. We first look at the case with
+matched pairs, then a case study with two controls per case.
+
+
+### Paired data
+
+Certain kinds of observations come naturally in pairs. The most obvious
+situation is data from twin studies. Many countries keep registers of
+twins, and the obvious advantage with twin data is that it is possible to
+control for genetic variation; monozygotic twins have identical genes.
+Humans have pairs of many body parts; arms, legs, eyes, ears, etc. This can be
+utilized in medical studies concerning comparison of treatments, the two in
+a pair simply get one treatment each.
+
+In a survival analysis context, pairs are followed over time and it is
+noted who first experience the event of interest. In each pair, one is
+treated and the other is a control, but otherwise they are considered more
+or less identical. Right censoring may result in that it is impossible to
+decide who in the pair experienced the event first. Such pairs are simply
+discarded in the analysis.
+
+The model is 
+\begin{equation}
+h_i(t; x) = h_{0i}(t) e^{\beta x},
+\end{equation}
+where $x$ is treatment (0-1)
+and $i$ is pair No. Note that each pair has its own baseline hazard
+function, which means that the proportional hazards assumption is only
+required within pairs. This is a special form of stratified analysis in
+that each stratum only contains two individuals, a case and its control. If
+we denote by $T_{i1}$ the life length of the case in pair No.\ i and
+$T_{i0}$ the life length of the corresponding control, we get  
+
+\begin{equation}
+P(T_{1i} < T_{0i}) = \frac{e^\beta}{1 + e^\beta}, \quad i = 1, \ldots, n,
+(\#eq:9pair)
+\end{equation}
+and the result of the analysis is simply a study of binomial data; how many
+times did the case die before the control? We can estimate this
+probability, and also test the null hypothesis that it is equal to one
+half, which corresponds to $\beta = 0$ in \@ref(eq:9pair). 
+
+### More than one control
+
+The situation with more than one control per case is as simple as the
+paired data case to handle. Simply stratify, with one case and its controls
+per stratum. It is also possible to have a varying number of controls per case.
+
+As an example where two controls per case were used, let us see how a study
+of maternal death and its effect on infant mortality was performed.
+
+```{example label = "matchex9", name = "Maternal death and infant mortality"}
+```
+
+This is a study on historical data from northern Sweden, 1820--1895 [@gb87]. The
+simple question asked was: How much does the death risk increase for an
+infant that loses her mother? More precisely, by a maternal death we mean
+that a mother dies within one year after the birth of her child. In this
+particular study, only first births were studied. The total number of such
+births was 5641 and of these 35 resulted in a maternal death (with the
+infant still alive). Instead of
+analyzing the full data set, it was decided to use matching. To each case
+of maternal death, two controls were selected in the following way. At each
+time an infant changed status from *mother alive* to *mother dead*,
+two controls are selected without replacement from the subset of the
+current risk set, where all infants have *mother alive* and not already
+used as controls and with correct matching characteristics. If a control
+changes status to case (its mother dies), it is immediately censored as a
+control and starts as a case with two controls linked to it. However, this
+situation never occurred in the study.
+
+Let us load the data into **R** and look at it.
+
+```{r 9matinfdat}
+library(eha)
+head(infants)
+```
+Here we see the two first triplets in the data set, which consists of 35
+triplets, or 105 individuals. Infant No. 1 (the first row) is a case, his
+mother died when he was 55 days old. At that moment, two controls were
+selected, that is, two boys 55 days of age, and with the same characteristics
+as the case. The matching was not completely successful; we had to look a
+few years back and forth in calendar time (covariate `year`). Note also
+that in this triplet all infants survived one year of age, so there is no
+information of risk differences in that triplet. It will be automatically
+removed in the analysis.
+
+The second triplet, on the other hand, will be used, because the case dies
+at age 76 days, while both controls survive one year of age. This is
+information suggesting that cases have higher mortality than controls after
+the fatal event of a maternal death.
+
+The matched data analysis is performed by stratifying on triplets (the
+variable `stratum`).
+
+```{r 9matchedanal}
+fit <- coxreg(Surv(enter, exit, event) ~ mother + strata(stratum), 
+data = infants)
+summary(fit)
+```
+\index{Functions!\fun{coxreg}}
+The result is that mother's death increases the death risk of the infant
+wit a factor 13.5! It statistically very significant, but the number of
+infant deaths (21) is very small, so the $p$-value may be unreliable. 
+
+In a stratified analysis it is normally not possible to include covariates
+that are constant within strata. However, here it is possible to estimate
+the *interaction* between a stratum-constant covariate and exposure,
+mother's death. However, it is important *not* to include the
+main effect corresponding to the stratum-constant covariate! This is a rare
+exception to the rule that when an interaction term is present, the
+corresponding main effects must be included in the model.
+
+We investigate whether the effect of mother's death is modified by her age
+by first calculating an interaction term (`mage`):
+```{r mage9}
+infants$mage <- ifelse(infants$mother == "dead", infants$age, 0)
+```
+\index{Functions!`ifelse`} Note the use of the function `ifelse`:
+It takes three arguments, the first is a logical expression (resulting in
+a *logical* vector, with values `TRUE` and `FALSE`. Note that
+in this example, the length is the same as the length of `mother` (in
+`infants`). For each component that is `TRUE`, the result is given by
+the second argument, and for each component that is `FALSE` the value
+is given by the third argument.
+
+Including the created covariate in the analysis gives
+```{r matin9}
+fit <- coxreg(Surv(enter, exit, event) ~ mother + mage + 
+              strata(stratum), data = infants)
+summary(fit)
+```
+What happened here? The effect of mother's age is even larger than in the
+case without `mage`, but the statistical significance is gone
+altogether. There are two problems with one solution here. First, due to the
+inclusion of the interaction, the (main) effect of mother's death is now
+measured at mother's age equal to 0 (zero!), which of course is completely
+nonsensical, and second, the construction makes the two covariates strongly
+correlated: When `mother` is `alive`,  `mage` is zero, and
+when `mother` is `dead, `mage` takes a rather large
+value. This is a case of *collinearity*\index{collinearity}, however
+not very severe case, because it is very easy to get rid of.
+
+The solution? *Center*\index{centering} mother's age (`age`)! Recreate the
+variables and run the analysis  again:
+```{r matin29}
+infants$age <- infants$age - mean(infants$age)
+infants$mage <- ifelse(infants$mother == "dead", infants$age, 0)
+fit1 <- coxreg(Surv(enter, exit, event) ~ mother + mage + 
+              strata(stratum), data = infants)
+summary(fit1)
+```
+The two fits are equivalent (look at the Max. log. likelihoods), but with
+different parametrizations. The second, with a centered mother's age, is
+preferred, because the two covariates are close to uncorrelated there.
+
+A subject-matter conclusion in any case is that mother's age does not
+affect the effect of her death on the survival chances of her infant.
+\eex
+
+**A general advice:** Always center continuous covariates before the analysis!
+This is especially important in the presence of models with interaction
+terms, and the advice is valid for all kinds of regression analyzes, not
+only Cox regression. Common practice is to subtract the mean value, but it is 
+usually a better idea to use a *fixed* value, a value that remains fixed as 
+subsets of the original data set are analyzed.
+
+## Conclusion
+
+Finally some thoughts about causality, and the techniques in use for
+"causal inference". As mentioned above, in order to claim causality,
+one must show (or assume) the there are "no unmeasured
+confounders". Unfortunately, this is impossible to prove or show from data
+alone, but even worse is the fact that in practice, at least in demographic
+and epidemiological applications, there are *always*
+unmeasured confounders present. However, with this in mind, note that
+
+*   Causal *thinking* is important,
+*   Counterfactual reasoning and marginal models yield little insight into
+   "how it works", but it is a way of reasoning around research problems
+    that helps sorting out thoughts.
+    +  Joint modeling is the alternative.
+*   Creation of *pseudo-populations*\index{pseudo-population}
+    through weighting and matching may limit the understanding of 
+    how things work.
+    +   Analyze the process as it presents itself, so that it is easier to
+        generalize findings.
+
+Read more about this in @abg08.
+\index{causality|)}

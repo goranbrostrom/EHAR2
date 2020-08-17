@@ -1,3 +1,434 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # Multivariate survival models
 
-Sometimes, survival data come in clusters, ...
+Sometimes survival data come in clusters, and
+multivariate, or *frailty*, models are appropriate to use.
+
+Ever since the paper by @vau79, the concept of
+frailty has spread in even wider circles of the research
+community. Although their primary purpose was to show various
+consequences of admitting individual frailties ("individuals age
+faster than cohorts"\index{cohort}, due to the selection effect), the effect was
+that people started to implement their frailty model in Cox
+regression\index{Cox regression} models.
+
+## An Introductory Example
+
+Let us assume that in a follow-up study, the cohort\index{cohort} is not
+homogeneous but instead consists of two equally sized groups with
+differing hazard rates. Assume further that we have no indication of
+which group an individual belongs to, and that members of both groups
+follow an exponential life length distribution:
+\begin{equation*}
+\begin{split}
+h_1(t) &= \lambda_1 \\
+h_2(t) &= \lambda_2 \\
+\end{split} \qquad t > 0.
+\end{equation*}
+This implies that the corresponding survival
+functions $S_1$ and $S_2$ are
+\begin{equation*}
+\begin{split}
+S_1(t) &= e^{-\lambda_1 t} \\
+S_2(t) &= e^{-\lambda_2 t} \\
+\end{split} \qquad
+t > 0,
+\end{equation*}
+and a randomly chosen individual will follow the
+"population mortality" $S$, which is a *mixture* of the two
+distributions:
+\begin{equation*}
+S(t) = \frac{1}{2} S_1(t) + \frac{1}{2} S_2(t), \quad t > 0.
+\end{equation*}
+Let us calculate the hazard function for this mixture. We start by
+finding the *density function* $f$:
+\begin{equation*}
+f(t) = -\frac{dS(x)}{dx} = \frac{1}{2}\left(\lambda_1 e^{-\lambda_1 t}
+    + \lambda_2 e^{-\lambda_2 t} \right), \quad t > 0.
+\end{equation*}
+Then, by the definition of $h$ we get
+\begin{equation}
+h(t) = \frac{f(t)}{S(t)} = \omega(t) \lambda_1 + \big(1 -
+\omega(t)\big) \lambda_2, \quad t > 0,
+(\#eq:mixhaz)
+\end{equation}
+with
+\begin{equation*}
+\omega(t) = \frac{e^{-\lambda_1 t}}{e^{-\lambda_1 t} +
+e^{-\lambda_2 t}}
+\end{equation*}
+It is easy to see that
+\begin{equation*}
+\omega(t) \rightarrow \left\{ \begin{array}{ll}
+                              0, & \lambda_1 > \lambda_2 \\
+                              \frac{1}{2}, & \lambda_1 = \lambda_2 \\
+                              1, & \lambda_1 < \lambda_2
+                             \end{array} \right.
+, \quad \mbox{as } t \rightarrow \infty,
+\end{equation*}
+implying that
+\begin{equation*}
+h(t) \rightarrow \min(\lambda_1, \lambda_2), \quad t \rightarrow
+\infty,
+\end{equation*}
+see Figure \@ref(fig:fig6frail).
+
+```{r fig6frail,fig=TRUE,echo=FALSE,fig.cap = "Population hazard function (solid line). The dashed lines are the hazard functions of each group, constant at 1 and 2.",fig.scap="Population hazard function."} 
+lambda1 <- 1
+lambda2 <- 2
+w <- function(t) exp(-lambda1 * t) / (exp(-lambda1 * t) + exp(-lambda2 * t))
+x <- seq(0, 5, length = 1000)
+plot(x, w(x) * lambda1 + (1 - w(x)) * lambda2, ylim = c(0, 2.1), type = "l", xlab = "Time", ylab = "h(t)")
+abline(h = 2, lty = 2)
+abline(h = 1, lty = 2)
+abline(v = 0)
+``` 
+
+The important point here is that it is *impossible* to tell from
+data alone whether the population is homogeneous, with all
+individuals following the same hazard function (\@ref(eq:mixhaz), or
+if it in fact consists of two groups, each following a constant
+hazard rate.
+Therefore, individual frailty models like $h_i(t) = Z_i h(t), \quad i = 1,
+\ldots, n$, where $Z_i$ is the "frailty" for individual No.\ $i$,
+and $Z_1, \ldots, Z_n$ are independent and identically distributed (iid)
+are less useful.
+
+A heuristic explanation to all this is the dynamics of the problem:
+We follow a population (cohort) over time, and the *composition*
+of it changes over time. The weaker individuals die first, and the
+proportion stronger will steadily grow as time goes by.
+
+Another terminology is to distinguish between *individual* and
+*population* hazards. In Figure \@ref(fig:fig6frail) the solid line is the
+population hazard, and the dashed lines represent the two kinds of
+individual hazards present. Of course, in a truly homogeneous population,
+these two concepts coincide.
+
+## Frailty models
+
+Frailty models in survival analysis corresponds to *hierarchical*
+models in linear or generalized linear models. They are also called
+*mixed effects models*. A general theory, with emphasis on using **R**,
+of mixed effects models can be found in  @pinbat00.
+
+### The simple frailty model
+
+@vau79 described an individual frailty model,
+\begin{equation*}
+h(t; \mathbf{x}, Z) = h_0(t) Z e^{\boldsymbol{\beta} \mathbf{x}},
+\quad t > 0,
+\end{equation*}
+where $Z$ is assumed to be drawn independently for each individual.
+Hazard rates for ``random survivors''  are not proportional,
+but converging (to each other)
+if the frailty distribution has finite variance.
+Thus, the problem may be less pronounced in AFT than in PH regression.
+However, as indicated in the introductory example, with individual frailty
+the identification problems are large, and such models are best avoided.
+
+## The shared frailty model
+
+Frailty models work best when there is a natural grouping of the data, so
+that observations from the same group are dependent, while two individual
+survival times from different groups can be regarded as independent. Such a
+model may be described as
+\begin{equation}
+h_i(t; \mathbf{x}) = h_{i0}(t) e^{\boldsymbol{\beta}\mathbf{x}}, \quad i = 1, \ldots, s;\; t > 0,
+(\#eq:strat7)
+\end{equation}
+which simply is a stratified Cox regression\index{Cox regression} model. By
+assuming  
+\begin{equation}
+h_{i0}(t) = Z_i h_0(t), \quad i = 1, \ldots s;\; t > 0,
+(\#eq:frail7)
+\end{equation}
+the traditional multivariate frailty model emerges. Here it is assumed that
+$Z_1, \ldots, Z_s$ are independent and identically distributed
+(*iid*), usually with a lognormal distribution. From \@ref(eq:strat7)
+and \@ref(eq:frail7) we get, with $U_i = \log(Z_i)$,
+\begin{equation*}
+h_i(t; \mathbf{x}) = h_{0}(t) e^{\boldsymbol{\beta}\mathbf{x} + U_i}, \quad i = 1, \ldots, s;\; t > 0.
+\end{equation*}
+In this formulation,  $U_1, \ldots, U_s$ are *iid* normal with mean
+zero and unknown variance $\sigma^2$.
+Another popular choice of distribution for the $Z$:s is the gamma
+distribution.   
+
+In **R**, the package `coxme` [@coxme]\index{Packages!coxme} fits frailty models. 
+We look at the fertility data set in the **R** package `eha`.
+```{r fert7, message=FALSE} 
+library(eha)
+head(fert)
+``` 
+It seems natural to assume that the lengths of birth intervals vary with
+mother, so we try a frailty model with `id` as the grouping
+variable. Also notice that the first interval for each woman is measured
+from marriage (only married women are included in this data set) to first
+birth, so we will start by removing them. They are characterized by 
+`parity` being 0.
+```{r idcoxme7,message=FALSE} 
+fe <- fert[fert$parity != 0, ]
+library(coxme)
+fit <- coxme(Surv(next.ivl, event) ~ age + ses + parity + 
+             (1 | id), data = fe)
+summary(fit, digits = 3)
+``` 
+The estimates of the fixed effects have the same interpretation as in
+ordinary Cox regression\index{Cox regression}. The question is if the
+results point to the 
+significance of including frailty terms? In the last line of the output we
+get the estimate of the frailty variance, $\sigma^2 = 0.565$, but no $p$-value 
+for the test of the null hypothesis $H_0: \sigma = 0$. One explanation to
+this is that ordinary asymptotic theory\index{asymptotic theory} does not
+hold for parameter values 
+at the boundary of the parameter space.
+
+One way to get a feeling for the impact of the frailty effect is to fit the
+same model but without frailty, i.e., the term `(1 | id)`.
+```{r nofrail7} 
+fit0 <- coxreg(Surv(next.ivl, event) ~ age + ses + parity, 
+               data = fe)
+summary(fit0)
+``` 
+\index{Functions!\fun{coxreg}}
+We can compare the two "max log likelihoods", in the frailty model the
+"Integrated" value `r as.integer(round(fit$loglik[2]))`, and in the
+fixed effects case 
+`r as.integer(round(fit0$loglik[2]))`. The difference is so large 
+(`r round(fit$loglik[2] - fit0$loglik[2])`)
+that 
+we safely can reject the hypothesis that the frailty model is not needed. 
+As an "informal" test, you could take twice that difference and treat it as
+as a $\chi^2$ statistic with 1 degree of freedom, calculate a $p$-value and
+take as real $p$-value one half of that (all this because ordinary
+asymptotic theory does not hold for parameter values on the boundary of the
+parameter space!). This gives an approximation of the true $p$-value that
+is not too bad.
+
+As a final example, let us look at *old age mortality* in the **R** package
+`eha`. This example also shows a dangerous situation that is too easy
+to overlook. It has nothing to do with frailty, but with a problem caused
+by *missing data*\index{missing data}.
+
+```{example name = "Old age mortality for siblings."}
+Take a look at the variables in `oldmort`:
+```{r oldmortf7} 
+head(oldmort)
+``` 
+The variable `m.id` is *mother's id*. This means that siblings
+will have the same value on that variable, and we can check whether we find
+a ``sibling effect'' in the sense that siblings tend to have a similar risk
+of dying.
+```{r oldanal7} 
+fit <- coxme(Surv(enter, exit, event) ~ sex + civ + (1 | m.id), 
+             data = oldmort)
+fit
+``` 
+Now, compare with the corresponding fixed effects model:
+```{r fixold7} 
+fit0 <- coxreg(Surv(enter, exit, event) ~ sex + civ, 
+               data = oldmort)
+summary(fit0)
+``` 
+Note that we now got a very much smaller value of the maximized log likelihood,
+`r as.integer(round(fit0$loglik[2]))` compared to 
+`r as.integer(round(fit$loglik[2]))`! Something is wrong, and the big problem is
+that the two analyzes 
+were performed on different data sets. How is that possible, we used
+  `oldmort` on both occasions? The variable `m.id` has a lot of missing
+values, almost 50 per cent are missing (NA), and the standard treatment of NA:s in
+**R** is to simply remove each record that contains an NA on any of the
+variables in the analysis. So, in the first case, the frailty model, a lot
+of records are removed before analysis, but not in the second. To be able
+to compare the models we must remove all records with `m.id = NA` from
+the second analysis.
+```{r shrink7}
+olm <- oldmort[!is.na(oldmort$m.id), ]
+fit0 <- coxreg(Surv(enter, exit, event) ~ sex + civ, 
+               data = olm)
+summary(fit0)
+```
+This is another story! We now got  very similar values of the maximized log likelihoods,
+`r round(fit0$loglik[2], 2)` compared to 
+`r round(fit$loglik[2], 2)`! The conclusion is that in this case, there
+is no frailty effect whatsoever.
+
+One lesson to learn from this example is that you have to be very cautious
+when a data set contains missing values. Some functions, like `drop1`,
+give a warning when a situation like this is detected, but especially when
+comparisons are made in more than on step, it is too easy to forget the
+dangers. 
+
+Also note the warning that is printed in the results of 
+  `coxme`\index{Functions!\fun{coxme}}: 
+  *3163 observations deleted due to missingness*. This is a warning that
+should be taken seriously.
+$\Box$
+
+<!--
+%\end{example}
+% \subsubsection{Swedish marriages 1970}
+%   From SCB, distribution of {\blue time to divorce}.
+
+% ```{r echo=FALSE,fig=TRUE} 
+% source("div.R")
+% p <- div(fig = FALSE)
+% F <- cumsum(c(0, p))
+% plot(0:20, 100 * F, type = "l", xlab = "Years after marriage", ylab = "Divorced fraction (per cent)", col = "blue")
+% abline(h = 0)
+% abline(v = 0)
+% ```
+
+% ```{r echo=FALSE,fig=TRUE} 
+% source("div.R")
+% p <- div(fig = FALSE)
+% F <- cumsum(c(0, p))
+% plot(0:20, 100 * (1 - F), type = "l", xlab = "Years after marriage", ylab = "Still married fraction (per cent)", ylim = c(0, 100), col = "blue")
+% abline(h = 0)
+% abline(v = 0)
+% ```
+
+% {\blue Note:} Assumes no deaths.
+% ```{r echo=FALSE,fig=TRUE} 
+% ##source("div.R")
+% p <- div(fig = FALSE)
+% F <- cumsum(c(0, p))
+% plot(0:20, 100 * (1 - F), type = "l", xlab = "Years after marriage", ylab = "Still married fraction (per cent)", ylim = c(0, 100), col = "blue")
+% abline(h = 0)
+% abline(v = 0)
+% ```
+
+% {\blue Note:} Assumes no deaths.
+% \subsubsection{Marriages, a simulation (hazards)}
+
+% ```{r fig=TRUE,echo=FALSE} 
+% source("simdiv.R")
+% simdiv(what = "haz")
+% ```
+
+% ```{r fig=TRUE,echo=FALSE} 
+% ##source("R/simdiv.R")
+% simdiv(what = "cdf")
+% ```
+-->
+
+## Parametric frailty models
+
+<!--
+% In \R\ there is a package called {\tt lme4}\index{lme4} \citep{lme411},
+% which is a de 
+% facto standard for analyzing mixed effects models, at least in the
+% \R\ community. In that package there is a function {\tt glmer} that
+% analyzes generalized linear mixed models (GLMM), and it is possible to
+% It is possible utilize the connection between Poisson\index{Distributions!Poisson}
+% regression and  the piecewise constant proportional hazards model
+% \index{Distributions!piecewise constant hazard}
+% discussed in Chapter 6 to fit parametric frailty models. We look at the
+% fertility data again.  
+% ```{r fert7par} 
+% fe13 <- survSplit(fe, end = "next.ivl", event = "event", 
+%                   cut = 1:13, episode = "years", start = "start")
+% fe13$years <- as.factor(fe13$years) # 1
+% fe13$offs <- log(fe13$next.ivl - fe13$start) # 2
+% fit <- glmmML(event ~ age + year + ses + years + offset(offs), cluster = id, 
+%             data = fe13, family = poisson)
+% drop1(fit, test = "Chisq")
+% summary(fit0)
+% ##logLik(fit0)
+% ``` 
+% This is the model without taking into account that there is a possible
+% dependency structure in the data due to the repeated measurements; most
+% mothers have several births and birth intervals. Now the mixed effects approach.
+% ```{r poisfert7} 
+% library(lme4)
+% fit1 <- glmer(event ~ age + year + ses + years + offset(offs) + (1 | id), 
+%               family = poisson, data = fe13, nAGQ = 8)
+% print(fit1)
+% ``` 
+% The function \fun{glmer} gives a lot of output, most notably the
+% correlation matrix for the fixed effects estimates. All the years makes the
+% output just too much. In this example the clustering effect is very small.  
+% If we want to test the presence of a random effect over women, an
+% alternative is to use \fun{glmmML} in \pkg{eha}.
+% ```{r poisfertML7} 
+% fit2 <- glmmML(event ~ age + year + ses + years + offset(offs), cluster = id, 
+%               family = poisson, method = "ghq", data = fe13, n.points = 8)
+% print(fit2)
+% ``` 
+-->
+
+It is possible utilize the connection between Poisson\index{Distributions!Poisson}
+regression and  the piecewise constant proportional hazards model
+\index{Distributions!piecewise constant hazard}
+discussed in Chapter 6 to fit parametric frailty models. We look at the
+fertility data again.  The standard analysis without frailty effects is
+```{r stanal7} 
+fit0 <- phreg(Surv(next.ivl, event) ~ parity + ses,
+              dist = "pch", cuts = 1:13, data = fe)
+summary(fit0)
+``` 
+
+For testing the presence of a random effect over women, an
+alternative is to use `glmmML`\index{Functions!\fun{glmmML}} in `eha`.
+```{r poisfertML7} 
+library(glmmML)
+fe13 <- survSplit(fe, end = "next.ivl", event = "event", 
+                  cut = 1:13, episode = "years", 
+                  start = "start") #1
+fe13$years <- as.factor(fe13$years) # 2
+fe13$offs <- log(fe13$next.ivl - fe13$start) # 3
+fit1 <- glmmML(event ~ parity + ses + years + offset(offs), 
+               cluster = id, family = poisson, method = "ghq", 
+               data = fe13, n.points = 9)
+summary(fit)
+``` 
+Note the use of the function `survSplit` (from the `survival` package) (\# 1), the transformation to
+`factor` for the slices of time (`years`) created by
+`survSplit`, and the creation of an offset (\# 3). This is described in
+detail in Chapter 6.
+
+The conclusion is very much the same as with the nonparametric
+(`coxme`) approach: The clustering effect of *mother* is very
+strong and must be taken into account in the analysis of birth intervals.
+The nonparametric approach is easier to use and recommended, but see the next session. 
+
+
+
+## Stratification
+\index{stratification}
+A simple way to eliminate the effect of clustering is to *stratify* on
+the clusters. In the birth intervals example, it would mean that intervals
+are only compared to other birth intervals from the same mother. The
+drawback with a stratified analysis is that it is not possible to estimate
+the effect of covariates that are constant within clusters. In the birth
+intervals case, it is probable that `ses`, socio-economic status, would
+vary little within families. On the other hand, the effet of `birth
+  order` or `mother's age` would be suitable to analyze in a stratified
+setting. 
+```{r strat7} 
+library(glmmML)
+fit2 <- coxreg(Surv(next.ivl, event) ~ parity + prev.ivl + 
+               strata(id), data = fe)
+summary(fit2)
+``` 
+Contrast this result with an unstratified analysis.
+```{r unstrat7} 
+fit3 <- coxreg(Surv(next.ivl, event) ~ parity + prev.ivl, 
+               data = fe)
+summary(fit3)
+``` 
+Note how the effect of `parity` is diminished when aggregating
+comparison over all women, while the effect of the length of the previous
+interval is enlarged. Try to explain why this result is expected! 
+
+```{example, name =  "Matched data."}
+
+Under certain circumstances it is actually possible to estimate an
+effect of a covariate that is constant within strata, but only if it is
+interacted with a covariate that is not constant within strata. 
+See Example \@ref(exm:matchex9) in Chapter 9.

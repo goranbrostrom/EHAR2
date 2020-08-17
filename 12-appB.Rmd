@@ -24,6 +24,6 @@ distribution there are `hweibull` and `Hweibull`, where the first
 is the hazard function and the second is the cumulative hazards function.
 
 
-## Proportional hazards models
+## Proportional hazards models {#ph_B}
 
-## Accelerated failure time models
+## Accelerated failure time models {#aft_B}

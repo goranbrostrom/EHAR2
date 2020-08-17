@@ -14,8 +14,8 @@ advanced studies of the topic that its title implies.
 
 ## R in general
 
-In this section we investigate how to work with **R** ingeneral, without
-special reference to event history analysis, which will be treatsed
+In this section we investigate how to work with **R** in general, without
+special reference to event history analysis, which will be treated
 separately in a later section in this chapter.
 
 ## Some standard **R** functions

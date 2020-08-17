@@ -386,7 +386,7 @@ intervals (*piece-wise constant hazard*).
 The exponential distribution is described in detail in 
 Appendix \@ref(app:B).\index{model!continuous|)}$\Box$
 
-## Discrete time models
+## Discrete time models {#disc_2}
 \index{model!discrete|(}
 So far we have assumed, implicitly or explicitly, that time is
 continuous. We will now introduce discrete time survival models, and the
@@ -961,7 +961,7 @@ box()
 %\subsection{Life table estimators}
 -->
 
-## Doing it in R
+## Doing it in R {#doinR_2}
 
 We show how to do it in **R** by using the male mortality data set `mort`, which is part of the package `eha`. By loading `eha` we have access to `mort`. The **R** function `head` is convenient for looking at a few (six by default) rows in a data frame. 
 
