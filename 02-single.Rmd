@@ -381,7 +381,7 @@ f(t) = \lambda e^{-\lambda t}, \quad \lambda > 0,\; t \ge 0.
 The property of constant hazard implies *no aging*. This is not a
 realistic property for human mortality, but, as we will see, a useful
 benchmark, and a useful model for modelling mortality over short time
-intervals (*piece-wise constant hazard*). 
+intervals (*piecewise constant hazard*). 
 \index{cumulative hazard function|)} 
 The exponential distribution is described in detail in 
 Appendix \@ref(app:B).\index{model!continuous|)}$\Box$
@@ -566,20 +566,6 @@ plgeo(h = 0.25, maxval = 10)
 ```
 
 \index{Distributions!geometric|)}
-
-<!--
-% \subsection{Summing it up}
-
-% \underline{Relations:}
-
-% \begin{align*}
-% h(t) &= \frac{d}{dt} H(t) \\
-% h(t) &= \frac{f(t)}{S(t)}
-% \end{align*}
-
-%\subsection{Constant and piecewise constant hazard}
-\index{model!discrete|)}
--->
 
 ## Nonparametric estimators
 

@@ -37,7 +37,7 @@ models. In the following subsections, the possibilities are examined.
 
 The parametric distribution functions that can be used as the baseline
 distribution in the function `phreg` are the *Weibull*,
-*Piecewise constant hazards* (`pch`), *Lognormal*,
+*Piecewise constant hazard* (`pch`), *Lognormal*,
 *Loglogistic*, 
 *Extreme value* and the 
 *Gompertz* distributions. The *lognormal* and
@@ -75,10 +75,10 @@ any of these nice properties.
 
 After studying the *Weibull* and *Lognormal* distributions, we look at some
 typical data sets and find that different distributions step forward as
-good ones in different situations. One exception is the *Piecewise
-constant  hazards (pch)* distribution, which is flexible enough to give a
+good ones in different situations. One exception is the 
+*Piecewise constant  hazard (pch)* distribution, which is flexible enough to give a
 good fit to any given distribution. It is in this sense close to the
-nonparametric approach used in Cox regression. 
+non-parametric approach used in Cox regression. 
 
 
 ### The Weibull model
@@ -394,9 +394,9 @@ are rarely shorter than one year), then it grows rapidly and soon decreases
 towards zero again.
 
 There is, however one parametric distribution that is flexible enough: The
-piecewise constant hazards distribution.
+piecewise constant hazard distribution.
 
-### The piecewise constant hazards (pch) model{#pch6}
+### The piecewise constant hazard (pch) model{#pch6}
 
 The pch distribution is flexible because you can add as many parameters as
 you want. We will try it on the birth interval data. We start off with just
@@ -439,7 +439,7 @@ nonparametric model of Cox regression\index{Cox regression}. For the
 piecewise constant model 
 just fitted we get the estimated hazard function in Figure \@ref(fig:pchhaz6).
 
-```{r pchhaz6,fig.cap="The estimated hazard function for the length of birth intervals, piecewise constant hazards distribution."}
+```{r pchhaz6,fig.cap="The estimated hazard function for the length of birth intervals, piecewise constant hazard distribution."}
 plot(fit.pch, fn = "haz")
 ``` 
 
@@ -472,7 +472,7 @@ the baseline hazard, if the only interest lies in the regression parameters.
 
 ### Testing the proportionality assumption with the Pch model
 
-One advantage with the piecewise constant hazards model is that it is easy
+One advantage with the piecewise constant hazard model is that it is easy
 to test 
 the assumption of proportional hazards. But it cannot be done directly with
 the **phreg** function. There is, however, a simple alternative. Before
@@ -512,7 +512,7 @@ The exact value we need is the logarithm of this difference, and it will be
 entered as an *offset*\index{offset} in the model.
 
 Finally, one parameter per interval is needed, corresponding to the
-piecewise constant hazards. This is accomplished by including ivl as
+piecewise constant hazard function. This is accomplished by including `ivl` as
 a *factor* in the model. Thus we get
 
 ```{r poispch6}
@@ -1046,10 +1046,6 @@ we find that the maximized log likelihood in the former case is
 proportional hazards model
   fit is better. Note however that we cannot formally test the proportional
   hazards hypothesis; the two models are not nested.
-
-<!--
-%\section{Piecewise constant hazards} 
--->
 
 ## Discrete time models
 

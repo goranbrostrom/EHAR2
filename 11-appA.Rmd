@@ -124,6 +124,91 @@ Properties of the log rank test;
   *proportional hazards*, but can be weak against non-pro\-por\-tional
   alternatives.
 
+## Presentation of results
+
+The presentation of the results of fitting a regression model to given data is usually
+done both graphically and in tabular form. Some general guidelines that must be 
+followed are given here. In order to make the presentation easier to understand,
+a real data, but fictive, research project is followed.
+
+### The project
+
+In a mortality study of the small town of Umeå in twentieth century northern Sweden we
+are especially interested in investigating the mortality among persons aged 50 and above.
+We are especially interested in whether there were any differences mortality
+between social branches. For this purpose, the data set `ume` (available in
+the package **eha**), with selected variables, is used. A summary of the data:
+
+```{r creA, echo = FALSE, message = FALSE}
+library(skum)
+ume <- obs[obs$region == "ume", ]
+ume$event <- ume$sluttyp == 2
+ume <- ume[, c("id", "sex", "birthdate", "enter", "exit", "event", "civst", "socBranch")]
+ume <- age.window(ume, c(50, 100))
+ume <- ume[!is.na(ume$socBranch), ]
+levels(ume$civst) <- c("unmarried", "married", "prev.married", "prev.married", "prev.married")
+ume$civst <- relevel(ume$civst, ref = "married")
+ume$cohort <- cut(ume$birthdate, c(1810, 1858, 1875, 1890, 1921), dig.lab = 4, right = FALSE)
+ume$exit[ume$enter >= ume$exit] <- ume$enter[ume$enter >= ume$exit] + 0.001
+##ume <- ume[ume$cohort == "[1810,1858)", ]
+##ume$cohort <- NULL
+umetab <- toTpch(Surv(enter, exit, event) ~ sex + cohort + civst + socBranch,
+                 data = ume, cuts = seq(50, 95, by = 3))
+##summary(ume)
+head(umetab)
+```
+
+As you can see, data is *tabulated*, so a piecewise constant hazard model is 
+called for. 
+
+### Tabular presentation
+
+We fit a simple model with only one ccovariate, but select only 
+*married men*.  This can be done with the help of *Poisson regression* and the 
+`glm` function:
+
+```{r glmA}
+fit.glm <- glm(event ~ offset(log(exposure)) + age + socBranch, 
+               data = umetab, subset = sex == "male" & civst == "married", 
+               family = "poisson")
+summary(fit.glm)
+```
+Besides the slightly disturbing fact that all age estimates are printed, the 
+presentation of the result for the covariate of interest, `socBranch`, is less
+satisfactory from a "survival analysis" point of view: We are generally not 
+interested of looking at the estimated baseline in tabular form (we want a
+graph). There is a more general critique of the presentation: Too many *p*-values 
+are given, and not the relevant ones either.
+
+In `eha`, the function `tpchreg` does the same thing, but with a more satisfactory
+presentation of the result:
+
+
+```{r tabcA}
+fit <- tpchreg(oe(event, exposure) ~ socBranch, 
+               data = umetab[umetab$civst == "married" & umetab$sex == "male", ], 
+               time = age)
+summary(fit)
+```
+
+First, we got rid of the numerous baseline hazards estimates, and second, the 
+*factor* `socBranch` is presented in full, with all four levels. And finally, 
+the *relevant p-value*. Because, first,  the truth is that *Wald* p-values are 
+notoriously unreliably in nonlinear regression, and second, we want *p*-values for
+*covariates* and *not* for *levels* ov covariates.
+
+However, note that the essential findings with the two approaches are identical.
+
+### Graphics
+
+The baseline hazard function is shown in Figure \@ref(fig:bhfA).
+
+```{r bhfA, fig.cap = "The cum"}
+plot(fit)
+```
+
+
+
 
 ## Asymptotic theory
 \index{asymptotic theory|(}
