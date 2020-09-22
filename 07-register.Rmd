@@ -154,7 +154,7 @@ visible in the earlier figures. A possible explanation is that the age interval
 20-50 approximately coincides with women's fertility period, that is, during
 this period, the mortality advantage decreases more than pure age motivates. 
 
-Finally, this pattern may change over the time period 1968-2019. We split the 
+This pattern may change over the time period 1968--2019. We split the 
 data by year into quarters in order to check this.
 
 ```{r quarters7, fig.cap = "Baseline hazard functions, men and women by time period.", echo = FALSE}
@@ -174,4 +174,43 @@ for (i in 1:4){
 par(oldpar)
 ```
 
-The rise after age 50 seems to vanish with time, according to Figure \@ref(fig:quarters7).
+The rise after age 50 seems to vanish with time, according to Figure \@ref(fig:quarters7), 
+the period 2007--2019.
+
+Finally, we investigate the development of expected life ($e_0$) over time, see Figure
+\@ref(fig:e07).
+```{r e07, fig.cap = "Expected life at birth by sex and year (period data)."}
+fem <- numeric(52)
+mal <- numeric(52)
+i <- 0
+for (year in 1968:2019){
+    i <- i + 1
+    fit <- tpchreg(oe(deaths, pop) ~ strata(sex), data = sw[sw$year == year, ], 
+                   time = age, last = 101)
+    x <- summary(fit)
+    fem[i] <- x$rmean[1]
+    mal[i] <- x$rmean[2]
+}
+att <- c(1968, 1981, 1994, 2007, 2019)
+plot(1968:2019, fem, type = "b", col = "red", ylim = c(70, 85), 
+     ylab = "Age", xlab = "Year", axes = FALSE)
+axis(1, at = att)
+axis(2, las = 1)
+box()
+lines(1968:2019, mal, type = "b", col = "blue", pch = "+")
+text(1990, 82, "Women", col = "red")
+text(1990, 73, "Men", col = "blue")
+abline(h = c(75, 80, 85), lty = 3)
+abline(v = att, lty = 3)
+```
+
+The difference in longevity between women and men is slowly decreasing over the 
+time period.
+
+## Individual data
+
+The analysis of individual survival data is what the rest of this book is all 
+about, so what is new here? The answer lies in the *size* of the data files, 
+that is, the number of individuals is *huge*. 
+
+As an example, we have mortality data consisting of all Swedish citizens aged
