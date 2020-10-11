@@ -214,3 +214,130 @@ about, so what is new here? The answer lies in the *size* of the data files,
 that is, the number of individuals is *huge*. 
 
 As an example, we have mortality data consisting of all Swedish citizens aged
+30 and above for the years 2001--2013. It may be described as yearly censuses, where 
+all Swedish persons alive at December 31 the specific year, are registered together 
+with vital information. It starts with register data of the form
+
+```{r vitalform7, echo = FALSE}
+rl <- readRDS("rawlis.rds")
+rl
+```
+
+which are the the first four rows of the data file representing December 31, 2001.
+The variables are
+
+*   **id** A unique id number, which allows us to link information from different
+sources (and years) to one individual.
+*   **year** The present year, 2001, ..., 2013.
+*   **birthdate** A constructed variable, due to integrity reasons, birth time information
+is only given in the form of year and quarter of the year. So the *birthdate* is created
+by year and the first quarter is represented by the decimal places ".125" (equal roughly
+to February 15), the second quarter is ".375", third ".625", and finally the fourth 
+quarter is represented by ".875"). The birthdate will be off by plus or minus one 
+month and a half, which is deemed to be a good enough precision concerning adult
+mortality.
+*   **deathdate** Is given by day in the sources. The missing value symbol (*NA*) 
+is given to those who are not registered as dead before January 1, 2014.
+*   **civst, ses, municipality** Information about *civil status*, 
+*socioeconomic status*, and *geographic area*, respectively.
+
+From this yearly information, survival data is created by following each individual 
+one year ahead, until the next "census". Age at start, `enter`, is calculated by 
+subtracting `birthdate` from the date of presence, `year + 1`. For an individual 
+with a deathdate less than or equal to `enter + 1 = year + 2`, the variable `exit` is 
+calculated as `deathdate - birthdate` and the variable `event` is set etual to one, otherwise 
+`exit = enter + 1` and `event = 0`, a censored observation.
+
+The result of this is shown for the same individuals as above:
+
+```{r workedform7, echo = FALSE}
+wl <- readRDS("worklis.rds")
+wl
+```
+
+This file from the year 2001 (covering the year 2002!) contains 5.8 million individuals
+and 92 thousand deaths. To perform a Cox regression on such massive data sets 
+(and there are thirteen of them) is time, software, 
+and hardware consuming, but there is a simple remedy: Make tables and fit piecewise 
+constant proportional hazards models.
+
+This is done with the aid of the `eha` function `toTpch` as follows:
+
+```
+lisa2001$cohort <- floor(lisa2001$birthdate)
+listab2001 <- toTpch(Surv(enter, exit, event) ~ ses + cohort + year + 
+                                              civst + municipality + ses,
+                                    data = lisa2001,
+                                    cuts = c(seq(30, 100, by = 5), 110))
+```
+
+Note the creation of the valiable `cohort`: The function `floor` simply removes 
+the decimals from a positive number. The result is (four first rows)
+
+```{r maketableread7, echo = FALSE, comment=""}
+lisa2001 <- readRDS("mytables/listab2001.rds")
+head(lisa2001, 4)
+```
+
+which is a table with  `r nrow(lisa2001)` rows. That is, one row for each unique 
+combination of the six covariates, empty combinations excluded. Note the two created
+variables, `event` which is the total number of events for each combination of covariates, 
+and `exposure`, which is total time at risk for each corresponding combination.
+
+In the survival analysis, the pair `(event, exposure)` is the *response*, and 
+behind the scene, *Poisson regression* is performed with `event` as response and 
+`log(exposure)` as *offset*.
+
+Finally, thirteen similar tables are created (one for each year 2001--2013) and merged.
+
+
+
+```{r sumres7, echo = FALSE}
+##listab <- readRDS("~/Forskning/Blog/mytables/listab2001.rds")
+##for (y in 2002:2013){
+##    fnam <- paste("~/Forskning/Blog/mytables/listab", y, ".rds", sep = "")
+##    xx <- readRDS(fnam)
+##    listab <- rbind(listab, xx)
+##}
+listab <- readRDS("~/Forskning/Blog/mytables/listab.rds")
+```
+
+A summary of the result gives
+
+*   Number of records: `r NROW(listab)`.
+*   Number of deaths: `r round(sum(listab$event) / 1000000, 2)` millions.
+*   Total time at risk: `r round(sum(listab$exposure / 1000000), 2)` million years.
+
+Now this data set is conveniently analyzed with the aid of the function `tpcpreg` 
+in `eha`. An example:
+
+```{r runtable7, comment = ""}
+fit <- tpchreg(oe(event, exposure) ~ strata(sex) + civst + ses, data = listab, time = age,
+               last = 110)
+xx <- summary(fit)
+xx
+##fit
+```
+
+We note a couple of things here:
+
+1.   All *p*-values are effective zero, a consequence of of the huge amount of data.
+It is also reasonable to claim that this constitutes a *total investigation*, and 
+therefore *p*-values are meaningless.
+
+2. Note the "Restricted mean survival": It gives the expected remaining life *at
+age 30* for an *unmarried person* in the *elite* social class, that is, the expected 
+age of death is `r round(30 + xx$rmean, 2)` years for males and females, respectively.
+
+A graph of the baseline hazard functions is shown in Figure \@ref(fig:wbhaz7).
+
+```{r wbhaz7, fig.cap = "Hazard functions, males and females, unmarried elite. Sweden 2002-2014.", echo = FALSE}
+par(las = 1)
+plot(fit, fn = "haz", col = c("blue", "red"), lty = c(1, 2), xlab = "Age", 
+     main = "", axes = FALSE)
+axis(1, at = seq(30, 110, by = 10))
+axis(2, las = 1)
+box()
+abline(h = 0)
+```
+

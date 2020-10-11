@@ -603,7 +603,7 @@ space. This is often *not* the intention!
 the flag `R --vanilla`.
 
 
-## Graphics
+## Standard graphics
 
 The workhorses in standard graphics handling in **R** are the functions 
   `plot` and `par`. Read their respective documentations carefully; you
