@@ -15,7 +15,7 @@ monofont: "Source Code Pro"
 monofontoptions: "Scale=0.7"
 site: bookdown::bookdown_site
 description: "Event history analysis for demographers and epidemiologists."
-url: 'http\://goranbrostrom.se/EHAR2/'
+url: 'http\://ehar.se/r/ehar2/'
 github-repo: goranbrostrom/EHAR2
 cover-image: images/ehar.jpeg
 ---

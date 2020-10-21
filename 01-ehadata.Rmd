@@ -1,5 +1,10 @@
 \mainmatter
 
+```{r settings1, echo = FALSE, include = FALSE}
+knitr::opts_chunk$set(comment = "", message = FALSE, echo = TRUE, cache = TRUE)
+options(width = 70, digits = 7)
+```
+
 # Event History and Survival Data
 
 The thing that characterizes event history and survival data the most
@@ -78,11 +83,28 @@ Appendix C), the data set is loaded by loading **eha** as follows.
 ```{r oldmort1, comment = ""}
 library(eha)
 ```
-Let us look at the first few lines of *oldmort*. It is conveniently
-done with the aid of the R function **head**:
-```{r head1, echo = TRUE,comment="#"}
+Let us look at the first few lines of *oldmort* (slightly manipulated). 
+It is conveniently done with the aid of the R function **head**:
+
+```{r manip1, echo=FALSE}
+oldmort$id <- as.integer(as.factor(oldmort$id))
+##oldmort$birthdate <- toDate(oldmort$birthdate)
+```
+
+```{r head1, echo = TRUE}
 head(oldmort, 3)
 ```
+
+Note that the first printed column, without a name, contains the *row names*. If
+no row names are explicitly given, they are set to the *row numbers*. If you don't
+want row names printed, you have to use the more cumbersome 
+
+```{r headsubst1, echo = TRUE}
+print(oldmort[1:3, ], row.names = FALSE)
+```
+
+There are several packages for nice printing of tables, if you want that.
+
 The variables in *oldmort* have the following definitions and
 interpretations:
 
@@ -95,25 +117,26 @@ interpretations:
   then divided by 365.25 to get age in years. The denominator is the
   average length of a year, taking into account that every fourth year is
   366 days long.
-  The first individual was born around July 1, 1765, and so almost 95 years
+  The first individual was born on June 27, 1765, and so almost 95 years
   of age when the study started. Suppose that this woman had died at age
   94; then she had not been in our study at all. This property of our
-  sampling procedure is a special case of a phenomenon called
-  length-biased sampling\index{length-biased sampling}. That is,
-  of those born in the eighteeenth century, only those who live well beyond
+  sampling procedure introduces a phenomenon known as
+  *length-biased sampling*\index{length-biased sampling}. That is,
+  of those born in the eighteenth century, only those who live well beyond
   60 will be included. This bias must be compensated for in the analysis,
   and it is accomplished by conditioning on the fact that these
   persons were alive at January 1, 1860. This technique is called
-  left truncation\index{left truncation}.
+  *left truncation*\index{left truncation}.
 *   **event** A logical variable (taking values *TRUE* or *FALSE*)
 indicating if the exit is a death (*TRUE*) or not (*FALSE*). For our first
 individual, the value is *TRUE*, indicating
-  that she died at the age of 95.81 years.
+  that she died at the age of 95.81 years. Another possible coding is to use
+  *event = 1* for a death and *event = 0* otherwise.
 *   **birthdate** The birth date expressed as the time (in years) elapsed
   since January 1, year 0 (which by the way does not exist). For instance,
   the (pseudo) date 1765.490 is really June 27, 1765. The fraction 0.490 is
   the fraction of the year 1765 that elapsed until the birth of individual
-  No. `r oldmort$id[1]`.
+  No. `r oldmort$id[1]`. However, here it is printed as a real date.
 *   **m.id** *Mother's id*. It is unknown for all the individuals listed
   above. That is the symbol *NA*\index{NA}, which stands for *Not Available*.
   The oldest people in the data set typically have no links
@@ -154,8 +177,8 @@ event is death. Clearly, many individuals in the data set did not die
 before 1 January 1880, so for them we do not know the full duration
 between the start and stop events; such individuals are said to be
 *right censored* (the exact meaning of which will be given soon). The
-third component in the survival object *(enter, exit, event)*,
-i.e., *event* is a *logical* variable taking the value `TRUE`
+third component in the survival object `(enter, exit, event)`,
+ `event`, is a *logical* variable taking the value `TRUE`
 if `exit` is the true duration (the interval ends with a death) and
 `FALSE` if the individual is still alive at the duration "last seen".
 
@@ -173,6 +196,7 @@ for the first six individuals to see that:
 ```{r add1}
 oldmort$enter[1:6] + oldmort$birthdate[1:6]
 ```
+
 The statistical implication (description) of left truncation is that its
 presence forces the analysis to be
 *conditional*\index{conditional probability} on survival up to the
@@ -184,7 +208,7 @@ survival analysis in R, we should subtract 60 from both `enter` and
 `exit` before we begin. It is not absolutely necessary in the case of Cox
 regression, because of the flexibility of the baseline hazard in the model
 (it is in fact left unspecified!). However, for parametric models, it may
-be important in order to avoid dealing with truncated distributions.
+be important in order to avoid dealing with truncated *distributions*.
 
 Now let us think of the research questions that could be answered by
 analyzing this data set. Since the data contain individual information on
@@ -271,7 +295,7 @@ The concept of *left truncation*\index{left truncation|(}, or
 that was discussed in detail in Example \@ref(exm:oldmort0).
 Please note the
 difference compared to *left censoring*\index{censoring!left}. 
-Unfortunately, you may still see articles where these two concepts are confused.
+Unfortunately, you may still see articles where these two concepts are mixed up.
 
 It is illustrative to think of the construction of the data set
   *oldmort* as a statistical follow-up study, starting on January 1,
@@ -335,7 +359,7 @@ scales and (human) life lines. Age moves vertically and calendar time
 horizontally, which will imply that individual lives will move
 diagonally, from birth to death, from south-west to north-east, in the
 Lexis diagram. In our example study, we are only interested in the part of
-the life lines that appear inside the rectangle.
+the life lines that appear inside the small rectangle.
 
 ```{r lexis1,fig.cap = "Lexis diagram: time period 1829--1894 and ages 50--100.",fig.scap = "A lexis diagram", echo=FALSE,height=5.4}
 source("R/lexis.R")
@@ -438,7 +462,7 @@ this:
 require(eha)
 data(fert)
 n.rows <- 9
-head(fert[, -9], n = n.rows)
+print(fert[1:n.rows, -9], row.names = FALSE)
 ```
 This is the first `r n.rows` rows, corresponding to the first two
 mothers in the
@@ -566,9 +590,8 @@ change is recorded, a new record is created for that individual, with the
 new value of SES. For instance, the third and fourth rows in the data frame are
 
 
-```{r mort}
-options(digits = 7)
-mort[3:4, ]
+```{r mort, echo = FALSE}
+print(mort[3:4, ], row.names = FALSE)
 ```
 Note that the variable `id` is the same (3) for the two records, meaning
 that both records are information about individual No. 3. The variable
@@ -628,7 +651,47 @@ later chapters.
 % \end{example}
 --->
 
-```{example, name = "Infant mortality", label = "infmort"}
+
+```{example, name = "Child mortality", label = "childmort1"}
+```
+\index{mortality!child}
+\index{Data sets!child mortality|(}
+
+The data set `child` (in eha) contains follow-up data of children born in 
+Skellefteå, northern Sweden, between January 1, 1850 and December 31, 1884. Each 
+child is followed a maximum of fifteen years, and the follow-up is interrupted by death,
+loss of follow-up (usually out-migration), or the reach of age fifteen.
+
+These data constitute a *cohort* and can be analyzed as such. It may be represented 
+in a *Lexis diagram* as in Figure \@ref(fig:lexis21).
+
+```{r lexis21, fig.cap = "Birth cohort 1850-1884, Skellefteå. A child mortality study.", echo = FALSE, fig.height = 4}
+plot(1, 1, xlim = c(1850, 1902), ylim = c(0, 17), type = "n", 
+     xlab = "Date", ylab = "Age", axes = FALSE)
+axis(1, at = c(1850, 1885), labels = c("1850-01-01", "1884-12-31"))
+axis(3, at = c(1865, 1900), labels = c("1865-01-01", "1899-12-31"))
+axis(2, las = 1)
+box()
+lines(c(1850, 1850+15), c(0, 15), lty = 2)
+lines(c(1885, 1885+15), c(0, 15), lty = 2)
+lines(c(1850, 1885), c(0, 0), lty = 2)
+lines(c(1850+15, 1885+15), c(15, 15), lty = 2)
+text(1875, 7.5, "Cohort data")
+```
+
+The first few lines are
+
+```{r cmfirst1, echo = FALSE}
+print(child[1:5, ], row.names = FALSE)
+```
+
+Not that the variable `enter` really is redundant here: It is always equal to zero
+since all children are followed from birth in Skellefteå.
+
+This data set will be discussed in more detail in a later chapter. It is part of a study of child mortality
+\index{Data sets!child mortality|)}$\Box$
+
+```{example, name = "Infant mortality", label = "infmort1"}
 ```
 \index{mortality!infant}
 \index{Data sets!infant mortality|(}
@@ -648,11 +711,15 @@ collected in this way is part of the **eha**  package under the name
   *infants*, and the first rows of the data frame are shown here:
 
 ```{r imr1, echo = FALSE}
-head(infants)
+infa <- infants
+##infa$id <- infa$stratum
+##infa$stratum <- NULL
+names(infa)[1] <- "id"
+print(infa[1:3, ], row.names = FALSE)
 ```
 A short description of the variables follows.
 
-*   **stratum** denotes the id of the triplets, 35 in all.
+*   **id** denotes the id of the mother, 35 in all.
 *   **enter** is the age in days of the case, when
 its mother died.
 *   **exit** is the age in days when
@@ -674,22 +741,32 @@ controls.
 This data set is discussed and analyzed in Chapter 8.
 \index{Data sets!infant mortality|)}$\Box$
 
-```{example, name = "Old age mortality, tabular data", label = "oldagetab"}
+```{example, name = "Mortality in Sweden 1968-2019, tabular data", label = "swedtab1"}
 ```
 \index{Data sets!tabular}
-\index{Data sets!tabular!old age mortality|(}
-This data set is taken from Statistics Sweden\index{Statistics Sweden}. It
-is freely available on
-the web site \url{http://www.scb.se}. The aggregated data set contains
+\index{Data sets!tabular!Swedish mortality|(}
+These data sets (`swepop` and `swedeaths`) are taken from Statistics 
+Sweden\index{Statistics Sweden}, freely available on
+the web site \url{http://www.scb.se}. The aggregated data sets contain yearly
 information about population size and number of deaths by sex and age for the
-ages 61 and above for the year 2007.
+years 1968--2019.
 
+The first and last rows of `swepop` for the year 2019 are
 
-```{r olmscb1}
-head(swe07)
-tail(swe07)
+```{r olmscb1, echo = FALSE}
+print(swepop[swepop$year == 2019, 1:4][1:3, ], row.names = FALSE)
+print(swepop[swepop$year == 2019, 1:4][200:202, ], row.names = FALSE)
 ```
-\index{Functions!data}\index{Functions!head}\index{Functions!tail}
+
+and the first and last rows of `swedeaths` are
+
+```{r olmscb21, echo = FALSE}
+print(swedeaths[swedeaths$year == 2019, 1:4][1:3, ], row.names = FALSE)
+print(swedeaths[swedeaths$year == 2019, 1:4][200:202, ], row.names = FALSE)
+```
+
+
+
 The variables have the following meanings.
 
 *   **pop** Average population size 2007 in the *age* and for the *sex* given on
@@ -699,8 +776,6 @@ The variables have the following meanings.
   *sex* given on the same row.
 *   **sex** Female or male.
 *   **age** Age in completed years.
-*   **log.pop** The natural logarithm of *pop*. This variable is used as
-  *offset* in a Poisson\index{Distributions!Poisson} regression.
 
 See Chapter 4 for how to analyze this data set.
-\index{Data sets!tabular!old age mortality|)}$\Box$
+\index{Data sets!tabular!Swedish mortality|)}$\Box$
