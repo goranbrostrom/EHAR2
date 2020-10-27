@@ -34,7 +34,7 @@ We start with a motivating example (\@ref(exm:sw16)), the life table, and its co
 death risks and survival probabilities in a population, see 
 Table \@ref(tab:lifewomen).
 
-```{example, sw16, name = "Swedish life tables 2016", echo = TRUE}
+```{example, sw16, name = "Swedish life tables", echo = TRUE}
 ```
 Statistics Sweden (SCB) is a government agency that produces
 statistics and have a coordinating role for the official statistics
@@ -48,8 +48,11 @@ Two tables are needed, one with population size by age and sex, and one with
 the number of deaths by the same categories. Tables are available for age
 intervals of lengths 1, 5, and 10 years. We always prefer data with as much
 information as possible, so we choose the age interval length one. It is always
-possible to *aggregate* later, if that is prefered.
+possible to *aggregate* later, if that is preferred.
 
+There are two data sets in the R package eha that contain population size 
+information and information about number of deaths, `swepop` and `swedeaths`, 
+respectively. Both cover the years 1968--2019.
 First, the population data is read from the CSV file downloaded from SCB.
 
 ```{r scbpop,echo=TRUE}
@@ -245,7 +248,7 @@ The intuitive interpretation of this definition is that, for small enough $s$, t
 $$
 P(t_0 \le T < t_0 + s) = S(t_0) - S(t_0 + s) \approx s f(t_0). 
 $$
-This is illustrated in Figure&nbsp;\@ref(fig:densityfig), with $t_0 = 10$ and $s = 2$. The application is *remaining life at age 60* in a nineteenth century setting.
+This is illustrated in Figure \@ref(fig:densityfig), with $t_0 = 10$ and $s = 2$. The application is *remaining life at age 60* in a nineteenth century setting.
 
 ```{r densityfig, fig.cap = "Interpretation of the density function.", echo=FALSE,fig.height=4}
 x <- seq(0, 25, length = 100)
@@ -284,7 +287,7 @@ f(t) = \lim_{s \rightarrow 0} \frac{P(t \le T < t + s)}{s}, \quad t > 0.
 ### The hazard function
 \index{hazard function|(}
 
-The \emph{hazard function}\index{hazard function} is central to the understanding of survival
+The *hazard function*\index{hazard function} is central to the understanding of survival
 analysis, so the reader is recommended to get at least an intuitive
 understanding of it. One way of thinking of it is as an ``instant
 probability''; at a given age $t$, it measures the risk of dying in a short
