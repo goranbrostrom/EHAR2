@@ -1,8 +1,3 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
 # Multivariate survival models
 
 Sometimes survival data come in clusters, and

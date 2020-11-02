@@ -1,5 +1,10 @@
 # Single sample data
 
+```{r settings2, echo = FALSE, include = FALSE}
+knitr::opts_chunk$set(comment = "", message = FALSE, echo = TRUE, cache = FALSE)
+options(width = 60, digits = 7)
+```
+
 The basic model descriptions of survival data are introduced. Basically,
 the distribution of survival data may
 be either _continuous_ or _discrete_, but the nonparametric
@@ -30,11 +35,11 @@ choose and use in a particular application.
 ### The survival function
 \index{survival function|(}
 
-We start with a motivating example (\@ref(exm:sw16)), the life table, and its connection to
+We start with a motivating example (\@ref(exm:sw19)), the life table, and its connection to
 death risks and survival probabilities in a population, see 
 Table \@ref(tab:lifewomen).
 
-```{example, sw16, name = "Swedish life tables", echo = TRUE}
+```{example, sw19, name = "Swedish life tables", echo = TRUE}
 ```
 Statistics Sweden (SCB) is a government agency that produces
 statistics and have a coordinating role for the official statistics
@@ -52,74 +57,46 @@ possible to *aggregate* later, if that is preferred.
 
 There are two data sets in the R package eha that contain population size 
 information and information about number of deaths, `swepop` and `swedeaths`, 
-respectively. Both cover the years 1968--2019.
-First, the population data is read from the CSV file downloaded from SCB.
+respectively. Both cover the years 1968--2019. We use both to construct a data frame
+`females` containing population size and number of deaths for females 2019. 
+Below, the first five and last five rows are printed. Note that the last row, 
+with `age = 100` in fact includes all ages from 100 and above. It is common that
+tables like this one ends with an open interval.
 
-```{r scbpop,echo=TRUE}
-pop <- read.table("Data/BE0101A6.csv", header = TRUE,
-                  stringsAsFactors = FALSE,
-                  fileEncoding = "latin1")
+```{r getpop,echo=TRUE}
+library(eha)
+females <- swepop[swepop$sex == "women" & swepop$year == 2019, 
+                  c("age", "pop")]
+females$deaths <- swedeaths[swedeaths$sex == "women" & 
+                                swedeaths$year == 2019, "deaths"]
+print(females[c(1:5, 97:101), ], row.names = FALSE)
 ```
 
-The argument `stringsAsFactors = FALSE` is needed in order to avoid character columns
-being converted to factors, and `fileEncoding` is needed to take care of some
-strange Swedish characters (å, ä, ö) in variable names and labels.
+A full view of the population size by age is given in Figure \@ref(fig:scbpopfig).
 
-The result is shown in Table&nbsp;\@ref(tab:scbpoptab).
-
-```{r scbpoptab,echo=FALSE}
-##x <- list(t1 = pop[1:8, ], t2 = pop[195:202, ])
-
-x <- pop[1:4, ]
-x$X2016 <- as.character(round(x$X2016))
-x <- rbind(x, rep(".....", 3))
-y <- pop[199:202, ]
-y$X2016 <- as.character(round(y$X2016))
-x <- rbind(x, y)
-rna <- c(1:4, ".....", 199:202)
-rownames(x) <- rna
-knitr::kable(x, booktabs = TRUE, digits = 0, row.names = TRUE,
-             align = c("r", "l", "r"),
-             caption = "Population by sex and age, Sweden 2016.")
+```{r scbpopfig, fig.cap="Female population by age, Sweden 2019.", echo = FALSE}
+par(las = 1)
+plot(0:100, females$pop / 1000, xlab = "Age", ylab = "Thousands", type = "h",
+        axes = FALSE)
+axis(1, at = seq(0, 100, by = 20), labels = c(seq(0, 80, by = 20), "100+"))
+axis(2)
+box()
 ```
 
-Next the table of deaths by age and sex is read from disk.
+And the numbers of deaths by age are shown in Figure \@ref(fig:scbdeadfig).
 
-```{r scbdeaths, echo = TRUE}
-deaths <- read.table("Data/BE0101D9.csv", header = TRUE,
-                     stringsAsFactors = FALSE,
-                     fileEncoding = "latin1")
+```{r scbdeadfig, fig.cap="Female deaths by age, Sweden 2019.", echo = FALSE}
+par(las = 1)
+plot(0:100, females$deaths / 1000, xlab = "Age", ylab = "Thousands", type = "h", 
+        axes = FALSE)
+axis(1, at = seq(0, 100, by = 20), labels = c(seq(0, 80, by = 20), "100+"))
+axis(2)
+box()
 ```
 
-The result is shown in Table&nbsp;\@ref(tab:scbdeathtab).
-
-```{r scbdeathtab,echo=FALSE}
-##x <- list(t1 = pop[1:8, ], t2 = pop[195:202, ])
-x <- deaths[1:4, ]
-x$X2016 <- as.character(round(x$X2016))
-x <- rbind(x, rep(".....", 3))
-y <- deaths[199:202, ]
-y$X2016 <- as.character(round(y$X2016))
-x <- rbind(x, y)
-rna <- c(1:4, ".....", 199:202)
-rownames(x) <- rna
-knitr::kable(x, booktabs = TRUE, digits = 0, row.names = TRUE,
-             align = c("r", "l", "r"),
-             caption = "Deaths by sex and age, Sweden 2016.")
-```
-
-We concentrate on female mortality 2016 by combining the two tables after removing all information relating to men ("män") and translating to English.
-
-```{r combines}
-names(pop) <- c("age", "sex", "pop")
-females <- pop[pop$sex == "kvinnor", c("age", "pop")]
-females$age <- 0:100
-females$deaths <- deaths$X2016[deaths[, 2] == "kvinnor"]
-head(females, 4)
-tail(females, 4)
-```
-
-Then we add two columns, derived from the original three.
+Our primary interest lies in the *age specific mortality*, which simply is given 
+by dividing the number of deaths by the population size, age by age, so  we add 
+two columns, derived from the original three, in the following way.
 
 ```{r addtwo}
 females$risk <- females$deaths / females$pop
@@ -130,7 +107,7 @@ for (i in 2:101){
 }
 females$alive <- alive
 ```
-The result is shown in Table&nbsp;\@ref(tab:lifewomen).
+The result is shown in Table \@ref(tab:lifewomen).
 
 ```{r lifewomen, echo = FALSE}
 fem <- females
@@ -143,14 +120,14 @@ fem$pop <- as.character(fem$pop)
 fem$deaths <- as.character(fem$deaths)
 fem$risk <- as.character(format(fem$risk, digits = 5))
 fem$alive <- as.character(format(fem$alive, digits = 7))
-fem[6, ] <- rep("...", 5)
-fem <- fem[c(1:6, 97:101), ]
+fem[6, ] <- rep("...", 5) # NOTE: Weq
+fem <- fem[c(1:5, 97:101), ]
 ## For text input:
 d1 <- round(females$risk[1] * 100000)
 l2 <- 100000 - d1
 l2 <- as.character(l2, digits = 5)
-knitr::kable(fem, row.names = FALSE,
-             caption = "Life table for Swedish women 2016.", align = "r")
+knitr::kable(fem, row.names = FALSE, booktabs = TRUE,
+             caption = "Life table for Swedish women 2019.", align = "r")
 ```
 
 
@@ -193,7 +170,7 @@ affairs regarding mortality a given year.
 
 
 
-```{r lifetablefig, fig.cap = "Life table and survival function, females, Sweden 2016.", fig.scap = "Life table and survival function, females, Sweden 2016.", echo = FALSE,fig.height=4,message=FALSE}
+```{r lifetablefig, fig.cap = "Life table and survival function, females, Sweden 2019.", fig.scap = "Life table and survival function, females, Sweden 2019.", echo = FALSE,fig.height=4,message=FALSE}
 library(eha)
 x <- seq(0, 102, length = 1000)
 plot(x, ppch(x, 1:100, females$risk, lower.tail = FALSE), type = "l",
@@ -201,19 +178,19 @@ plot(x, ppch(x, 1:100, females$risk, lower.tail = FALSE), type = "l",
 ##plot(females$age, females$alive / 100000, type = "s",
   ##   xlab = "Age", ylab = "Surviving fraction",
     ## axes = FALSE)
-axis(1, at = c(0, 50, 87, 100))
+axis(1, at = c(0, 50, 87.6, 100))
 axis(2, at = c(0, 0.5, 1), las = 1)
 box()
 abline(v = 0)
 abline(h = 0)
 abline(h = 0.5, lty = 3)
-abline(v = 86.746, lty = 3)
+abline(v = 87.588, lty = 3)
 ```
 
-It makes sense to plot the life table, see Figure \@ref(fig:lifetablefig). Exactly how this is done will be shown later in the chapter. *Median life length* is
-`r round(qpch(0.5, 1:100, females$risk), 2)`, see construction in the figure.
-By
-dividing all numbers by the original cohort size (in our case 100000), they
+It makes sense to plot the life table, see Figure \@ref(fig:lifetablefig). 
+Exactly how this is done will be shown later in the chapter. *Median life length* is
+`r round(eha::qpch(0.5, 1:100, females$risk), 1)`, see construction in the figure.
+By dividing all numbers by the original cohort size (in our case 100000), they
 may be interpreted as *probabilities*.\index{life table|)}$\Box$
 
 The *survival function* $S(t), \; t > 0$, is defined as
@@ -1019,6 +996,7 @@ random sample from `mort`.\index{Functions!sample}
 \index{Data sets!male mortality}
 
 ```{r rsa2}
+library(survival)
 indx <- sample(NROW(mort), size = 50, replace = FALSE)
 rsa <- mort[indx, ]
 fit <- coxph(Surv(enter, exit, event) ~ 1, data = rsa)

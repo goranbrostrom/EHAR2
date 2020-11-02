@@ -136,7 +136,7 @@ is split up in one year long intervals (except the first and last). This is
 the way of treating `foodprices` as a time-varying covariate. 
 
 ```{r analcomm}
-fit <- coxph(Surv(enter, exit, event) ~ ses + sex + foodprices, 
+fit <- coxreg(Surv(enter, exit, event) ~ ses + sex + foodprices, 
                 data = scand)
 round(summary(fit)$coefficients, 3)
 ```

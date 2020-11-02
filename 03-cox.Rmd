@@ -70,7 +70,7 @@ functions as age-specific mortality for two groups, e.g., women and
 men. It is "well known" that women have lower mortality than men in all
 ages. It would therefore be reasonable to assume proportional
 hazards in that case. It would mean that the female *relative*
-advantage is equally large in all ages. See Example \@ref(exm:sw16) for a
+advantage is equally large in all ages. See Example \@ref(exm:sw19) for a
 demonstration of this example of *proportional
   hazards*\index{proportional hazards}. 
 
@@ -421,7 +421,7 @@ Let us now look at a real data example, the old age mortality data set
 
 ```{r lrreal3dat,echo = FALSE}
 options(show.signif.stars = FALSE)
-library(eha) # Loads 'survival' as well.
+library(eha)
 om <- age.window(oldmort, c(60, 85))
 knitr::kable(head(om[-(1:1000), c("id", "enter", "exit", "event", "sex", "civ")], 5), booktabs=TRUE, caption = "Old age mortality.", row.names = FALSE)
 ```
@@ -429,6 +429,7 @@ knitr::kable(head(om[-(1:1000), c("id", "enter", "exit", "event", "sex", "civ")]
 We are interested in comparing male and female mortality in the ages 60--85 with a logrank test, and for that purpose we run a *Cox regression* analysis:
 
 ```{r noevallr, eval = FALSE}
+library(survival)
 fit <- coxph(Surv(enter, exit, event) ~ sex, data = om)
 ```
 
@@ -443,7 +444,7 @@ Obviously, we got a lot of information here, more than we actually need. We have
 a Cox regression slightly ahead of schedule! The result of the
 logrank test is displayed on the last line of output. The $p$-value is
 $1.179 \times 10^{-5}$, a very small number. Thus, there is a very significant difference in mortality between men and women.
-But *how large* is the difference? The answer is found at `exp(coef) = 0.8135`, which tells us that the female risk of dying is about 81% of the male risk, *at each age between 60 and 85*.
+But *how large* is the difference? The answer is found at `exp(coef) = 0.8135`, which tells us that the female risk of dying is about 81 per cent of the male risk, *at each age between 60 and 85*.
 
 Remember that this result depends on the proportional hazards
 assumption. We can graphically check it as follows.
