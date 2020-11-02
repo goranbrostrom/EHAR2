@@ -304,7 +304,7 @@ Finally, thirteen similar tables are created (one for each year 2001--2013) and 
 ##    xx <- readRDS(fnam)
 ##    listab <- rbind(listab, xx)
 ##}
-listab <- readRDS("~/Forskning/Blog/mytables/listab.rds")
+listab <- readRDS("mytables/listab.rds")
 ```
 
 A summary of the result gives

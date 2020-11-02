@@ -210,7 +210,7 @@ As a final example, let us look at *old age mortality* in the **R** package
 to overlook. It has nothing to do with frailty, but with a problem caused
 by *missing data*\index{missing data}.
 
-```{example name = "Old age mortality for siblings."}
+```{example, label = "oldmortsib08",  name = "Old age mortality for siblings."}
 Take a look at the variables in `oldmort`:
 ```{r oldmortf7} 
 head(oldmort)

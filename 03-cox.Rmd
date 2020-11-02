@@ -916,7 +916,7 @@ lines(c(1821, 1881), c(0, 60), lty = 2)
 abline(h = 0)
 ```
 
-```{example, name = "Old age mortality", echo=TRUE}
+```{example, label = "oldmort03", name = "Old age mortality", echo=TRUE}
 ```
 There are four possible explanatory variables behind survival after age 60 in the example. 
 \begin{eqnarray*}

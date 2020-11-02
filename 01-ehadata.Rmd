@@ -52,7 +52,7 @@ with event history and survival analysis, let us look at a data set found
 in the **eha**
 package [@eha] in R [@cran].
 
-```{example, label = "oldmort0", name = "Old age mortality", echo = TRUE}
+```{example, label = "oldmort01", name = "Old age mortality", echo = TRUE}
 ```
 \index{mortality!old age|(}
 The data set *oldmort*\index{Data sets!old age mortality|(} in **eha**
@@ -294,7 +294,7 @@ value $C$. Note carefully that this is different from *left
 
 The concept of *left truncation*\index{left truncation|(}, or
 *delayed entry*, is well illustrated by the data set *oldmort*
-that was discussed in detail in Example \@ref(exm:oldmort0).
+that was discussed in detail in Example \@ref(exm:oldmort01).
 Please note the
 difference compared to *left censoring*\index{censoring!left}. 
 Unfortunately, you may still see articles where these two concepts are mixed up.

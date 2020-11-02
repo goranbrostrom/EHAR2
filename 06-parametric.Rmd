@@ -663,7 +663,7 @@ the distributions of the function **phreg** in the package **eha** are
 available. How to select a suitable parametric model is shown by a couple
 of examples.
 
-### Old age mortality
+### Old age mortality {#old-age-mortality06}
 
 The data set **oldmort** in the **R** package **eha** contains life
 histories for people aged 60 and above in the years 1860--1880, i.e., 21
@@ -997,7 +997,7 @@ explained here.
  We repeat the examples from the proportional hazards section, but with AFT
  models instead. 
  
-```{example, name = "Old age mortality", echo = TRUE}
+```{example, label = "oldmort06", name = "Old age mortality", echo = TRUE}
 ```
  
  For a description of this data set, see above. Here we fit an AFT model

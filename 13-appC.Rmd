@@ -815,7 +815,7 @@ errors varies between 1 and 5 per cent. In most cases it would not do much
 harm to simply delete erroneous records, but often the errors are
 "trivial", and it seems easy to guess what the truth should be.
 
-#### Old age mortality
+#### Old age mortality {# old-age-mortality13}
 
 As an example of the kind of errors discussed above, we take a look at the
 original version of `oldmort` in `eha`. For survival data in
