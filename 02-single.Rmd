@@ -37,7 +37,7 @@ choose and use in a particular application.
 
 We start with a motivating example (\@ref(exm:sw19)), the life table, and its connection to
 death risks and survival probabilities in a population, see 
-Table \@ref(tab:lifewomen).
+Table \@ref(tab:lifewomen2).
 
 ```{example, sw19, name = "Swedish life tables", echo = TRUE}
 ```
@@ -262,6 +262,16 @@ f(t) = \lim_{s \rightarrow 0} \frac{P(t \le T < t + s)}{s}, \quad t > 0.
 (\#eq:denslim)
 \end{equation}
 
+For the Swedish women 2019, the estimated density function is shown in Figure \@ref(fig:famdens192).
+
+```{r famdens192, ech = FALSE, fig.cap = "Density function for Swedish women 2019."}
+par(las = 1)
+plot(females$age, females$risk * females$alive / 100000, 
+     type = "l", xlab = "Age", ylab = "Density")
+abline(h = 0)
+```
+
+
 ### The hazard function
 \index{hazard function|(}
 
@@ -285,6 +295,15 @@ Note the difference between the density and the hazard functions. The
 former is (the limit of) an *unconditional* probability, while the
 latter is (the limit of) a 
 *conditional* probability\index{conditional probability} per time unit. 
+
+For the Swedish women 2019, the estimated hazard function (age-specific mortality) is shown in Figure \@ref(fig:famhaz192).
+
+```{r famhaz192, ech = FALSE, fig.cap = "Hazard function for Swedish women 2019.", echo = FALSE}
+par(las = 1)
+plot(females$age, females$risk, type = "l", xlab = "Age", ylab = "Hazard")
+abline(h = 0)
+```
+
 <!--
 Otherwise, the
 hazard function is also a kind of density function, with a similar
@@ -332,6 +351,14 @@ successively accumulates the instant risks.
 The cumulative hazard function is important because it is fairly easy to
 estimate nonparametrically\index{nonparametric estimation} (i.e., without
 any restrictions), in contrast to the hazard and density functions. 
+
+For the Swedish women 2019, the estimated cumulative hazard function is shown in Figure \@ref(fig:famcumhaz192).
+
+```{r famcumhaz192, ech = FALSE, fig.cap = "Cumulative hazard function for Swedish women 2019.", echo = FALSE}
+par(las = 1)
+plot(females$age, cumsum(females$risk), type = "l", xlab = "Age", ylab = "Cumulative hazard")
+abline(h = 0)
+```
 
 ```{example, name = "The exponential distribution"}
 ```
