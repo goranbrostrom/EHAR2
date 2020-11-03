@@ -46,14 +46,13 @@ statistics and have a coordinating role for the official statistics
 of Sweden. From their home page (http://www.scb.se) it is possible to
 download vital
 population statistics, like population size and number of deaths by age,
-gender, and year. From such data it is possible to construct a *life
-table*.
+gender, and year. From such data it is possible to construct *life tables*.
 
-Two tables are needed, one with population size by age and sex, and one with
+Two raw tables are needed, one with population size by age, sex, and year, and one with
 the number of deaths by the same categories. Tables are available for age
 intervals of lengths 1, 5, and 10 years. We always prefer data with as much
-information as possible, so we choose the age interval length one. It is always
-possible to *aggregate* later, if that is preferred.
+information as possible, so we choose the tables with age interval lengths one. 
+It is always possible to *aggregate* later, if that is preferred.
 
 There are two data sets in the R package eha that contain population size 
 information and information about number of deaths, `swepop` and `swedeaths`, 
@@ -95,10 +94,10 @@ box()
 ```
 
 Our primary interest lies in the *age specific mortality*, which simply is given 
-by dividing the number of deaths by the population size, age by age, so  we add 
-two columns, derived from the original three, in the following way.
+by dividing the number of deaths by the population size, age by age. We do that, 
+and add one column, derived from the original three, in the following way.
 
-```{r addtwo}
+```{r addtwo, echo = TRUE}
 females$risk <- females$deaths / females$pop
 alive <- numeric(101)
 alive[1] <- 100000
@@ -107,9 +106,9 @@ for (i in 2:101){
 }
 females$alive <- alive
 ```
-The result is shown in Table \@ref(tab:lifewomen).
+The result is shown in Table \@ref(tab:lifewomen2).
 
-```{r lifewomen, echo = FALSE}
+```{r lifewomen2, echo = FALSE}
 fem <- females
 fem$pop <- round(fem$pop)
 fem$risk <- round(fem$risk, 5)
@@ -145,7 +144,8 @@ ratio between the number of deaths and population size for each age.
 Column five, _alive_, contains the actual construction of
 the life table. It depicts the actual size of a birth cohort\index{cohort},
 _year by year_,
-exposed to the death risks of column four. It starts with 100000 newborn females.
+exposed to the death risks of column four. It starts with 100000 (an arbitrary, 
+but commonly chosen, number) newborn females.
 Under the first year of life the death risk is `r fem$risk[1]`, meaning that we
 expect `r fem$risk[1]` x 100000 = `r d1` girls to die the
 first year. In other words, 100000 - `r d1` =
@@ -158,8 +158,8 @@ way through the last two columns. Note, though, that the last interval
 Note the difference in interpretation between the numbers in the second
 column ("pop") and those in the last ("alive"); the former
 gives the age distribution in a population a given year (referred to as
-_period data_), while the latter constitutes \emph{synthetic cohort
-  data}\index{synthetic cohort}, i.e., a group of newborn are followed from
+_period data_), while the latter constitutes synthetic 
+*cohort data*\index{synthetic cohort}, i.e., a group of newborn are followed from
 birth to death, and the
 actual size of the (still alive) cohort is recorded age by age. That is,
 "individuals" in the synthetic cohort live their whole lives under the
@@ -183,7 +183,7 @@ axis(2, at = c(0, 0.5, 1), las = 1)
 box()
 abline(v = 0)
 abline(h = 0)
-abline(h = 0.5, lty = 3)
+abline(h = c(0.5, 1), lty = 3)
 abline(v = 87.588, lty = 3)
 ```
 
@@ -202,12 +202,13 @@ S(t) = P(T \ge t), \quad t > 0,
 \end{equation}
 
 where $T$ is the (random) life length under study. The symbol $P(T \ge t)$
-reads *"the probability that $T$ is equal to or larger than
-  $t$"*; here $t$ is a fixed number while $T$ denotes a "random
-quantity". In statistical language, $T$ is called a *random variable*. In our example, $T$ is the (future) life length of a randomly
+reads *"the probability that $T$ is equal to or larger than $t$"*; 
+here $t$ is a fixed number while $T$ denotes a "random
+quantity". In statistical language, $T$ is called a *random variable*. 
+In our example, $T$ is the (future) life length of a randomly
 chosen newborn female, of course unknown at birth.
 
-We will, for the time being, assume that $S$ is a ``nice'' function, smooth
+We will, for the time being, assume that $S$ is a "nice" function, smooth
 and *differentiable*. That will ensure that the following definitions
 are unambiguous.\index{survival function|)}
 
@@ -281,9 +282,9 @@ h(t) &= \lim_{s \rightarrow 0}\frac{P(t \le T < t + s \mid T \ge t)}{s} \\
 
 
 Note the difference between the density and the hazard functions. The
-former is (the limit of) an \emph{unconditional} probability, while the
+former is (the limit of) an *unconditional* probability, while the
 latter is (the limit of) a 
-\emph{conditional} probability\index{conditional probability} per time unit. 
+*conditional* probability\index{conditional probability} per time unit. 
 <!--
 Otherwise, the
 hazard function is also a kind of density function, with a similar
@@ -515,7 +516,7 @@ as it should be.
 
 ```{example, name = "The geometric distribution"}
 ```
-The \emph{geometric} distribution\index{Distributions!geometric|(} has
+The *geometric* distribution\index{Distributions!geometric|(} has
 support on $\{1, 2, \ldots\}$ (another version also includes zero in the
 support, this is the case for the one in **R**), and the hazard function $h$ is constant:
 
@@ -635,7 +636,7 @@ survival functions.
 
 In Figure \@ref(fig:prelhaz), the observed event times in Figure \@ref(fig:simple)
 are marked, the vertical dashed lines at durations 1, 4, and 6, respectively. In
-the estimation of the hazard atoms, the concept of \emph{risk set} is of vital
+the estimation of the hazard atoms, the concept of *risk set* is of vital
 importance.
 
 ```{r prelhaz, fig.cap = "Preliminaries for estimating the hazard function.",echo=FALSE,fig.height=3}
