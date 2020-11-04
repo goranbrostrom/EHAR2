@@ -136,7 +136,7 @@ headed _pop_ contains the numbers of women in Sweden in the
 corresponding ages. It is equal to the mean
 population size over the year. Since population numbers from the SCB are
 taken at the turn of the years, the numbers in column two are averages of
-two columns in the SCB file. The third column is the total numbers of
+two columns in the SCB file. The third column contains the total numbers of
 deaths in each age category during the year.  The fourth and fifth columns
 are derived from the previous ones. The _risk_ is essentially the
 ratio between the number of deaths and population size for each age.
@@ -163,7 +163,7 @@ _period data_), while the latter constitutes synthetic
 birth to death, and the
 actual size of the (still alive) cohort is recorded age by age. That is,
 "individuals" in the synthetic cohort live their whole lives under the
-mortality conditions of the year 2016. Of course no real individual can
+mortality conditions of the year 2019. Of course no real individual can
 experience this scenario, hence the name "synthetic
 cohort". Nevertheless, it is a useful tool to illustrate the state of
 affairs regarding mortality a given year.
@@ -184,11 +184,12 @@ box()
 abline(v = 0)
 abline(h = 0)
 abline(h = c(0.5, 1), lty = 3)
-abline(v = 87.588, lty = 3)
+abline(v = 87.6, lty = 3)
 ```
 
 It makes sense to plot the life table, see Figure \@ref(fig:lifetablefig). 
-Exactly how this is done will be shown later in the chapter. *Median life length* is
+Exactly how this is done with individual data will be shown later in the chapter, but here we 
+simply plot `alive` (divided by 100000) against `age`. *Median life length* is
 `r round(eha::qpch(0.5, 1:100, females$risk), 1)`, see construction in the figure.
 By dividing all numbers by the original cohort size (in our case 100000), they
 may be interpreted as *probabilities*.\index{life table|)}$\Box$
@@ -221,19 +222,20 @@ f(t) = -\frac{d}{dt} S(t), \quad t > 0
 (\#eq:dens)
 \end{equation}
 
-The intuitive interpretation of this definition is that, for small enough $s$, the following approximation is good:
+The intuitive interpretation of this definition is that, for small enough $s$, 
+the following approximation is good:
 
 $$
 P(t_0 \le T < t_0 + s) = S(t_0) - S(t_0 + s) \approx s f(t_0). 
 $$
-This is illustrated in Figure \@ref(fig:densityfig), with $t_0 = 10$ and $s = 2$. The application is *remaining life at age 60* in a nineteenth century setting.
+This is illustrated in Figure \@ref(fig:densityfig), with $t_0 = 10$ and $s = 2$.
 
 ```{r densityfig, fig.cap = "Interpretation of the density function.", echo=FALSE,fig.height=4}
 x <- seq(0, 25, length = 100)
 f <- function(x) eha::dgompertz(x, scale = 18.9, shape = 1.45, param = "canonical")
 y <- f(x)
 plot(x[1:85], f(x[1:85]), type = "l", axes = FALSE, ylim = c(-0, max(y) + 0.01), 
-     xlab = "Remaining years after age 60.", ylab = "", xlim = c(0, max(x)))
+     xlab = "Duration.", ylab = "", xlim = c(0, max(x)))
 arrows(0, 0, 0, max(y) + 0.01, length = 0.1)
 arrows(0, 0, max(x), 0, length = 0.1)
 text(max(x), 0.005, "t")
@@ -264,7 +266,7 @@ f(t) = \lim_{s \rightarrow 0} \frac{P(t \le T < t + s)}{s}, \quad t > 0.
 
 For the Swedish women 2019, the estimated density function is shown in Figure \@ref(fig:famdens192).
 
-```{r famdens192, ech = FALSE, fig.cap = "Density function for Swedish women 2019."}
+```{r famdens192, ech = FALSE, fig.cap = "Density function for Swedish women 2019.", ech0 = FALSE}
 par(las = 1)
 plot(females$age, females$risk * females$alive / 100000, 
      type = "l", xlab = "Age", ylab = "Density")
@@ -435,13 +437,13 @@ Then
 -->
 
 \begin{equation*}
-F(t)  =  \sum_{i: r_i \le t} p_i, \quad x -\infty < t < \infty,
+F(t)  =  \sum_{i: r_i \le t} p_i, \quad -\infty < t < \infty,
 \end{equation*}
 
 is the cumulative distribution function, and
 
 \begin{equation*}
-S(t) = \sum_{i: r_i \ge x} p_i, \quad x -\infty < t < \infty,
+S(t) = \sum_{i: r_i \ge x} p_i, \quad -\infty < t < \infty,
 \end{equation*}
 
 is the survival function.
@@ -563,15 +565,17 @@ and the survival function becomes, from \@ref(eq:discsur),
 S(t) = (1-h)^{[t]}, \quad t > 0,
 \end{equation*}
 where $[t]$ denotes the largest integer smaller than or equal to $t$
-(rounding towards zero). In Figure \@ref(fig:geom2) the four functions for a
+(rounding towards zero).<!--  In Figure \@ref(fig:geom2) the four functions for a
 geometric distribution with $h = 0.25$ are plotted. $\Box$
 \index{Distributions!geometric|)}
 
-```{r geom2,echo=FALSE,fig.height=5, fig.cap = "The geometric distribution with success probability 0.25.", fig.scap="The geometric distribution.",echo=FALSE}
+
+```{r geom2,echo=FALSE,fig.height=5, fig.cap = "The geometric distribution with success probability 0.25.", fig.scap="The geometric distribution.",eval=FALSE}
 source("R/plgeo.R")
 par(las = 1)
 plgeo(h = 0.25, maxval = 10)
 ```
+-->
 
 \index{Distributions!geometric|)}
 
@@ -662,7 +666,7 @@ survival functions.
 ### The hazard atoms
 
 In Figure \@ref(fig:prelhaz), the observed event times in Figure \@ref(fig:simple)
-are marked, the vertical dashed lines at durations 1, 4, and 6, respectively. In
+are marked by the vertical dashed lines at durations 1, 4, and 6, respectively. In
 the estimation of the hazard atoms, the concept of *risk set* is of vital
 importance.
 
@@ -755,6 +759,13 @@ R(6) &= \{3\} \\
 \end{split}
 \end{equation*}
 
+
+The estimation of the hazard atoms is simple. First, we assume that the
+probability of an event at times where no event is observed, is zero. Then, at
+times where events do occur, we count the number of events and divides that
+number
+by the size of the corresponding risk set. The result is shown in  \@ref(eq:estatoms).
+
 \begin{equation}
 \begin{split}
 \hat{h}(1) &= \frac{1}{5} = 0.2 \\
@@ -764,12 +775,8 @@ R(6) &= \{3\} \\
 (\#eq:estatoms)
 \end{equation}
 
-The estimation of the hazard atoms is simple. First, we assume that the
-probability of an event at times where no event is observed, is zero. Then, at
-times where events do occur, we count the number of events and divides that
-number
-by the size of the corresponding risk set. The result is shown in  \@ref(eq:estatoms).
-
+See also
+Figure \@ref(fig:esthaz).
 
 ```{r esthaz, fig.cap = "Nonparametric estimation of the hazard function.", fig.height = 3, echo=FALSE}
 plot(c(1, 1), c(0, 0.2), type = "l", xlim = c(0, 7), ylim = c(0, 1.2), axes = FALSE, lwd = 1.5, xlab = "Duration", ylab = "")
@@ -785,8 +792,6 @@ text(6.4, 1.0, "1.0")
 ```
 
 
-See also
-Figure \@ref(fig:esthaz).
 
 <!--
 \begin{figure}[ht!]
@@ -819,7 +824,7 @@ be too
 irregular to be of practical use; they need *smoothing*. The simplest
 way of 
 smoothing them is to calculate the cumulative sums, which leads to the
-*Nelson-Aalen* estimator of the cumulative hazards function, see the next
+*Nelson-Aalen* estimator  [@nel72; @aa78] of the cumulative hazards function, see the next
 section. There are more direct smoothing techniques to get reasonable
 estimators of 
 the hazard function itself, e.g., kernel estimators
@@ -852,10 +857,10 @@ box()
 From the theoretical relation we immediately get
 
 \begin{equation*}
-\hat{H}(t) =  \sum_{s \le t} \hat{h}(s), \quad t \ge 0
+\hat{H}(t) =  \sum_{s \le t} \hat{h}(s), \quad t \ge 0,
 \end{equation*}
 
-which is the *Nelson-Aalen* estimator [@nel72; @aa78], see
+which is the *Nelson-Aalen* estimator  [@nel72; @aa78], see
 Figure \@ref(fig:na). The sizes of the jumps are equal to the heights of the
 "spikes" in Figure \@ref(fig:esthaz).
 
@@ -906,6 +911,7 @@ probabilities\index{conditional probability} then gives
 equation \@ref(eq:km2).
 
 ```{r km2, fig.height = 4, echo = FALSE, fig.cap = "The Kaplan-Meier estimator."}
+par(las = 1)
 x <- c(0, 1, 4, 6)
 y <- c(1, 0.8, 0.8 * 0.5, 0)
 plot(c(x[1], x[2]), c(1, 1), xlim = c(0, 8), type = "l", xlab = "Duration", axes = FALSE, lwd = 1.5, ylim = c(0, 1.2), ylab = "Kaplan-Meier")
@@ -972,9 +978,9 @@ indicates that the corresponding life time is fully observed, while the value
 ### Nonparametric estimation
 
 In the **R** package `eha`,
-the `plot` function can be used to plot both Nelson-Aalen and
-Kaplan-Meier
-curves. The code for the Nelson-Aalen and Kaplan-Meier plots is
+the `plot` function can be used to plot both Nelson-Aalen (cumulative hazards) and
+Kaplan-Meier (survival)
+curves. Here is the code: 
 
 ```{r esthas,fig=FALSE, eval = FALSE}
 par(mfrow = c(1, 2))# Two panels, "one row, two columns".
@@ -982,29 +988,31 @@ with(mort, plot(Surv(enter, exit, event), fun = "cumhaz",
      main = "Cumulativa hazards function",
      xlab = "Duration"))
 with(mort, plot(Surv(enter, exit, event),
-                main = "Survivor function",
+                main = "Survival function",
                 xlab = "Duration"))
 ```
 
-and the result is seen in Figure \@ref(fig:pshazsur), with 95 per cent pointwise confidence intervals.
+and the result is seen in Figure \@ref(fig:pshazsur).
 
 
-```{r pshazsur,fig=TRUE,echo=FALSE,fig.cap="Nelson-Aalen plot (left panel) and Kaplan-Meier plot (right panel), male mortality data. The dashed lines in the Survival function plot are 95 percent confidence limits.", scap = "Male mortality, Nelson-Aalen and Kaplan-Meier plots.", fig.height = 3}
-par(mfrow = c(1, 2)) 
-par(las = 1, cex.main = 0.9)
+```{r pshazsur,fig=TRUE,echo=FALSE,fig.cap="Nelson-Aalen plot (left panel) and Kaplan-Meier plot (right panel), male mortality data. The dashed lines in the Survival function plot are pointwise 95 percent confidence limits.", scap = "Male mortality, Nelson-Aalen and Kaplan-Meier plots.", fig.height = 3}
+library(eha)
+oldpar <- par(mfrow = c(1, 2), las = 1, cex.main = 0.9) 
+##par(las = 1, cex.main = 0.9)
 with(mort, plot(Surv(enter, exit, event), fun = "cumhaz",
                 main = "Cumulative hazards function",
-                xlab = "Duration"))
+                xlab = "Duration", conf.int = FALSE))
 with(mort, plot(Surv(enter, exit, event), 
-                main = "Survivor function",
-                xlab = "Duration"))
+                main = "Survival function",
+                xlab = "Duration", conf.int = FALSE))
+par(oldpar)
 ```
 
-The package `survival` must be loaded for this to work. Note the use of the
+ Note the use of the
 function `with`\index{Functions!`with`}; it tells the `plot`
 function that it should get its data `(enter, exit, event)` from the
-data frame `mort`. The function `Surv`\index{Functions!`Surv`}
-from the package `survival` creates a "survival object", which is
+data frame `mort`. The function `Surv`\index{Functions!`Surv`}, imported
+from the package `survival`, creates a "survival object", which is
 used in many places. It is for instance *the response* in all
 functions that perform regression analysis on survival data.
 
@@ -1012,9 +1020,9 @@ Note that the "Duration" in Figure\@ref(fig:pshazsur) is duration (in
 years) since the day each man became twenty years of age. They are followed until
 death or age forty, whichever comes first.  The right hand figure shows
 that approximately 25 per cent of the men alive at age twenty died before they
-became forty.
+became forty. Data come from a 19th century Swedish sawmill area.
 
-
+<!--
 If the Kaplan-Meier estimator is wanted as a table, use `survfit` in
 combination with `coxreg`\index{Functions!coxreg} or 
 `coxph`\index{Functions!coxph}. Since the output will have
@@ -1023,8 +1031,8 @@ it by taking only a small
 random sample from `mort`.\index{Functions!sample}
 \index{Data sets!male mortality}
 
-```{r rsa2}
-library(survival)
+```{r rsa2, eval = FALSE}
+##library(survival)
 indx <- sample(NROW(mort), size = 50, replace = FALSE)
 rsa <- mort[indx, ]
 fit <- coxph(Surv(enter, exit, event) ~ 1, data = rsa)
@@ -1053,6 +1061,8 @@ plot(s.fit)
 The result is not shown here. It will look similar to the right hand panel
 of Figure \@ref(fig:pshazsur). 
 
+-->
+
 ### Parametric estimation
 
 It is also possible to fit a parametric model to data with the aid of the
@@ -1065,26 +1075,24 @@ fit a "parametric proportional hazards model with no covariates".
 \begin{figure}[ht!]
 -->
 ```{r paramfit2,fig.cap="Male mortality, Weibull fit.", fig.height = 3.2}
-par(mfrow = c(1, 2))
+par(mfrow = c(1, 2), las = 1)
 fit.w <- phreg(Surv(enter, exit, event) ~ 1, data = mort)
-par(las = 1)
-plot(fit.w, fn = c("cum"), main = "", axes = FALSE)
-axis(2, at = c(0.0, 0.1, 0.2, 0.3))
-axis(1)
-box()
-plot(fit.w, fn = c("sur"), main = "")
+plot(fit.w, fn = "cum", main = "")
+plot(fit.w, fn = "sur", main = "")
 ```
 
-Note that the default distribution in `phreg` is the `Weibull`
+Note that the default distribution in `phreg` is the *Weibull*
 distribution, which means that if no distribution is specified (through the
 argument `dist`), then the Weibull distribution is assumed.
 
+<!--
 We can also show the parameter estimates. For the interpretations of these,
 see Appendix B, the *Weibull* distribution.
 
-```{r showest2}
+```{r showest2, eval = FALSE}
 coefficients(fit.w)
 ```
 
 More about this will be discussed in Chapter 6, Parametric models.
 \index{Functions!`phreg`|)} 
+-->

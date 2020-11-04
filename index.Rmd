@@ -36,18 +36,22 @@ library(eha)
 
 # Preface {-}
 
+```{r klockan, echo = FALSE}
+datum <- Sys.Date()
+```
+
 This is the place for the *Preface to the Second Edition*, which is not written yet. 
 Instead, for the time being, I will try to keep you and myself updated about the 
 ongoing work with the second edition. You will find the *Preface to the First Edition*
 ahead.
 
 *The First Edition* was written with the aid of  Sweave and LaTeX, but for the second edition 
-I have switched to **knitr** and **bookdown** (with some support of **LaTeX**). So there has been, and still is,  a 
-lot of work with translation (much more than I anticipated) from the former to the latter. For the moment 
-(August 17, 2020), all Chapters are translated (but not polished), and the Appendices remain.
-Adding new material and updating the old is now beginning.  I have just discovered the 
-[R markdown cookbok](https://bookdown.org/yihui/rmarkdown-cookbook/), which I hope will 
-make my tedious cleaning-up-after-latex work easier.
+I have switched to **knitr** and **bookdown** (with some support of **LaTeX**). So there has been a 
+lot of work with translation from the former to the latter. For the moment, all 
+Chapters are translated (but not polished).
+Adding new material and updating the old is on its way. 
+
+The first two chapters are now (`r datum`) in shape, work is continuing on Chapter 3.
 
 This work is done in parallel with updating and expanding the `eha` package [@eha].
 
