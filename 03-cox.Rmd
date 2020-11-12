@@ -2,6 +2,7 @@
 
 ```{r setup3,include=FALSE}
 par(las = 1) # Doesn't work? Later?
+knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE)
 options(show.signif.stars = FALSE)
 ```
 
@@ -100,7 +101,7 @@ lines(females$age, females$mort, type = "l", lty = 1)
 legend("topleft", legend = c("Men", "Women"), lty = c(2, 1))
 abline(h = 0)
 plot(males$age[1:101], males$mort[1:101] / females$mort[1:101], type = "l",
-     ylim = c(0.9, 3), xlab = "Age", ylab = "Hazard ratio, men by women")
+     ylim = c(0.9, 3), xlab = "Age", ylab = "Hazard ratio")
 abline(h = 1, lty = 2)
 ```
 
@@ -172,6 +173,44 @@ because both lines are straight lines, and (iii) neither represents an
 exponential distribution, because the slopes are *not* one. This
 latter fact may be difficult to see because of the different scales on the
 axes (the *aspect ratio* is not one). 
+
+Figure \@ref(fig:prophazfig2) shows the relationships between the cumulative
+hazards functions, the density functions, and the survival functions when
+the hazard functions are proportional. Note that the cumulative hazards
+functions are proportional by implication, with the same proportionality
+constant ($\psi = 2$ in this case). On the other hand, for the density and
+survival functions, proportionality does not hold; it is in fact
+theoretically impossible except in the trivial case that the
+proportionality constant is unity.
+
+
+```{r prophazfig2,fig=TRUE,echo=FALSE,height=5, fig.cap="The effect of proportional hazards on the density and survival functions.",fig.scap="Effect of proportional hazards."}
+oldpar <- par(mfrow = c(2, 2))
+x <- seq(0,2.5, length = 500)
+library(eha)
+y <- hweibull(x, scale = 1, shape = 3)
+z <- hweibull(x, scale = 2^(1/3), shape = 3)
+plot(x, y, type = "l", main = "Hazards", xlab = "Time", ylab = "Hazards")
+lines(x, z, lty = 2)
+abline(h = 0)
+y <- Hweibull(x, scale = 1, shape = 3)
+z <- Hweibull(x, scale = 2^(1/3), shape = 3)
+plot(x, y, type = "l", main = "Cumulative hazards", xlab = "Time", ylab = "Cum. hazards")
+lines(x, z, lty = 2)
+abline(h = 0)
+y <- dweibull(x, scale = 1, shape = 3)
+z <- dweibull(x, scale = 2^(1/3), shape = 3)
+plot(x, y, type = "l", main = "Density functions", xlab = "Time", ylab = "Density")
+lines(x, z, lty = 2)
+abline(h = 0)
+y <- pweibull(x, scale = 1, shape = 3, lower.tail = FALSE)
+z <- pweibull(x, scale = 2^(1/3), shape = 3, lower.tail = FALSE)
+plot(x, y, type = "l", main = "Survival functions", xlab = "Time", ylab = "Survival", ylim = c(0, 1))
+lines(x, z, lty = 2)
+abline(h = 0)
+##
+par(oldpar)
+```
 
 ## The Log-Rank Test
 
@@ -386,7 +425,7 @@ knitr::kable(xx, caption = "The 2x2 table for the first event time.", booktabs =
 ```
 
 
-Let us look at the table at failure time $t_{(1)} = 1$, i.e., Table \@ref(tab:lr1), 
+Let us look at the table at failure time $t_{(1)} = 1$, Table \@ref(tab:lr1), 
 from the viewpoint of the `numbers`.
 
 *    The observed number of deaths among `numbers`: $1$.
@@ -411,7 +450,7 @@ x <- c(1, 0, 1, 0, 1, 3,
 x <- matrix(x, ncol = 4)
 colnames(x) <- c("Observed", "Expected", "Difference", "Variance")
 rownames(x) <- c("t(1)", "t(2)", "t(3)", "t(4)", "t(5)", "Sum")
-knitr::kable(x, booktabs = TRUE, caption = "Observed and expected number of deaths at event times.")
+knitr::kable(x, booktabs = TRUE, caption = "Observed and expected number of deaths for numbers at event times.")
 ```
 
 
@@ -475,66 +514,34 @@ knitr::kable(head(om[-(1:1000), c("id", "enter", "exit", "event", "sex", "civ")]
 
 We are interested in comparing male and female mortality in the ages 60--85 with a logrank test, and for that purpose we use the `logrank` function:
 
-```{r noevallr, eval = FALSE}
+```{r noevallr, echo = TRUE}
 library(eha)
-fit <- logrank(Surv(enter, exit, event) ~ sex, data = om)
+fit <- logrank(Surv(enter, exit, event), group = sex, data = om)
+fit
 ```
 
-The result is given by `summary(fit)`:
-
-```{r lrreal3,comment = NA, echo = FALSE}
-fit <- logrank(Surv(enter, exit, event) ~ sex, data = om)
-print(fit)
-```
-
-Obviously, we got a lot of information here, more than we actually need. We have in fact performed
-a Cox regression slightly ahead of schedule! The result of the
-logrank test is displayed on the last line of output. The $p$-value is
-`r fit$p.value` , a very small number. Thus, there is a very significant difference in mortality between men and women.
+ The result of the logrank test is given by the $p$-value
+`r fit$p.value` , a very small number. Thus, there is a very significant 
+difference in mortality between men and women.
 But *how large* is the difference? The log-rank test has no answer to this question.
 
 Remember that this result depends on the proportional hazards
-assumption. We can graphically check it as follows.
+assumption. We can graphically check it, see Figure \@ref(fig:logrank3)
 
-```
-Surv(enter, exit, event) ~ strata(sex), 
-              data = om, start.time = 60)
-with(om, plot(Surv(enter, exit, event) , xlab = "Age", fun = "cumhaz")
-```
-
-Note that the grouping factor (`sex`) is given through the
-function `strata` in the formula. The result is shown in Figure \@ref(fig:phazom3).
-
-```{r phazom3, fig.cap = "Old age mortality, women vs. men, cumulative hazards.", echo = FALSE, fig.height = 4}
-par(las = 1)
-##plot(survfit(fit))
-sf <- survfit(Surv(enter, exit, event) ~ strata(sex), 
-              data = om, start.time = 60)
-plot(sf, xlab = "Age", main = "", fun = "cumhaz", lty = 1:2)
-legend("topleft", legend = c("Men", "Women"), lty = 1:2)
+```{r logrank3, fig.cap = "Cumulative hazards for women and men in ages 60-85, 19th century Sweden.", echo = FALSE, fig.height = 4}
+par(mfrow = c(1, 2), las = 1)
+plot(fit, main = "Normal scale")
+plot(fit, fn = "log", main = "Log scale", printLegend = "bottomright")
 ```
 
-<!--
-First note that the out-commented  version works equally well, but it
-is more tedious to type, and also harder to read. The `with`
-\index{Functions!`with`}} function is very handy and will be used often
-throughout the book.
--->
-
-
-<!--
-\begin{figure}[ht!]
-\includegraphics{{$HOME}/Documents/ehaBook/Sweave/figs/ch3-grch}
-\caption{Old age mortality, women vs.\ men, cumulative hazards.}
-\label{fig:phazom3}
-\end{figure}
--->
 
 The proportionality assumption seems to be a good description from 60 to
-85--90 years of age, but it seems more doubtful in the very high ages. One
+85 years of age, but it is more doubtful in the very high ages (not shown). One
 reason for this may be that the high-age estimates are based on few
 observations (most of the individuals in the sample died earlier), so
-random fluctuations have a large impact in the high ages.
+random fluctuations have a large impact in the high ages, but it is also an often 
+observed phenomenon that differences in mortality between groups tend to vanish in
+the extremely high ages.
 
 ### Several samples
 
@@ -548,9 +555,10 @@ set, `oldmort`, as above, but with the covariate `civ`,
 which is a `factor` with three levels (`unmarried`, `married`, `widow`), instead of `sex`.
 Furthermore, the investigation is limited to *male mortality*.
 
-```{r lrplace3, echo = FALSE, comment = NA}
-summary(fit <- coxph(Surv(enter, exit, event) ~ civ,  
-                     data = om[om$sex == "male", ]))
+```{r lrplace3, echo = TRUE, comment = NA}
+fit <- logrank(Surv(enter, exit, event), group = civ,  
+                     data = om[om$sex == "male", ])
+fit
 ```
 The degrees of freedom for the *score test*\index{Tests!score}
 is now 2, equal to the number
@@ -559,12 +567,9 @@ minus one. Being `unmarried` seem to have great impact on
 old age mortality. It is however recommended to check the proportionality
 assumption graphically, see Figure \@ref(fig:grbp3).
 
-```{r grbp3, fig.cap = "Old age male mortality by civil status, cumulative hazards.", echo=FALSE}
+```{r grbp3, fig.cap = "Old age male mortality by civil status, cumulative hazards.", echo=FALSE, fig.height = 4}
 par(las = 1)
-sfm <- survfit(Surv(enter, exit, event) ~ strata(civ), 
-               data = om[om$sex == "male", ], start.time = 60)
-plot(sf, xlab = "Age", fun = "cumhaz", lty = 1:3, ylab = "")
-##with(om[om$sex == "male", ], plot(Surv(enter, exit, event), strata = civ, main = "", xlab = "Age", ylab = "", las))
+plot(fit)
 ```
 
 <!--
@@ -575,12 +580,11 @@ plot(sf, xlab = "Age", fun = "cumhaz", lty = 1:3, ylab = "")
 \end{figure}
 -->
 
-There is obviously nothing that indicates non-proportionality in this case
-either. Furthermore, the `unmarried` have have significantly higher mortality than both `married`
-and `widows`.
+There is obviously nothing much that indicates non-proportionality in this case
+either. Furthermore, the ordering is what one would expect.
 
 We do not go deeper into this matter here, mainly because the logrank test
-generally is a special case of Cox regression, which will be described in
+is a special case of Cox regression, which will be described in
 detail later in this chapter.
 
 <!--
@@ -593,48 +597,11 @@ their own. The interested reader may consult the text books by
 
 
 
-## Proportional Hazards Regression Models
-\index{proportional hazards!regression}
+## Cox Regression Models
+\index{proportional hazards!Cox regression}
 
-The definition in Section \@ref(sec:ph3) is valid for models in continuous
-time. 
-Figure \@ref(fig:prophazfig2) shows the relationships between the cumulative
-hazards functions, the density functions, and the survival functions when
-the hazard functions are proportional. Note that the cumulative hazards
-functions are proportional by implication, with the same proportionality
-constant ($\psi = 2$ in this case). On the other hand, for the density and
-survival functions, proportionality does not hold; it is in fact
-theoretically impossible except in the trivial case that the
-proportionality constant is unity.
-
-
-```{r prophazfig2,fig=TRUE,echo=FALSE,height=5, fig.cap="The effect of proportional hazards on the density and survival functions.",fig.scap="Effect of proportional hazards."}
-oldpar <- par(mfrow = c(2, 2))
-x <- seq(0,2.5, length = 500)
-library(eha)
-y <- hweibull(x, scale = 1, shape = 3)
-z <- hweibull(x, scale = 2^(1/3), shape = 3)
-plot(x, y, type = "l", main = "Hazards", xlab = "Time", ylab = "Hazards")
-lines(x, z, lty = 2)
-abline(h = 0)
-y <- Hweibull(x, scale = 1, shape = 3)
-z <- Hweibull(x, scale = 2^(1/3), shape = 3)
-plot(x, y, type = "l", main = "Cumulative hazards", xlab = "Time", ylab = "Cum. hazards")
-lines(x, z, lty = 2)
-abline(h = 0)
-y <- dweibull(x, scale = 1, shape = 3)
-z <- dweibull(x, scale = 2^(1/3), shape = 3)
-plot(x, y, type = "l", main = "Density functions", xlab = "Time", ylab = "Density")
-lines(x, z, lty = 2)
-abline(h = 0)
-y <- pweibull(x, scale = 1, shape = 3, lower.tail = FALSE)
-z <- pweibull(x, scale = 2^(1/3), shape = 3, lower.tail = FALSE)
-plot(x, y, type = "l", main = "Survival functions", xlab = "Time", ylab = "Survival", ylim = c(0, 1))
-lines(x, z, lty = 2)
-abline(h = 0)
-##
-par(oldpar)
-```
+Starting with the definition of proportional hazards in Section \@ref(sec:ph3), the
+concept of Cox regression is introduced in steps.
 
 ### Two Groups
 
@@ -666,8 +633,8 @@ The sole idea by this rewriting is to pave the way for the introduction of
 *Cox's regression model* [@cox72], which in its elementary form is a
 proportional hazards model. In fact, we can already interpret
 equation \@ref(eq:phsimple) as a Cox regression model with an explanatory
-variable $x$ with corresponding regression coefficient (to be estimated
-from data) $\beta$. The covariate $x$ is still only a dichotomous variate,
+variable $x$ with corresponding regression coefficient $\beta$ (to be estimated
+from data). The covariate $x$ is still only a dichotomous variate,
 but we will now show how it is possible to generalize this to a situation
 with explanatory variables of any form. The first step is to go from the
 two-sample situation to a $k$-sample one.
@@ -690,7 +657,7 @@ constants $\psi_1, \ldots, \psi_k$ in order to define proportional
 hazards. Note also that in this formulation (there are others), one group
 is "marked" as a *reference group*, that is, to this group there is no
 proportionality constant attached. All relations are relative to the
-reference group. Note also that it essentially doesn't matter which group
+reference group. Note also that it doesn't matter which group
 is chosen as the reference. This choice does not change the model itself,
 only its representation.
 
@@ -728,7 +695,7 @@ x_{k} \beta_k} = h_0(t) e^{\mathbf{x} \boldsymbol{\beta}},
 
 where $\boldsymbol{\beta} = (\beta_1, \beta_2, \ldots, \beta_k)$.
 
-### The General Proportional Hazards Regression Model
+### The General Cox Regression Model
 
 We may now generalize \@ref(eq:kgroups) by letting the components of
 $\mathbf{x}_i$ take *any value*. Let data and model take
@@ -740,7 +707,8 @@ Data:
 (t_{i0}, t_i, d_i, \mathbf{x}_i), \; i = 1, \ldots, n,
 \end{equation}
 
-where $t_{i0}$ is the *left truncation time point* (if $y_{i0} = 0$ for all $i$, then this variable may be omitted,
+where $t_{i0}$ is the *left truncation time point* (if $y_{i0} = 0$ for all $i$, 
+then this variable may be omitted),
 $t_i$ is the *end time point*,
 $d_i$ is the *"event indicator"* ($1$ or *TRUE* if event, else $0$ or *FALSE*), and
 $\mathbf{x}_i$ is a vector of *explanatory variables*.
@@ -761,7 +729,7 @@ regression coefficients $\boldsymbol{\beta}$, and the
 \; t > 0$. For the former task, the *partial likelihood* [@cox75]
 is used. See Appendix A for a brief summary.
 
-## Estimation of the Baseline Hazard
+## Estimation of the Baseline Cumulative Hazard Function
 \index{baseline hazard function!estimation of|(}
 
 The usual estimator (continuous time) of the baseline cumulative hazard
@@ -773,7 +741,8 @@ e^{\mathbf{x}_m \hat{\boldsymbol{\beta}}}},
 (\#eq:bashaz)
 \end{equation}
 
-where $d_j$ is the number of events at $t_j$. Note that if
+where $d_j$ is the number of events at $t_j$ and $\hat{\boldsymbol{\beta}}$ 
+is the result of maximizing the partial likelihood. Note that if
 $\hat{\boldsymbol{\beta}} = 0$, this 
 reduces to 
 
@@ -786,20 +755,21 @@ the Nelson-Aalen\index{Nelson-Aalen estimator} estimator. In
 \@ref(eq:km3), $n_j$ is the size of $R_j$. 
 
 In the **R** package  **eha**, the baseline hazard is estimated at the
-means of the covariates (or, more precisely, at the means of the columns of
-the design matrix; this makes a difference for factors).
-
-\begin{equation}
-\hat{H}_0(t) = \sum_{j:t_j \le t} \frac{d_j}{\sum_{m \in R_j}
-e^{(\mathbf{x}_m - \bar{\mbox{$\mathbf{x}$}})\hat{\boldsymbol{\beta}}}},
-(\#eq:bashazeha)
-\end{equation}
+value zero of the covariates (but at the reference category for a factor covariate).
+This is different from practice in other packages, where some average value of covariate values 
+are chosen as reference. However, this is generally a bad habit, because it will frequently lead to 
+a variation in the reference value as subsets of the original data set is taken.
+Instead, the practitioner must exercise judgment in choosing relevant reference values 
+for (continuous) covariates. There are two instances when these choices make a 
+difference: (i) When interactions are present, main effect estimates will vary 
+with choice (more about this later), and (ii) estimation of baseline hazards and 
+survival functions.
 
 In order to calculate the cumulative hazards function for an individual
 with a specific covariate vector $\mathbf{x}$, use the formula
 
 \begin{equation*}
-\hat{H}(t; \mathbf{x}) = \hat{H}_0(t) e^{(\mathbf{x} - \bar{\mbox{$\mathbf{x}$}})\hat{\boldsymbol{\beta}}}.
+\hat{H}(t; \mathbf{x}) = \hat{H}_0(t) e^{(\mathbf{x})\hat{\boldsymbol{\beta}}}.
 \end{equation*}
 
 The corresponding survival functions may be estimated by the relation
@@ -813,333 +783,6 @@ an estimator analogous to the Kaplan-Meier estimator \@ref(eq:km2). In
 practice, there is no big difference between the two methods. 
 \index{baseline hazard function!estimation of|)}
 
-
-## Explanatory Variables
-
-Explanatory variables, or *covariates*\index{covariate}, may be of
-essentially two 
-different types *continuous* and *discrete*. The discrete type
-usually takes only a finite number of distinct values and is often called a
-`factor`, e.g., in **R**. A special case of a factor is one that takes
-only two distinct values, say 0 and 1. Such a factor is called an
-*indicator*, because we can let the value 1 indicate the presence of a
-certain property and 0 denote its absence. To summarize, there is 
-
-*    **Covariate**: taking values in an *interval* (e.g., *age*, *blood pressure*).
-*    **Factor**: taking a *finite* number of values (e.g., *civil status*, *occupation*).\index{factor}
-*    **Indicator**: a factor taking *two* values (e.g., *gender*).
-
-
-### Continuous Covariates
-
-We use the qualifier *continuous* to stress that factors are
-excluded, because often the term *covariate* is used as a synonym for
-*explanatory variable*. 
-
-Values taken by a continuous covariate are *ordered*. The *effect* on the response is by model definition ordered in
-the *same* or *reverse* order.
-On the other hand, values taken by a factor are 
-*unordered*\index{factor!unordered} (but may be defined as 
-  ordered\index{factor!ordered} in **R**). 
-
-### Factor Covariates
-
-An explanatory variable that can take only a finite (usually small) number
-of distinct values is called a 
-*categorical variable*\index{categorical variable}. In **R**
-language, it is called a 
-*factor*\index{factor}. Examples of such variables are
-  *gender*, *socio-economic status*, *birth place*. Students of
-statistics have long been taught to create *dummy variables* in such
-situations, in the following way: 
-
-*    Given a categorical variable $F$ with $(k+1)$ levels $(f_0, f_1, f_2, \ldots f_k)$ ($k+1$ levels),
-*    Create $k$ *indicator* (``dummy'') variables $(I_1, I_2, \ldots I_k)$.
-
-<!--
-\begin{tabular}{c|cccccc|l}
-$F$   & $I_1$ & $I_2$ & $I_3$ & $\cdots$ & $I_{k-1}$ & $I_k$ & Comment\\ \hline
-$f_0$ &  0    &  0    &  0    & $\cdots$ & 0         & 0  & *reference}   \\
-$f_1$ &  1    &  0    &  0    & $\cdots$ & 0         & 0     \\
-$f_2$ &  0    &  1    &  0    & $\cdots$ & 0         & 0     \\
-$f_3$ &  0    &  0    &  1    & $\cdots$ & 0         & 0     \\
-$\cdots$ &  $\cdots$  &  $\cdots$  &  $\cdots$  & $\cdots$ & $\cdots$
-& $\cdots$     \\
-$f_{k-1}$ &  0    &  0    &  0    & $\cdots$ & 1         & 0 \\
-$f_k$ &  0    &  0    &  0    & $\cdots$ & 0         & 1
-\end{tabular}
-
--->
-The level $f_0$ is the reference category, characterized by that all indicator
-variables are zero for an individual with this value. Generally, for
-the level, $f_i, \; i = 1,\ldots, k$, the indicator variable $I_i$ is one,
-the rest are zero. In other words, for a single individual, at most one
-indicator is one, and the rest are zero.
-
-In **R**, there is no need to explicitly create dummy variables, it is done
-behind the scenes by the functions 
-`factor`\index{Functions!factor} and 
-`as.factor`\index{Functions!as.factor}.
-
-Note that a factor with *two* levels, i.e., an indicator
-variable\index{indicator variable}, can always be treated as a continuous
-covariate, if coded 
-numerically (e.g., 0 and 1).
-
-```{example, name="Infant mortality and age of mother",echo=TRUE}
-```
-Consider a demographic example, the influence of mother's age (a continuous covariate) on infant mortality.
-It is considered well-known that a *young* mother means high risk for
-the infant, and
-also that *old* mother means high risk, compared to
-*"in-between-aged"* mothers. So the risk order is not the same (or
-reverse) as the age order. 
-
-One solution (not necessarily the best) to this problem is to *factorize*: Let, for instance,
-
-\begin{equation*}
-\mbox{mother's age} = \left\{\begin{array}{ll}
-                           \mbox{low}, & 15 < \mbox{age} \le 25 \\
-                           \mbox{middle}, & 25 < \mbox{age} \le 35 \\
-                           \mbox{high}, & 35 < \mbox{age}
-                            \end{array} \right.
-\end{equation*}
-
-In this layout, there will be two parameters measuring the deviation from
-the reference category, which will be the first category by default.
-
-In **R**, this is easily achieved with the aid of the 
-`cut`\index{Functions!cut} function. It
-works like this:
-
-```{r cut}
-age <- rnorm(100, 30, 6)
-age.group <- cut(age, c(15, 25, 35, 48))
-summary(age.group)      
-```
-
-Note that the created intervals by default are closed to the right and open
-to the left. This has consequences for how observations exactly on a
-boundary are treated; they belong to the lower-valued interval. The
-argument `right` in the call to `cut` can be used switch this
-behaviour the other way around. 
-
-Note further that values falling below the smallest value (15 in our
-example) or above the largest value (48) are reported as *missing values*\index{missing values}
-(`NA` in **R** terminology, `Not Available`).
-
-For further information about the use of the `cut` function, see the
-help page. $\Box$
-
-
-## Interactions
-
-The meaning of *interaction* between two explanatory variables is
-described by an example, walking through the three possible combinations of covariate types.
-We return to the `oldmort` data set, slightly modified, see Table \@ref(tab:ommod), where the first six of a total to 6495 rows are shown. 
-
-```{r ommod, echo = FALSE}
-om <- age.window(oldmort, c(60, 85))
-om$farmer <- om$ses.50 == "farmer"
-om$farmer <- factor(om$farmer, labels = c("no", "yes"))
-om <- om[, c("birthdate", "enter", "exit", "event", "sex", "farmer", "imr.birth")]
-knitr::kable(head(om), booktabs = TRUE, caption = "Old age mortality, Sundsvall 1860-1880", row.names = FALSE)
-```
-
-The sampling frame is a rectangle in the Lexis diagram, see Figure \@ref(fig:lexmort). It can be described as all persons born between January 1, 1775 and January 1, 1881, and present in the solid rectangle at some moment.
-
-```{r lexmort, fig.cap = "Old age mortality sampling frame, Lexis diagram.", echo = FALSE}
-plot(c(1860, 1880), c(60, 60), type = "l", ylim = c(0, 100), xlim = c(1770, 1890), axes = FALSE, lwd = 1.5, xlab = "Year", ylab = "Age")
-axis(1, at = c(1775, 1821, 1860, 1881))
-axis(2, at = c(0, 60, 85, 100), las = 1)
-box()
-lines(c(1860, 1881), c(85, 85), lwd = 1.5)
-lines(c(1860, 1860), c(60, 85), lwd = 1.5)
-lines(c(1881, 1881), c(60, 85), lwd = 1.5)
-abline(h = c(60, 85), lty = 3)
-abline(v = c(1860, 1881), lty = 3)
-lines(c(1775, 1860), c(0, 85), lty = 2)
-lines(c(1821, 1881), c(0, 60), lty = 2)
-abline(h = 0)
-```
-
-```{example, label = "oldmort03", name = "Old age mortality", echo=TRUE}
-```
-There are four possible explanatory variables behind survival after age 60 in the example. 
-\begin{eqnarray*}
-\mbox{farmer} & = & \left\{ \begin{array}{ll}
-             \mbox{no} & \\
-             \mbox{yes} & \left(e^{\alpha}\right)
-            \end{array} \right. \\
-%\end{equation*}
-%\begin{equation*}
-\mbox{sex} & = & \left\{ \begin{array}{ll}
-             \mbox{male} & \\
-             \mbox{female} & \left(e^{\beta}\right)
-            \end{array} \right. \\
-\mbox{birthdate } (x_1) & & \mspace{90mu} \left(e^{\gamma_1 x_1}\right) \\
-\mbox{IMR at birth } (x_2) & & \mspace{90mu} \left(e^{\gamma_2 x_2}\right) \\
-\end{eqnarray*}
-The two first are factors, and the last two are continuous covariates. We
-go through the three distinct combinations and illustrate the meaning of
-interaction in each. $\Box$
-
-
-### Two factors
-
-Assume that we, in the oldmort example, only have the factors `sex` and `farmer` at our 
-disposal as explanatory variables. We may fit a Cox regression model like this:
-
-```{r coxtwofacfit, comment = NA}
-fit <- coxph(Surv(enter, exit, event) ~ sex + farmer, data = om)
-```
-
-
-The output from `coxph` (the *model fit*) is saved in the object `fit`, which is investigated,
-first by the the function `drop1`, which performs successive $\chi^2$ tests of the significance of 
-the estimated regression coefficients (the null hypothesis in each case is that the true coefficient 
-is zero). 
-
-```{r coxtwofacdrop, comment = NA}
-drop1(fit, test = "Chisq")
-```
-
-The $p$-value corresponding to the coefficient for `sex` is *very* small, meaning that there 
-is a strongly significant difference in mortality between women and men. The difference in mortality 
-between farmers and non-farmers is also statistically significant, but with a larger $p$-value.
-
-Next, we want to see the *size* of the difference in mortality between women and men, and between farmers 
-and non-farmers, so the estimates are printed (rounded to three decimal places).
-
-```{r coxtwofaccoef, comment = NA}
-round(summary(fit)$coefficients, 3)
-```
-
-This result tells us that female mortality is 79.3 per cent of the male mortality, and that the farmer
-mortality is 88 per cent of the non-farmer mortality (from the column "exp(coef)"). Furthermore, this model 
-is *multiplicative* (additive on the log scale), so we can conclude that the mortality of a female farmer is 
-$0.793 \times 0.880 \times 100$ = `r round(0.793 * 0.880 * 100, 1)` per cent of that of a male non-farmer.
-
-We can also illustrate the sex difference graphically, see Figure \@ref(fig:coxtwofaccoefgr).
-
-```{r coxtwofaccoefgr, fig.cap = "Cumulative hazards for men and women."}
-fit2 <- coxph(Surv(enter, exit, event) ~ strata(sex) + farmer, 
-              data = om)
-plot(survfit(fit2), fun = "cumhaz", xlim = c(60, 85), 
-     lty = 1:2, xlab = "Age")
-abline(h = 0)
-legend("topleft", legend = c("Men", "Women"), lty = 1:2)
-```
-
-Obviously the proportionality assumption is well met: It can also be formally tested as follows:
-
-```{r testprop}
-fit3 <- coxph(Surv(enter, exit, event) ~ sex + farmer, 
-              data = om)
-(pczp <- cox.zph(fit3))
-```
-
-First look at the $p$-value corresponding to *GLOBAL*: it gives an overall verdict of the proportionality
-assumption. Values below 0.05 (say) are suspicious: It tells us that some variable is bad, and it is time 
-to look at the individual $p$-values. There are no problems here.
-
-As always, you should interpret these tests with care. With large data sets, you will frequently get small $p$-values, and still the graph shows a reasonable agreement with proportionality. Then do not bother about the proportionality.
-
-An obvious question to ask: Is the sex difference in mortality the same among farmers as among non-farmers? In other words: Is there an *interaction* between sex and farmer/non-farmer regarding the effect on mortality?
-
-In order to test for an interaction in **R**, the plus ($+$) sign in the formula is changed to a multiplication sign ($*$):
-
-```{r multsign}
-fit4 <- coxph(Surv(enter, exit, event) ~ sex * farmer, 
-              data = om)
-(x <- drop1(fit4, test = "Chisq"))
-```
-
-The small $p$-value (`r round(x[[4]][2], 4) * 100` per cent) indicates that there is a *statistically* significant (at the 5 per cent level) interaction effect. The *size* of the interaction effect is seen in the table of estimated coefficients (rounded to three decimal places):
-
-```{r tablecoef}
-round(summary(fit4)$coefficients[, 1:2], 3)
-```
-
-Interpretation: The mortality of female farmers is  $100 \times 0.743 = 74.3$ per cent of the mortality of male farmers. Hovever, moving to the non-farmer group, this relation has to be multiplied by $1.338$, the interaction effect. The result is that among non-farmers, the female mortality is `r round(74.3 * 1.338, 1)` per cent of the male mortality.
-
-In cases like this, it is often recommended to perform separate analyses for women and men, or, alternatively, for farmers and non-farmers. Do that as an exercise and interpret your results.
-
-
-### One factor and one continuous covariate
-
-Now the covariates `sex` (factor) and `birthdate` (continuous) are in focus. First the model without interaction is fitted.
-
-```{r facconmul}
-fit5 <- coxph(Surv(enter, exit, event) ~ sex + birthdate, data = om)
-drop1(fit5, test = "Chisq")
-```
-
-Obviously `sex` is statistically significant, while `imr.birth` is not. We go directly to the estimated coefficients after adding an interaction term to the model:
-
-```{r facconmulint}
-fit6 <- coxph(Surv(enter, exit, event) ~ sex * birthdate, data = om)
-round(summary(fit6)$coefficients[, 1:2], 5)
-```
-
-What is going on here? The main effect of `sex` is huge! The answer lies in the interpretation of the coefficients: 
-(i) To evaluate the effect on mortality for an 
-individual with given values of the covariates, you must involve the interaction coefficient. For instance, a female born on January 2, 1801 (`birthdate` = `r round(toTime("1801-01-02"), 3)`)
-will have the relative risk 
-
-$$\exp(9.12285 - 0.00327 \times 1801.003 - 0.00519 \times 1801.003) = 0.00185$$
-
-compared to a man with `birthdate`= 0, the reference values! Obviously, it is ridiculous to extrapolate the model 1800 years back in time, but this is nevertheless the correct way to interpret the coefficients. So, at `birthdate` = 0, women's mortality is 9162 times higher than that of men!
-(ii) With interactions involved, it is strongly recommended to *center* continuous covariates. In our example, we could do that by subtracting 1810 (say) from `birthdate`. That makes `sex = "male", birthdate = 1800` the new *reference values*. The result is
-
-```{r centering, echo = FALSE}
-om$birthdate <- om$birthdate - 1810
-fit7 <- coxph(Surv(enter, exit, event) ~ sex * birthdate, data = om)
-(res <- round(summary(fit7)$coefficients[, 1:2], 5))
-```
-
-```{r echo=FALSE}
-int0 <- 0
-int1 <- res[1, 1]
-sl0 <- res[2, 1]
-sl1 <- sl0 + res[3, 1]
-```
-
-This is more reasonable-looking: At the beginning of the year 1810, woman had a mortality of 76.8 per cent of that of men.
-
-To summarize: The effects can be illustrated by two curves, one for men and one for women. The coefficients for `sex`, 0 and `r int1`, are the respective intercepts, and `r sl0` and 
-`r sl1` are the slopes. See Figure \@ref(fig:figgraphill3) for a graphical illustration.
-
-```{r figgraphill3, fig.cap="The effect of birthdate on relative mortality for men and women. Reference: Men, birthdate = 1810.", echo=FALSE, fig.height = 4}
-x <- seq(min(om$birthdate), max(om$birthdate), length = 1000)
-y0 <- exp(int0 + x * sl0)
-y1 <- exp(int1 + x * sl1)
-plot(x, y0, type = "l", ylim = c(min(y0, y1), max(y0, y1)), lty = 4, xlab = "Birthdate.", ylab = "Relative risk", axes = FALSE)
-att <- c(-30, -20, -10, 0, 10)
-axis(1, at = att, labels = att + 1810)
-axis(2, las = 1)
-box()
-lines(x, y1, lty = 2)
-points(0, 1)
-abline(h = 1)
-abline(v = 0)
-text(-10, 1.06, "Men")
-text(-10, 0.89, "Women")
-```
-
-
-### Two continuous covariates
-
-In our example data, the covariates `birthdate` and `imr.birth` are continuous, and we get
-
-```{r botcont}
-fit8 <- coxph(Surv(enter, exit, event) ~ birthdate * imr.birth, data = om)
-(res <- round(summary(fit8)$coefficients[, 1:2], 5))
-```
-
-The interpretation of the coefficients are: The reference point is `birthdate = 0` (1810) and `imr.birth = 0`, and if `birthdate = x` and `imr.birth = y`, then the relative risk is  
-$$ \exp(-0.03024 x + 0.02004 y + 0.00158 x y),$$
-analogous to the calculation in the case with one continuous and one factor covariate.
 
 ## Interpretation of parameter estimates
 

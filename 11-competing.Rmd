@@ -1,0 +1,251 @@
+# Competing risks models {#competing}
+
+\index{competing risks|(}
+
+Classical competing risks models will be discussed, as
+well as their modern interpretations. The basic problem is that we want to
+consider more than one type of event, but where exactly one will occur. For
+instance, consider death in different causes. 
+
+```{r compet10, fig.cap = "Competing risks: Causes of death.", echo = FALSE, fig.align = "center", out.width = "80%"}
+knitr::include_graphics("images/compet.png", auto_pdf = TRUE)
+```
+
+
+The first problem is: How can the intensities
+\begin{equation*}
+\bigl(\alpha_1(t), \alpha_2(t), \alpha_3(t)\bigr), \quad t > 0
+\end{equation*}
+be nonparametrically estimated? It turns out that this is quite
+simple. The trick is to take one cause at at time and estimate its
+intensity as if the rest of the causes (events) are censorings. The real
+problem starts when we want to have these intensities turned into probabilities.
+
+## Some mathematics
+
+First we need some strict definitions, so that the correct questions are
+asked, and the correct answers are obtained.
+
+The *cause-specific* cumulative hazard 
+functions\index{cumulative hazard function} are
+\begin{equation*}
+\Gamma_k(t) = \int_0^t \alpha_k(s) ds, \quad t > 0, \quad k = 1, 2, 3.
+\end{equation*}
+The *total mortality* is
+\begin{equation*}
+\begin{split}
+\lambda(t) &= \sum_{k=1}^3 \alpha_k(t)\quad t > 0 \\
+\Lambda(t) &= \sum_{k=1}^3 \Gamma_k(t), \quad t > 0
+\end{split}
+\end{equation*}
+and *total survival* is
+\begin{equation*}
+S(t) = \exp\left\{-\Lambda(t)\right\}
+\end{equation*}
+So far, this is not controversial. But asking for a "cause-specific survivor
+function" is.
+
+## Estimation
+
+
+The quantities $\Gamma_k, \; k = 1, 2, 3$, $\Lambda$, and $S$ can be
+estimated in the usual way.
+$\Gamma_1$, the \emph{cumulative hazard function for cause 1} is
+estimated by regarding all other causes (2 and 3) as censorings.
+The total survivor function $S$ is estimated by the method of Kaplan-Meier,
+regarding all causes as the same cause (just death).
+
+Is it meaningful to estimate (calculate) $S_k(t) =
+\exp\left\{-\Gamma_k(t)\right\}, \; k = 1, 2, 3$? The answer is "No". The
+reason is that it is difficult to define what these probabilities mean in
+the presence of other causes of death. For instance, what would happen if
+one cause was eradicated?
+
+## Meaningful probabilities
+
+It *is* meaningful to estimate (and calculate)
+\begin{equation*}
+P_k(t) = \int_0^t S(s) \alpha_k(s) ds,\quad t > 0,\quad k = 1, 2, 3,
+\end{equation*}
+the probability to die from cause $k$ before time $t$.
+Note that
+\begin{equation*}
+S(t) + P_1(t) + P_2(t) + P_3(t) = 1 \texttt{ for all  $t > 0$}.
+\end{equation*}
+Now, *estimation* is straightforward with the following estimators:
+\begin{equation*}
+\hat{P}_k(t) = \sum_{i:t_i \le t} \hat{S}(t_i-)\frac{d_i^{(k)}}{n_i}
+\end{equation*}
+See the function `comp` at the end of this chapter for how to write code for 
+this estimation.
+
+## Regression
+
+It is also possible to include covariates in the estimating procedure.
+\begin{equation*}
+P_k(t) = 1 - \exp\left\{-\Gamma_k(t)\exp\left(X\beta^{(k)}\right)\right\}, \quad
+t > 0, \quad k = 1, 2, 3.
+\end{equation*}
+These equations are estimated separately. In **R**, this can be done with the package
+`cmprsk` [@figr99; @cmprsk11].
+
+```{example name = "Mortality and emigration"}
+```
+People born in Skellefteå
+  in northern Sweden around the year 1800 are followed over time from 15
+  years of age
+  to out-migration or death. Right censoring occurs for those who are still
+  present on January 1, 1870. At exit the cause is noted, see
+  Figure \@ref(fig:mortmig10).  
+
+```{r mortmig10, fig.cap = "Mortality and emigration, Skellefteå, 1800--1870.", echo = FALSE}
+plot(1, 1, xlim = c(0, 30), ylim = c(0, 20), type = "n", axes = FALSE,
+     xlab = "", ylab = "")
+##rect(5, 8, 10, 12)
+symbols(x = 5, y = 10, rectangles = matrix(c(8, 2), ncol = 2), inches = FALSE,
+        add = TRUE)
+text(5, 10, "Alive and present")
+#rect(15, 8, 20, 12)
+symbols(x = 22, y = 15, rectangles = matrix(c(10, 2), ncol = 2), inches = FALSE,
+        add = TRUE)
+text(22, 15, "Other parish in Sweden")
+
+symbols(x = 22, y = 10, rectangles = matrix(c(10, 2), ncol = 2), inches = FALSE,
+        add = TRUE)
+text(22, 10, "Within Scandinavia")
+symbols(x = 22, y = 5, rectangles = matrix(c(10, 2), ncol = 2), inches = FALSE,
+        add = TRUE)
+text(22, 5, "Outside Scandinavia")
+symbols(x = 8, y = 3, rectangles = matrix(c(6, 2), ncol = 2), inches = FALSE,
+        add = TRUE)
+text(8, 3, "Dead")
+############# Arrows: ###################
+arrows(x0 = 7, y0 = 11, x1 = 16.5, y1 = 15, code = 2, length = 0.1)
+arrows(x0 = 9, y0 = 10, x1 = 16.5, y1 = 10, code = 2, length = 0.1)
+arrows(x0 = 7, y0 = 9, x1 = 16.5, y1 = 5, code = 2, length = 0.1)
+arrows(x0 = 6, y0 = 9, x1 = 8, y1 = 4.5, code = 2, length = 0.1)
+```
+
+  
+<!--
+\begin{figure}[ht!]
+%\pspicture(0,0)(10,5)
+\pspicture(0,-1)(10,6)
+\rput[tl](1, 2){\ovalnode{a}{Alive and present}}
+%\rput[tl](6, 6){\ovalnode{d1}{Dead}}
+\rput[tl](6, 4.5){\ovalnode{d2}{Dead}} % Within parish
+\rput[tl](6, 3){\ovalnode{d3}{Other parish in Sweden}}
+\rput[tl](6, 1.5){\ovalnode{d4}{Within Scandinavia}}
+\rput[tl](6, 0){\ovalnode{d5}{Outside Scandinavia}}
+\psset{nodesep=3pt}
+%\ncline{->}{a}{d1}
+\ncline{->}{a}{d2}
+\ncline{->}{a}{d3}
+\ncline{->}{a}{d4}
+\ncline{->}{a}{d5}
+\endpspicture
+\caption{Death and emigration, Skellefte{\aa}, 1800--1870.}
+\label{fig:8mortmig}
+\end{figure}
+-->
+The data at hand looks like this:
+```{r datah10, echo = FALSE}
+load("zz.RData")
+head(zz)
+```
+
+A summary:
+
+```{r tabzz10, echo = FALSE}
+summary(zz[, -(1:3)])
+table(zz$event)
+```
+
+The variable `event` is coded as shown in Table \@ref(tab:comp10).
+
+```{r comp10, echo = FALSE}
+x <- data.frame(Code = c(0, 1, 3, 4, 5), Meaning = c("Censored", "Dead", "Moved to other parish in Sweden",
+                                        "Moved to other Scandinavian country",
+                                        "Moved outside tha Scandinavian countries"),
+                Frequency = c(10543, 2102, 4097, 59, 464))
+knitr::kable(x, booktabs = TRUE, caption = "Competing risks in Skellefteå", label = "comp10")
+```
+
+
+<!--
+\begin{table}[ht!]
+\tabletitle{Competing risks in Skellefte{\aa}.}00000000
+\label{tab:comp8}
+\begin{tabular}{c|lr}
+  Code & \multicolumn{1}{c}{Meaning} & Frequency\\ \hline
+  0 & Censored & 10\,543\\
+  \red 1 & {\tt Dead} & 2\,102\\
+ %% \blue 2 & \emph{Moved} within parish & 8\\
+  \blue 3 & \emph{Moved} to other parish in Sweden & 4\,097\\
+  \blue 4 & \emph{Moved} to other Scandinavian country & 59\\
+  \blue 5 & \emph{Moved} outside the Scandinavian countries & 464  \\ \hline
+\end{tabular}
+\end{table}
+
+Without covariates we get the picture shown in Figure \@ref(fig:causespec10).
+```{r nocomp9,fig=FALSE,echo=TRUE, message = FALSE}
+source("comp.R")
+comp(zz$enter, zz$exit, zz$event, start.age = 15)
+```
+-->
+The code for the function `comp` is displayed at the end of this
+chapter. It is not necessary to understand before reading on. It may be
+useful as a template for those who wants to analyze competing risks.
+
+```{r causespec10,fig=TRUE,height=6,echo=FALSE, fig.cap = "Cause-specific exit probabilities; mortality and migration from Skellefteå.", message = FALSE}
+source("comp.R")
+comp(zz$enter, zz$exit, zz$event, start.age = 15)
+```
+
+And with covariates and `cmprsk`; the syntax to get it done is a little
+bit nonstandard. Here *moving to other parish in Sweden* is analysed
+(`failcode = 3`).\index{Functions!\fun{crr}}
+```{r withcmprsk10}
+library(cmprsk)
+xx <- model.matrix(~ -1 + parity, zz)
+fit <- crr(zz$exit, zz$event, xx, failcode = 3)
+fit
+```
+
+<!--
+% \begin{Schunk}
+% \begin{Sinput}
+% > library(cmprsk)
+% > xx <- model.matrix(~-1 + parity, zz)
+% > fit <- crr(zz$exit, zz$event, xx, failcode = 2)
+% > fit
+% \end{Sinput}
+% \begin{Soutput}
+% convergence:  TRUE
+% coefficients:
+%  parity
+% 0.02063
+% standard errors:
+% [1] 0.005998
+% two-sided p-values:
+%  parity
+% 0.00058
+% \end{Soutput}
+% \end{Schunk}
+-->
+Note that this is *not* Cox regression\index{Cox regression} (but
+close!). The corresponding Cox regression is
+```{r withcox8, comment = ""}
+fit <- coxreg(Surv(enter, exit, event == 3) ~ parity, data = zz)
+summary(fit)
+```
+\index{Functions!\fun{coxreg}}
+\eex
+
+## R code for competing risks
+
+The code that produced Figure \@ref(fig:causespec10) is shown here.
+```{r showcode9, comment = "", echo = FALSE}
+comp
+```
+\index{competing risks|)}

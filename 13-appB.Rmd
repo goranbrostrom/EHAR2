@@ -1,0 +1,350 @@
+# Survival distributions {#app:B}
+
+The survival distributions we discuss here are all available in **R**. The
+most basic survival distribution is the \emph{Exponential distribution},
+not because it is useful in demographic applications (it isn't), but
+because it is a reference distribution, a special case of other
+distributions, and a building block for in many useful models.
+
+The piecewise constant hazard, Gamma, and the Weibull
+distributions are 
+all generalizations of the exponential.
+
+## Relevant distributions in R
+
+In **R**, there are several families of distributions available. The ones that
+are relevant in survival analysis are characterized by having positive
+support. For each family of distributions, four functions are available; a
+*density* function (name prefix `d`), a *cumulative distribution*
+function (name prefix `p`), a *quantile* function (name prefix
+`q`), and a *random number* generator (name prefix `r` }).
+In the package **eha**, the two functions with prefix `h` and `H` are
+added for some distributions. For instance, for the *Weibull*
+distribution there are `hweibull` and `Hweibull`, where the first
+is the hazard function and the second is the cumulative hazards function.
+
+In the subsection *The Exponential distribution*, we show
+exactly what these functions are and how to use them. It should be noted
+that in base **R**, there are no survival functions, hazard functions, or
+cumulative hazards functions. Some are available in the package **eha**
+and others. However, they can easily be derived from the given `p-` and
+`d-` functions, as shown in the next subsection.
+
+### The Exponential distribution {#Bexp}
+\index{Distributions!exponential|(}
+The exponential distribution is characterized by having a constant hazard
+rate $lambda$. It has density function
+$$
+f(t; \lambda) = \lambda e^{-\lambda x}, \quad \lambda > 0, \; t > 0,
+$$
+and survival function
+$$
+S(t; \lambda) = e^{-\lambda x}, \quad \lambda > 0, \; t > 0.
+$$
+The mean is $1/\lambda$ (which, unfortunately, also is the \emph{scale}
+parameter\index{scale parameter}), and the variance is $1/\lambda^2$. The exponential 
+distribution is representated in **R** by the functions `pexp`,
+`dexp`,  `qexp`,  and `rexp`, in order the cumulative distribution
+function, the density function, the quantile function (which is the inverse
+to the cumulative distribution function), and the random number generator function.
+
+In Figure \@ref(fig:expB) the relevant functions are plotted for an
+exponential distribution with $\lambda = 1$ (the default value). It is
+created as follows. 
+
+```
+library(eha)
+x <- seq(0, 4, length = 1000)
+oldpar <- par(mfrow = c(2, 2))
+plot(x, dexp(x), type = "l", 
+     main = "Density", ylab = "")
+plot(x, pexp(x, lower.tail = FALSE), type = "l", 
+     main = "Survival", ylab = "")
+plot(x, hweibull(x, shape = 1), type = "l", 
+     main = "Hazard", ylab = "")
+plot(x, Hweibull(x, shape = 1), type = "l", 
+     main = "Cumulative hazards", ylab = "")
+par(oldpar)
+```
+
+Note that there are no functions `hexp` or `Hexp`, maybe because
+they are too simple, see Figure \@ref(fig:expB). The fact that the
+exponential distribution is special case of the Weibull distribution
+(`shape = 1`) is utilized.
+
+```{r expB,fig=TRUE,echo=FALSE,height=6,fig.cap="The exponential distribution with scale parameter 1."}
+require(eha)
+x <- seq(0, 4, length = 1000)
+par(mfrow = c(2, 2))
+plot(x, dexp(x), type = "l", main = "Density", ylab = "")
+plot(x, pexp(x, lower.tail = FALSE), type = "l", main = "Survival", ylab = "")
+plot(x, hweibull(x, shape = 1), type = "l", main = "Hazard", ylab = "", ylim = c(0, 1.2))
+plot(x, Hweibull(x, shape = 1), type = "l", main = "Cumulative hazards", ylab = "")
+```
+
+The exponential distribution is characterized by the fact that it
+*lacks memory*. In other words, items whose life lengths follow an
+exponential distribution do not age; no matter how old they are, if they
+are alive they are as good as new. This concept is not useful when it comes
+to human lives, but the life lengths of electronic components are often
+modeled by the exponential distribution in reliability
+theory\index{reliability theory}.
+\index{Distributions!exponential|)}
+
+### The piecewise constant hazard distribution
+
+\index{Distributions!piecewise constant hazard|(}
+If the exponential distribution is not useful in describing human lives, it
+may be so for short segments of life. At least it will be a good
+approximation if the segment is short enough.
+
+This is the idea behind the *piecewise constant hazard*
+distribution, called `pch` in **eha**. Its definition involves a
+partition of the time (age) axis, and one positive constant (the hazard level)
+corresponding to each interval. Note that the last interval will be open,
+with infinite length; only a finite number of cutpoints are allowed. The
+definition of the hazard function $h$ becomes, with the cuts denoted 
+$\mathbf{t} = (t_1, < \cdots < t_n)$ and the levels denoted
+$\mathbf{h} = (h_1, \ldots, h_{n+1})$:
+\begin{equation}\label{eq:pwcB}
+h(t; \mathbf{t}, \mathbf{h}) = \begin{cases}
+     h_1 & t \le t_1, \\
+     %\cdots & \cdots \\
+     h_i & t_{i-1} < t \le t_i, \; i = 2,
+     \ldots, n, \\
+     %\cdots & \cdots \\
+     h_{n+1} & t_n < t. \\
+     \end{cases}
+\end{equation}
+In this definition, the number of levels must be exactly one more than the
+number of cutpoints. The relevant functions are shown in
+Figure \@ref(fig:pchBout), created as follows:
+
+
+
+```{r pchBout,echo=TRUE,height=6,fig.cap="Piecewise constant hazard distribution."}
+cuts <- c(1, 2, 3)
+n <- length(cuts)
+levels <- c(3, 2, 1, 2)
+oldpar <- par(mfrow = c(2, 2))
+plot(x, dpch(x, cuts = cuts, levels = levels), 
+     type = "l", main = "Density", ylab = "", xlab = "t")
+plot(x, ppch(x, cuts = cuts, levels = levels, lower.tail = FALSE), 
+     type = "l", main = "Survival", ylab = "", xlab = "t")
+##plot(x, hpch(x, cuts = cuts, levels = levels),
+plot(c(0, cuts[1]), c(levels[1], levels[1]),
+     type = "l", main = "Hazard", ylab = "", xlab = "t",
+     ylim = c(0, max(levels) + 0.2), xlim = c(0, max(x) + 0.2))
+for (i in 1:(n - 1)) lines(c(cuts[i], cuts[i+1]), c(levels[i+1], levels[i+1]))
+lines(c(cuts[n], Inf, c(levels[n+1], levels[n+1])))
+plot(x, Hpch(x, cuts = cuts, levels = levels), 
+     type = "l", main = "Cumulative hazards", ylab = "", xlab = "t")
+par(oldpar)
+```
+
+ Note that, despite the fact that the hazard function is *not*
+ continuous, the other functions are. They are not differentiable at the
+ cut points, though.
+ 
+ The piecewise constant hazard distribution is very flexible. It can be made
+ arbitrarily close to any continuous distribution by increasing the number
+ of cutpoints and choose the levels appropriately. Parametric proportional
+ hazards modeling with the *pch* distribution is a serious competitor
+ to the Cox regression\index{Cox regression} model, especially with large
+ data sets. 
+\index{Distributions!piecewise constant hazard|)}
+
+### The Weibull distribution
+\index{Distributions!Weibull|(}
+The *Weibull* distribution is a very popular parametric model for
+survival data, described in detail by Waloddi Weibull [@ww51], but known
+earlier. It is one of the so-called extreme-value distributions, and as
+such very useful in reliability theory. It is becoming popular in
+demographic applications, but in mortality studies it is wise to avoid it
+for old age mortality (the hazard grows too slow) and mortality in ages
+0-15 years of age (U-shaped hazards, which the Weibull model doesn't allow).
+
+The hazard function of a Weibull distribution is defined by 
+$$
+h\bigl(t; (p, \lambda)\bigr) = \frac{p}{\lambda}\biggl(\frac{t}{\lambda}\biggr)^{p-1}, \quad t, p,
+\lambda > 0.
+$$
+where $p$ is a *shape* parameter and $\lambda$ is a *scale*
+parameter. When $p = 1$, this reduces to $h(t; (1, \lambda) = 1/\lambda$,
+which is the exponential distribution with rate $1 / \lambda$. Compare to
+the definition of the exponential distribution and note that there
+$\lambda$ is the *rate* and here it is a *scale* parameter, which
+is the inverted value of the rate.
+
+As mentioned above, the Weibull distribution has a long history in
+reliability theory. Early on simple graphical tests were constructed for
+judging if a real data set could be adequately described by the Weibull
+distribution. The so-called *Weibull paper* was invented.
+Starting with the definition of the *cumulative* hazards function $H$,
+$$
+H\bigl(t; (p, \lambda)\bigr) = \biggl(\frac{t}{\lambda}\biggr)^p,
+$$
+by taking logarithms of both sides we get 
+$$
+\ln H\bigl(t; (p, \lambda)\bigr) = p \ln(t) - p \ln(\lambda)
+$$
+with $x = \ln t$ and $y = \ln H(t)$, this is a straight line. So by
+plotting the Nelson-Aalen estimator of the cumulative hazards function
+against log time, it is possible to graphically check the Weibull and
+exponential assumptions.
+
+```{example, name = "Male mortality and the Weibull distribution"}
+```
+Is it reasonable to assume that the survival data in the data set
+`mort` can be modeled by the Weibull distribution? We construct the
+*Weibull plot* with the following code.
+```
+data(mort)
+with(mort, plot(Surv(enter, exit, event), fn = "loglog"))
+```
+The result is shown in Figure \@ref(fig:wplotB).
+
+```{r wplotB,fig=TRUE,echo=FALSE,fig.cap = "Weibull plot of male mortality data."}
+with(mort, plot(Surv(enter, exit, event) ~ 1, fun = "cloglog"),
+     xlab = "log(Age - 20)", ylab = "log(Cum. hazards)")
+```
+
+Except for the early disturbance, linearity is not too far away (remember
+that the log transform magnifies the picture close to zero). Is the slope close to 1? Probably not, the different
+scales on the axis makes it hard to judge exactly. We can estimate the
+parameters with the \fun{phreg} function.
+```{r fitweiB}
+fit <- phreg(Surv(enter, exit, event) ~ 1, data = mort)
+pr <- rbind(fit$coefficients, sqrt(diag(fit$var)), exp(fit$coefficients))
+rownames(pr) <- c("Coef", "se(Coef)", "exp(Coef)")
+round(pr, 3)
+```
+The estimate of the shape parameter is 
+`r round(exp(fit$coef[2]), digits = 3)`, and it is significantly
+different from 1 ($p = 0.000$),
+ so we can firmly reject the hypothesis that
+data come from an exponential distribution.
+\index{Distributions!Weibull|)}
+
+### The Lognormal distribution
+\index{Distributions!lognormal|(}
+The lognormal distribution is connected to the normal distribution through
+the exponential function: If $X$ is normally distributed, then $Y =
+\text{exp}(X)$ is lognormally distributed. Conversely, if $Y$ is
+lognormally distributed, then $X = \text{log}(Y)$ is normally distributed.
+
+The lognormal distribution has the interesting property that the hazard
+function is first increasing, then decreasing, in contrast to the Weibull
+distribution which only allows for monotone (increasing or decreasing)
+hazard functions. 
+
+The **R** functions are named `(dpqrhH)lnorm`.
+\index{Distributions!lognormal|)}
+
+### The Loglogistic distribution
+
+The loglogistic distribution is very close to the lognormal, but have
+heavier tail to the right. Its advantage over the lognormal is that the
+hazard function has closed form. It is given by
+\begin{equation*}
+h(t; (p, \lambda)) = \frac{\frac{p}{\lambda}(\frac{t}{\lambda})^{p-1}}{1 +
+  (\frac{t}{\lambda})^p}, \quad t, p, \lambda > 0.
+\end{equation*}
+With shape $p = 2$ and scale $\lambda = 1$, its appearance is shown in
+Figure \@ref(fig:llogB). 
+
+```{r llogB,fig=TRUE,echo=FALSE,fig.cap="Loglogistic hazard function with shape 2 and scale 1."}
+x <- seq(0, 10, length = 1000)
+plot(x, hllogis(x, shape = 2, scale = 1), 
+     type = "l", ylab = "", xlab = "Time")
+abline(h = 0)
+```
+
+It is produced by the code
+```
+x <- seq(0, 10, length = 1000)
+plot(x, hllogis(x, shape = 2, scale = 1), 
+     type = "l", ylab = "", xlab = "Time")
+abline(h = 0)
+```
+
+The **R** functions are named `(dpqrhH)llogis`.
+\index{Distributions!loglogistic|)}
+
+### The Gompertz distribution
+\index{Distributions!Gompertz|(}
+The Gompertz distribution is useful for modeling old age mortality. The
+hazard function is exponentially increasing.
+\begin{equation}
+h(t; (p, \lambda)) = p \exp\biggl(\frac{t}{\lambda}\biggr), \quad t, p, \lambda > 0.
+\end{equation}
+It was suggested by @gom25.
+
+The **R** functions are named `(dpqrhH)gamma`.
+\index{Distributions!Gompertz|)}
+
+### The Gompertz-Makeham distribution
+
+The Gompertz distribution was generalized by @mak60. The
+generalization consists of adding a positive constant to the Gompertz
+hazard function,
+\begin{equation}
+h(t; (\alpha, p, \lambda)) = \alpha + p
+\exp\biggl(\frac{t}{\lambda}\biggr), \quad t, \alpha, p, \lambda > 0.
+\end{equation}
+It is more difficult to work with than the other distributions described
+here. It is not one of the possible choices in the functions \fun{phreg} or 
+\fun{aftreg} in **eha**.
+
+The **R** functions are named `(dpqrhH)makeham`.
+\index{Distributions!Gompertz-Makeham|)}
+
+### The Gamma distribution
+\index{Distributions!gamma|(}
+The Gamma distribution is another generalization of the exponential
+distribution. It is popular in modeling shared 
+frailty\index{shared frailty}, see @ph00. It is not one of the
+possible distributions 
+for the functions \fun{phreg} and \fun{aftreg}, and it is not considered
+further.  
+
+The **R** functions are named `(dpqr)gamma`.
+\index{Distributions!gamma|)}
+
+
+## Proportional hazards models {#ph_B}
+
+Proportional hazards families of distributions are characterized by the property
+that if a distribution with hazard function $h(t), t > 0$ belongs to the family, so does 
+all distributions with hazard functions $\Psi h(t), t > 0; \Psi > 0$. *Natural*
+proportional hazards families of distributions include the *Weibull*, *Exponential*, 
+*Extreme value*, *Gompertz*, and *Piecewise constant hazard* families of distributions.
+
+As an example, the proportional hazards Gompertz family of distributions is 
+characterized by the hazard functions
+
+\begin{equation}
+h_{\Psi}(t) = \Psi \exp(\alpha t), \quad t > 0; \; \Psi > 0,
+\end{equation}
+for each *fixed* $\alpha$, that is, by keeping $\alpha$ fixed and vary 
+$\Psi$, one proportional hazards family of distributions is created. We note in 
+passing that if $\alpha = 0$, then the resulting family of distributions is *exponential*
+with rate $\Psi$, and if $\alpha < 0$, then the distribution is degenerate 
+(the probability of "eternal life" is positive). In the `phreg` function in **eha**, 
+$\alpha$ is allowed to vary freely, if the parametrization `param = "rate"` is chosen.
+Note that it is *not* the default value (it may be in a near future).
+
+Extended, three-parameter, versions of the Lognormal and Loglogistic are fit into 
+the proportional hazards framework in the function `phreg. It is simply done by 
+adding a multiplicative positive constant to the hazard function as the third parameter.
+It is, at the time of this writing, experimental, so use with care.
+
+## Accelerated failure time models {#aft_B}
+
+Accelerated failure time families of distributions are defined by the property that 
+if a distribution with survivor function $S(t), t > 0$ belongs to the family, so does
+any distribution with survivor function $S(\Psi t), t > 0; \Psi > 0$. Natural families
+with this property include the *Lognormal*, *Loglogistic*, *Weibull*, *Extreme value*, 
+and *Exponential* families. With a small twist, also the *Gompertz* distribution can be 
+(and is, in `aftreg`) included.
+

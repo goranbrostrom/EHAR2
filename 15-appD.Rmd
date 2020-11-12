@@ -1,0 +1,117 @@
+# Survival packages in **R**
+
+The basic package for survival analysis in **R** is the `survival` package
+[@tg00]. It is one of the so-called 
+*recommended packages* in **R**, which means that it is automatically installed
+when **R** itself is installed. You must however *load* it in a running
+**R** environment before you can use it. 
+
+There are a few other **R** packages devoted to survival and event history
+analysis. Besides `eha`, more or less the theme of this book, there are
+`timereg` and `cmprsk`. For a detailed explanation of how to use
+these packages, see their documentations in **R**.
+
+## eha
+
+The package `eha` is written and maintained by the author of this
+book. It has a long history as a stand-alone program (written in
+  *Fortran*, *Turbo Pascal*, and *C* during different time periods)
+in the "pre **R**" era. When I was aware of the existence of the **R**
+environment in the mid-nineties, it was an easy decision to convert it
+into an **R**  package. 
+
+Today the function `coxreg`\index{Functions!coxreg} 
+in `eha`
+rests to a large part on the 
+function `coxph` in the `survival` package, but it
+has some features of its own, notably
+
+*   **Discrete time Cox regression** With the option `method = 'ml'`
+  a discrete-time Cox regression\index{Cox regression} is performed with a
+  discrete hazard atom 
+  at each observed event time. This is equivalent to a logistic regression
+  with the *cloglog* link.
+*   **Sampling of risk sets** The *weird bootstrap* [@abgk93] is implemented in
+`coxreg`.\index{Functions!coxreg} It is activated by setting the
+argument `boot` equal to 
+the desired number of bootstrap replicates.
+*   **Time-dependent case weights** 
+
+
+Other features of the **eha** package are listed below.
+
+
+*   **Parametric proportional hazards models** The common parametric models
+  in other packages are of the *AFT* type. While there is a function in
+  `eha` for these models (`aftreg`\index{Functions!aftreg}),
+  the function `phreg`\index{Functions!phreg} fits 
+  proportional hazards parametric models. Especially worth mentioning is the
+  implementation of the *piecewise constant hazard*\index{model!parametric!pch} (pch) model. 
+*   **Lexis diagram cuts** With the aid of the two functions
+  `age.window`\index{Functions!age.window} and `cal.window` 
+\index{Functions!cal.window}    
+    it is easy to make vertical and
+  horizontal cuts in the Lexis diagram.
+*   **Tools for communal covariates** The main tool is the function
+  `make.communal`, that takes an external time series (think
+  *weather*, *economy*, *epidemics*, etc.) and turns it into a
+  time-depedent covariate.
+
+
+For a presentation of the most important functions in
+`eha`, see Appendix C and the on-line documentation.
+
+## survival
+
+The `survival` package is a recommended one, and it does not need a
+separate installation. It contains all the basic features that a package on
+survival analysis should have, and more. The main important functions are
+listed here:
+
+
+*   **coxph**\index{Functions!coxph|(} 
+  This is the main function for Cox 
+  regression\index{Cox regression}. It has a number 
+  of features, time dependent variables and strata, multiple events per
+  subject, jackknife type variance estimators for clustered data, and
+  frailty models. Allows left truncated data. Fast and reliable numerical
+  algorithms.\index{Functions!coxph|)}  
+*   **survfit** Takes care of the presentation and "afterwork" of a fit to
+  a proportional hazards model or a accelerated failure time model,
+  including plotting and printing. 
+*   **survreg** Fits parametric accelerated failure time models. Allows right and
+  interval censoring, but not left truncation.
+*   **cox.zph** For testing of the proportionality assumption of fit from a
+  call to `coxph` or `coxreg`.
+*   **aareg** Fits Aalen's additive hazards 
+  model\index{model!additive hazards} [@aa89; @aa93] to survival
+  regression data.
+
+## Other packages
+
+### coxme
+\index{Packages!coxme|(}
+The package `coxme` [@coxme] analyzes frailty models in Cox
+regression. Its author, Terry Therneau, is the author of the `survival`
+package, which also can fit frailty models. According to him,
+`coxme` is the prefered package for frailty models.
+\index{Packages!coxme|)}
+
+### timereg
+
+The `timereg` package is developed by @ms06. A key feature of the
+package (and the cited book) is extensions of the Cox model, especially
+models with time-varying effects of covariates. Aalen's additive hazards
+model is in focus. Resampling is frequently used for the calculation of
+$p$-values. 
+The package has also been promoted for being able to analyze competing
+risks models [@sz11].
+
+### cmprsk
+
+This is a competing risks package [@cmprsk11], based on work by
+@gray88 and @figr99. It is used in the chapter on competing risks models 
+(chapter \@ref(competing)).
+
+
+

@@ -1,0 +1,396 @@
+# Poisson Regression
+
+Here *Poisson regression*\index{Poisson regression} is introduced and
+its connection to Cox regression\index{Cox regression} is discussed. We
+start by defining the Poisson distribution, then discuss the
+connection to Cox regression and tabular lifetime data.
+
+## The Poisson Distribution
+\index{Distributions!Poisson|(}
+
+The *Poisson distribution* is used for
+*count data*, i.e., when the result may be any positive integer *0, 1, 2,
+...*, without upper limit. The *probability density function* (pdf)
+$P$ of a random variable $X$ 
+following a Poisson distribution is
+
+\begin{equation}\label{eq:poisdist}
+P(X = k) = \frac{\lambda^k}{k!}\exp(-\lambda), \quad \lambda > 0; \; k = 0,
+1, 2, \ldots, 
+\end{equation}
+
+The parameter $\lambda$ is both the mean and the variance of the
+distribution. In 
+Figure \@ref(fig:poisdist) the pdf \eqref{eq:poisdist} is plotted for some
+values of $\lambda$.
+
+
+```{r poisdist,fig=TRUE,echo=FALSE,fig.cap="The Poisson cdf for different values of the mean.", fig.scap="The Poisson cdf."}
+oldpar <- par(mfrow = c(2, 2))
+lambda <- c(0.5, 1, 5, 25)
+x <- list(x0 = 0:5,
+          x1 = 0:8,
+          x2 = 0:15,
+          x3 = 0:45
+          )
+##for (i in 1:4){
+    xx <- x[[1]]
+    names(xx) <- xx
+##    yy <- lambda[i]
+    barplot(dpois(xx, lambda = lambda[1]), axes = FALSE,
+##            main = paste(expression(lambda), "=", yy))
+            main = expression(paste(lambda, " = ", 0.5)))
+    xx <- x[[2]]
+    names(xx) <- xx
+##    yy <- lambda[i]
+    barplot(dpois(xx, lambda = lambda[2]), axes = FALSE,
+##            main = paste(expression(lambda), "=", yy))
+            main = expression(paste(lambda, " = ", 1)))
+    xx <- x[[3]]
+    names(xx) <- xx
+##    yy <- lambda[i]
+    barplot(dpois(xx, lambda = lambda[3]), axes = FALSE,
+##            main = paste(expression(lambda), "=", yy))
+            main = expression(paste(lambda, " = ", 5)))
+    xx <- x[[4]]
+    names(xx) <- xx
+##    yy <- lambda[i]
+    barplot(dpois(xx, lambda = lambda[4]), axes = FALSE,
+##            main = paste(expression(lambda), "=", yy))
+            main = expression(paste(lambda, " = ", 25)))
+##}
+par(oldpar)
+```
+
+Note that when $\lambda$ increases, the distribution looks more and more
+like a normal distribution.
+
+In **R**, the Poisson distribution is represented by four functions, `dpois`
+  `ppois`, `qpois`, and `rpois`, representing the
+  probability density function (pdf), the cumulative distribution function
+  (cdf), the quantile function (the inverse of the cdf), and random number
+  generation, 
+  respectively. See the help page for the Poisson distribution for more
+  detail. In fact, this is the scheme present for all probability
+  distributions available in **R**.
+
+For example, the upper left bar plot in Figure \@ref(fig:poisdist) is
+produced in **R** by
+```{r poisfig,fig=FALSE}
+barplot(dpois(0:5, lambda = 0.5), axes = FALSE, 
+        main = expression(paste(lambda, " = ", 0.5)))
+```
+\index{Functions!barplot}
+Note that the function 
+`dpois`\index{Functions!dpois} is *vectorizing*:
+```{r poisvec}
+dpois(0:5, lambda = 0.5)
+```
+
+```{example, name = "Marital fertility",echo=TRUE}
+```
+As an example where the Poisson distribution may be relevant, we look at
+the number of children born to a woman after marriage. The data frame 
+*fert* in `eha` can be used to calculate the number of births per married
+woman i Skellefteå during the 19th century; however, this data set
+contains only marriages with one or more births. Let us instead count the
+number of births beyond one.
+```{r b2}
+library(eha)
+f0 <- fert[fert$event == 1, ]
+kids <- tapply(f0$id, f0$id, length) - 1
+barplot(table(kids))
+```
+
+The result is shown in Figure \@ref(fig:b2fig).
+
+
+```{r b2fig,fig=TRUE,echo=FALSE,fig.cap = "Number of children beyond one for married women with at lest one child.", fig.scap="Number of children beyond one for married women"}
+barplot(table(kids)[1:13])
+```
+
+
+The question is: Does this look like a Poisson distribution? One way of
+checking this is to plot the *theoretic* distribution with the same
+mean (the parameter $\lambda$) as the sample mean in the data.
+
+```{r thpois, eval = FALSE}
+lam <- mean(kids)
+barplot(dpois(0:12, lambda = lam))
+```
+
+The result is shown in Figure \@ref(fig:b2figt).
+
+```{r b2figt,echo=FALSE,fig=TRUE,fig.cap ="Theoretical Poisson distribution."}
+lam <- mean(kids)
+barplot(dpois(0:12, lambda = lam), names.arg = 0:12)
+```
+
+
+Obviously, the fertility data do not follow the Poisson distribution so
+well. It is in fact *over-dispersed* compared to the Poisson
+distribution. A simple way to check that is to calculate the sample mean
+and variance of the data. If data come from a Poisson distribution, these
+numbers should be equal (theoretically) or reasonably close.
+```{r meanvar}
+mean(kids)
+var(kids)
+```
+
+They are not very close, which also is obvious from comparing the graphs. $\Box$
+
+## The connection to Cox regression
+\index{Cox regression|(}
+
+There is an interesting connection between Cox regression and Poisson
+regression, which can be illustrated as follows.
+
+```{r coxpois}
+dat <- data.frame(enter = rep(0, 4), exit = 1:4, 
+                  event = rep(1, 4), x = c(0, 1, 0, 1))
+dat
+```
+
+We have generated a very simple data set, `dat`. It consists of four
+life lengths with a covariate $x$. A Cox regression, where the covariate
+$x$ is related to survival is given by\index{Functions!coxreg}
+
+```{r coxbb}
+library(eha)
+fit <- coxreg(Surv(enter, exit, event) ~ x, data = dat)
+fit
+fit$hazards
+```
+
+Note that fit$hazards is a `list` with one component per
+stratum. In this case there is only one stratum, so the list has one
+component. This component is a matrix with two columns; the first contains
+the observed distinct failure times, and the second the corresponding
+estimates of the hazard "atoms".
+
+Now, this can be replicated by Poisson regression! First the data set
+is summarized around each observed failure time. That is, a snapshot of the
+risk set at each failure time is created by the function `toBinary`. 
+
+```{r toB}
+library(eha)
+datB <- toBinary(dat)
+datB
+``` 
+
+Note that three new "covariates" are created, `riskset`, `risktime`,
+and `orig.row`. In the Poisson regression to follow, the factor 
+  `riskset` must be included as a *cluster*. Formally, this is
+equivalent to including it as a factor covariate, but for data set with
+many distinct failure times, the number of levels will be too large to be
+run by `glm`. The function `glmmboot` in `eha` is better suited. However, with 
+our small example, `glm` is fine:
+
+```{r poisreg}
+fit2 <- glm(event ~ riskset + x, family = poisson, data = datB)
+(co <- coefficients(fit2[1:4]))
+co[2:4] <- co[2:4] + co[1]
+``` 
+
+The parameter estimate corresponding to $x$ is exactly the same as in the
+Cox regression. The baseline hazard function is estimated with the aid of
+the *frailty* estimates for the clustering based on `riskset`.
+
+```{r baserisk}
+exp(co)
+``` 
+
+These numbers are the hazard atoms in the baseline hazard estimation, so
+they should be equal to the output from `fit$hazards` in the Cox
+regression. This is not the case, and this depends on the fact that 
+  `coxreg` estimates the baseline hazards at the mean of the covariate,
+i.e., at $x = 0.5$ in our toy example. The easiest way to make the numbers
+comparable is
+by subtracting 0.5 from $x$ in the Poisson regression.
+
+```{r poisreg2}
+datB$x <- datB$x - fit$means
+fit2 <- glm(event ~ riskset + x, family = poisson, data = datB)
+(co <- coefficients(fit2[1:4]))
+co[2:4] <- co[2:4] + co[1]
+exp(co)
+```
+ 
+This is exactly what `coxreg` produced.
+
+This correspondence between Poisson and Cox regression was pointed out by
+ @joh83. 
+\index{Cox regression|)}
+
+## The connection to the piecewise constant hazard model
+
+For completeness the connection between the Poisson distribution and the
+*piecewise constant hazard model*
+\index{piecewise constant hazard}\index{Distributions!piecewise constant hazard}
+is mentioned here.  This is explored in detail in Section \@ref(pch6)
+(Chapter 6).
+
+## Tabular lifetime data
+
+Although it is possible to use Poisson regression in place of Cox
+regression, the most useful application of Poisson regression in survival
+analysis is with tabular data.
+
+```{example, name = "Mortality in ages 61--80, Sweden 2007."}
+```
+\label{ex:sw07}
+In `eha`, there is the data set `swe07`, which contains population
+size and number of deaths by age and sex in Sweden 2007. The age span is
+restricted to ages 61--80.
+
+```{r swe07}
+head(swe07)
+tail(swe07)
+```
+
+The Poisson model is, where $D_{ij}$ is number of deaths and $P_{ij}$
+population size for `age` $i$ and `sex` $j$, $i = 61, \ldots, 80$;
+$j = \text{female (0)}, \text{male (1)}$, and $\lambda_{ij}$ is the corresponding
+*mortality*, 
+
+\begin{equation*}
+D_{ij} \sim \text{Poisson}(\lambda_{ij} P_{ij}), \quad i = 61, 62, \ldots,
+80; \; j = 0, 1,
+\end{equation*}
+
+with
+
+\begin{equation*}
+  \begin{split}
+  \lambda_{61,j} P_{61,j} &= P_{61,j}\exp(\gamma + \beta * j) \\
+    &= \exp(\log(P_{61,j}) + \gamma + \beta * j), \quad j = 0, 1,
+    \end{split}
+\end{equation*}
+
+and
+
+\begin{equation*}
+  \begin{split}
+  \lambda_{ij} P_{ij} &= P_{ij} \exp(\gamma + \alpha_i + \beta * j) \\
+  &= \exp(\log(P_{ij}) + \gamma + \alpha_i + \beta * j), \quad i = 62, 63,
+  \ldots, 80; \; j = 0, 1.
+  \end{split}
+\end{equation*}
+
+This calculation shows that it is the log of the population sizes
+($\log(P_{ij}$) that is the correct *offset* to use in the Poisson regression.
+First we want `age` to be a factor (no restrictions like linearity),
+then the **R** function `glm` ("generalized linear model") is used to
+fit a Poisson regression model. 
+
+```{r poisreg3}
+swe07$age <- factor(swe07$age)
+fit <- glm(deaths ~ offset(log.pop) + sex + age, family = poisson, 
+           data = swe07)
+drop1(fit, test = "Chisq")
+```
+
+The function `drop1` is used above to perform two LR tests. The results
+are that both variables are highly statistically significant, meaning that
+both are very important in describing the variation in mortality over sex
+and age. To know *how*, we present the parameter estimates.
+
+```{r parest}
+summary(fit)
+```
+
+The results so tell us that males have a distinctly higher mortality than
+females, and that mortality steadily increases with age (no
+surprises!). The parameter estimates for `age` also opens up the
+possibility to simplify the model by assuming a linear or quadratic effect
+of age on mortality. We leave that possibility for later. 
+
+One question remains: Is the female advantage relatively the
+same over ages? 
+To answer that question, we introduce an interaction:
+
+```{r point}
+fit1 <- glm(deaths ~ offset(log.pop) + sex * age, 
+            family = poisson, data = swe07)
+drop1(fit1, test = "Chisq")
+```
+
+Note that the `drop1` function only tests the interaction term. This is
+because, as we saw before, the main effects tend to be meaningless in the
+presence of interaction. However, here there is no sign of interaction, and
+we can conclude that in a survival model with `sex` as covariate, we
+have *proportional hazards*! This is most easily seen in
+*graphs*. The first plot is based on the estimated Poisson model
+without interaction. Some calculations are first needed.
+
+```{r modgrcalc}
+beta <- coefficients(fit)[2]
+alpha <- coefficients(fit)[-2] # Remove sex
+alpha[2:length(alpha)] <- alpha[2:length(alpha)] + alpha[1]
+lambda.females <- exp(alpha)
+lambda.males <- exp(alpha + beta)
+```
+
+Then the plot of the hazard functions by
+
+```{r modfig,fig=FALSE}
+plot(61:80, lambda.males, ylim = c(0, 0.06), xlab = "Age", 
+     type = "s")
+lines(61:80, lambda.females, type = "s", lty = 2)
+abline(h = 0)
+```
+
+Note the parameter `ylim`. It sets the scale on the $y$ axis, and some
+trial and error may be necessary to get a good choice.
+The function `line`\index{Functions!line} adds a curve to an already
+existing plot, and the function `abline`\index{Functions!abline}
+adds a straight line; the argument `h = 0` results in a
+*horizontal* line. See the help pages for these functions for further
+information. 
+ 
+The result is shown in Figure \@ref(fig:poishaz).
+
+```{r poishaz,fig=TRUE,echo=FALSE,fig.cap = "Model based hazard functions for males (upper) and females (lower).", fig.scap = "Hazard functions for males and females, model based."}
+plot(61:80, lambda.males, ylim = c(0, 0.06), xlab = "Age", 
+     type = "s")
+lines(61:80, lambda.females, type = "s", lty = 2)
+abline(h = 0)
+```
+
+We can also make a plot based only on raw data. For that it is only
+necessary to calculate the *occurrence-exposure
+  rates*\index{occurrence-exposure rate}. An occurrence-exposure rate is
+simply the ratio between the number of occurrences (of some event) divided
+by total exposure (waiting) time. In the present example, mean population
+size during one year is a very good approximation of the exact total
+exposure time (in years).
+
+```{r rawcal}
+femal <- swe07[swe07$sex == "female", ]
+mal <- swe07[swe07$sex == "male", ]
+f.rate <- femal$deaths / femal$pop
+m.rate <- mal$deaths / mal$pop
+```
+
+And finally the plot of the raw death rates is created as follows,
+
+```{r eval=FALSE, echo=TRUE}
+plot(61:80, m.rate, ylim = c(0, 0.06), xlab = "Age", 
+     ylab = "Mortality", type = "s")
+lines(61:80, f.rate, lty = 2, type = "s")
+abline(h = 0)
+```
+
+with the result as shown in Figure \@ref(fig:rawplot).
+
+```{r rawplot,fig=TRUE,echo=FALSE, fig.cap = "Hazard functions for males (upper) and females (lower) based on raw data.", fig.scap = "Hazard functions for males and females, raw data"}
+plot(61:80, m.rate, ylim = c(0, 0.06), xlab = "Age", 
+     ylab = "Mortality", type = "s")
+lines(61:80, f.rate, type = "s", lty = 2)
+abline(h = 0)
+```
+
+The differences between Figure \@ref(fig:poishaz) and
+Figure \@ref(fig:rawplot) are very small, showing that the Poisson model
+without interaction fits the Swedish old age mortality data very well. $\Box$
+\index{Distributions!Poisson|)}
