@@ -1235,7 +1235,7 @@ is to add two variables, `exit` and `enter`. The latter must be
 om3$exit <- as.numeric(as.character(om3$time))
 om3$enter <- om3$exit - 0.5
 fit.ML <- coxreg(Surv(enter, exit, event) ~ sex + civ + region, 
-                 method = "ml", data = om3)
+                 method = "ml", data = om3, coxph = FALSE)
 fit.ML
 ``` 
 \index{Functions!\fun{as.character}}\index{Functions!\fun{as.numeric}}

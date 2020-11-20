@@ -4,6 +4,7 @@
 par(las = 1) # Doesn't work? Later?
 knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE)
 options(show.signif.stars = FALSE)
+library(eha)
 ```
 
 This chapter deals with the various forms explanatory varibles can take and
@@ -13,17 +14,18 @@ regression analysis, but here we concentrate on survival models.
 
 Explanatory variables, or *covariates*\index{covariate}, may be of
 essentially two 
-different types *continuous* and *discrete*. The discrete type
+different types, *continuous* and *discrete*. The discrete type
 usually takes only a finite number of distinct values and is called a
 `factor` in **R**. A special case of a factor is one that takes
 only two distinct values, say 0 and 1. Such a factor is called an
 *indicator*, because we can let the value 1 indicate the presence of a
 certain property and 0 denote its absence. To summarize, there is 
 
-*    **Covariate**: taking values in an *interval* (e.g., *age*, *blood pressure*).
-*    **Factor**: taking a *finite* number of values (e.g., *civil status*, *occupation*).\index{factor}
-*    **Indicator**: a factor taking *two* values (e.g., *gender*).
-
+*    **Covariate**: taking values in an *interval* (*age*, *blood pressure*, *weight*).
+*    **Factor**: taking a *finite* number of values (*civil status*, *occupation*, *cohort*).\index{factor}
+*    **Indicator**: a factor taking *two* values (*sex*, *born in Umeå*).
+ 
+ Usually, we do not distinguish between factors and indicators, they are all factors.
 
 ## Continuous Covariates
 
@@ -97,7 +99,7 @@ One solution (not necessarily the best) to this problem is to *factorize*: Let, 
 \mbox{mother's age} = \left\{\begin{array}{ll}
                            \mbox{low}, & 15 < \mbox{age} \le 25 \\
                            \mbox{middle}, & 25 < \mbox{age} \le 35 \\
-                           \mbox{high}, & 35 < \mbox{age}
+                           \mbox{high}, & 35 < \mbox{age} \le 50
                             \end{array} \right.
 \end{equation*}
 
@@ -106,12 +108,12 @@ the reference category, which will be the first category by default.
 
 In **R**, this is easily achieved with the aid of the 
 `cut`\index{Functions!cut} function. It
-works like this:
+works like this, illustrating it with the data set `child`:
 
-```{r cut}
-age <- rnorm(100, 30, 6)
-age.group <- cut(age, c(15, 25, 35, 48))
-summary(age.group)      
+```{r cut4}
+
+age.group <- cut(child$m.age, c(15, 25, 35, 51))
+table(age.group, useNA = "ifany")      
 ```
 
 Note that the created intervals by default are closed to the right and open
@@ -121,11 +123,25 @@ argument `right` in the call to `cut` can be used switch this
 behaviour the other way around. 
 
 Note further that values falling below the smallest value (15 in our
-example) or above the largest value (48) are reported as *missing values*\index{missing values}
+example) or above the largest value (51) are reported as *missing values*\index{missing values}
 (`NA` in **R** terminology, `Not Available`).
+For further information about the use of the `cut` function, see its
+help page.
 
-For further information about the use of the `cut` function, see the
-help page. $\Box$
+An infant mortality analysis with the created factor covariate may look like this:
+
+```{r factage4}
+ch <- child
+ch$age.group <- age.group
+ch <- age.window(ch, c(0, 1)) # Right censor at age one.
+fit <- coxreg(Surv(enter, exit, event) ~ age.group, data = ch)
+print(summary(fit), short = TRUE)
+```
+
+Obviously, it is safest for the infants whose mothers' age lies in the span 25--35 
+years of age.
+
+$\Box$
 
 
 ## Interactions
@@ -149,9 +165,9 @@ om <- om[, c("birthdate", "enter", "exit", "event", "sex", "farmer", "imr.birth"
 knitr::kable(head(om, 5), booktabs = TRUE, caption = "Old age mortality, Sundsvall 1860-1880", row.names = FALSE)
 ```
 
-The sampling frame is a rectangle in the Lexis diagram, see Figure \@ref(fig:lexmort). It can be described as all persons born between January 1, 1775 and January 1, 1881, and present in the solid rectangle at some moment.
+The sampling frame is a rectangle in the Lexis diagram, see Figure \@ref(fig:lexmortfour). It can be described as all persons born between January 1, 1775 and January 1, 1881, and present in the solid rectangle at some moment.
 
-```{r lexmort, fig.cap = "Old age mortality sampling frame, Lexis diagram.", echo = FALSE}
+```{r lexmortfour, fig.cap = "Old age mortality sampling frame, Lexis diagram.", echo = FALSE, fig.height = 4}
 plot(c(1860, 1880), c(60, 60), type = "l", ylim = c(0, 100), xlim = c(1770, 1890), axes = FALSE, lwd = 1.5, xlab = "Year", ylab = "Age")
 axis(1, at = c(1775, 1821, 1860, 1881))
 axis(2, at = c(0, 60, 85, 100), las = 1)
@@ -159,13 +175,17 @@ box()
 lines(c(1860, 1881), c(85, 85), lwd = 1.5)
 lines(c(1860, 1860), c(60, 85), lwd = 1.5)
 lines(c(1881, 1881), c(60, 85), lwd = 1.5)
+##
 abline(h = c(60, 85), lty = 3)
 abline(v = c(1860, 1881), lty = 3)
 lines(c(1775, 1860), c(0, 85), lty = 2)
 lines(c(1821, 1881), c(0, 60), lty = 2)
 abline(h = 0)
 ```
+
+
 There are four possible explanatory variables behind survival after age 60 in the example. 
+
 \begin{eqnarray*}
 \mbox{farmer} & = & \left\{ \begin{array}{ll}
              \mbox{no} & \\
@@ -192,14 +212,17 @@ disposal as explanatory variables. We may fit a Cox regression model like this:
 
 ```{r coxtwofacfit, comment = NA}
 fit <- coxreg(Surv(enter, exit, event) ~ sex + farmer, data = om)
-summary(fit)
 ```
-
 
 The output from `coxreg` (the *model fit*) is saved in the object `fit`, which is investigated,
 first by the the function `summary`, which here performs successive $\chi^2$ tests of the significance of 
 the estimated regression coefficients (the null hypothesis in each case is that the true coefficient 
 is zero). 
+
+```{r coxtwofacfit4}
+print(summary(fit), short = TRUE)
+```
+
 
 The $p$-value corresponding to the coefficient for `sex` is *very* small, meaning that there 
 is a highly significant difference in mortality between women and men. The difference in mortality 
@@ -215,7 +238,8 @@ $0.793 \times 0.880 \times 100$ = `r round(0.793 * 0.880 * 100, 1)` per cent of 
 We can also illustrate the sex difference graphically by a stratified analysis, 
 see Figure \@ref(fig:coxtwofaccoefgr).
 
-```{r coxtwofaccoefgr, fig.cap = "Cumulative hazards for men and women."}
+```{r coxtwofaccoefgr, fig.cap = "Cumulative hazards for men and women.", fig.height = 3}
+par(las = 1)
 fit2 <- coxreg(Surv(enter, exit, event) ~ strata(sex) + farmer, 
               data = om)
 plot(fit2, fun = "cumhaz", xlim = c(60, 85), 
@@ -225,21 +249,6 @@ abline(h = 0)
 
 Obviously the proportionality assumption is well met.
 
-<!--
-It can also be formally tested as follows:
-
-```{r testprop}
-fit3 <- coxph(Surv(enter, exit, event) ~ sex + farmer, 
-              data = om)
-(pczp <- cox.zph(fit3))
-```
-
-First look at the $p$-value corresponding to *GLOBAL*: it gives an overall verdict of the proportionality
-assumption. Values below 0.05 (say) are suspicious: It tells us that some variable is bad, and it is time 
-to look at the individual $p$-values. There are no problems here.
-
-As always, you should interpret these tests with care. With large data sets, you will frequently get small $p$-values, and still the graph shows a reasonable agreement with proportionality. Then do not bother about the proportionality.
--->
 
 An obvious question to ask is: Is the sex difference in mortality the same among farmers as among non-farmers? In other words: Is there an *interaction* between sex and farmer/non-farmer regarding the effect on mortality?
 
@@ -248,7 +257,7 @@ In order to test for an interaction in **R**, the plus ($+$) sign in the formula
 ```{r multsign}
 fit4 <- coxreg(Surv(enter, exit, event) ~ sex * farmer, 
               data = om)
-(x <- summary(fit4, digits = 3))
+print(x <- summary(fit4), short = TRUE)
 ```
 
 Note first that the output looks different when interactions are present: The first part is a chisquare test of the significance of the interaction(s), then the usual table with parameter coefficients are presented with one difference: The Wald, and not the LR p-values are given. The small LR $p$-value (`r round(x$coefficients[3, 5], 3) * 100` per cent) indicates that there is a *statistically* significant (at the 5 per cent level) interaction effect. The *size* of the interaction effect is seen in the table of estimated coefficients. Note that the reference is a *non-farmer man*,  so the "main" effect for `sex == female` is in fact comparing a non-farming woman to a non-farming man with the result that the woman has a mortality that is $74.3$ per cent of that of a corresponding man. When comparing a farming woman to a farming man, we have to take the interaction into account, and the result is that a farming woman has a risk that is $0.743 \times  1.338 \times 100 = 99.4$ per cent of the risk for the farming man. Conclusion: Among farmers, the sex difference in mortality is negligible, but in the rest of the population it is large. How the *causality* works here is of course a completely different matter. We may guess that farmers are often married, for instance, we do not find any unmarried female farmers in our data.
@@ -262,19 +271,22 @@ Now the covariates `sex` (factor) and `birthdate` (continuous) are in focus. Fir
 
 ```{r facconmul}
 fit5 <- coxreg(Surv(enter, exit, event) ~ sex + birthdate, data = om)
-summary(fit5)
+print(summary(fit5), short = TRUE)
 ```
 
-Obviously `sex` is statistically significant, while `imr.birth` is not. We go directly to the estimated coefficients after adding an interaction term to the model:
+Obviously `sex` is statistically significant, while `birthdate` is not. We go 
+irectly to the estimated coefficients after adding an interaction term to the model:
 
 ```{r facconmulint}
-fit6 <- coxph(Surv(enter, exit, event) ~ sex * birthdate, data = om)
+fit6 <- coxreg(Surv(enter, exit, event) ~ sex * birthdate, data = om)
 round(summary(fit6)$coefficients[, 1:2], 5)
 ```
 
-What is going on here? The main effect of `sex` is huge! The answer lies in the interpretation of the coefficients: 
+What is going on here? The main effect of `sex` is huge! The answer lies in the 
+interpretation of the coefficients: 
 (i) To evaluate the effect on mortality for an 
-individual with given values of the covariates, you must involve the interaction coefficient. For instance, a female born on January 2, 1801 (`birthdate` = `r round(toTime("1801-01-02"), 3)`)
+individual with given values of the covariates, we must involve the interaction
+coefficient. For instance, a female born on January 2, 1801 (`birthdate` = `r round(toTime("1801-01-02"), 3)`)
 will have the relative risk 
 
 $$\exp(9.12285 - 0.00327 \times 1801.003 - 0.00519 \times 1801.003) = 0.00185$$
@@ -284,7 +296,7 @@ compared to a man with `birthdate`= 0, the reference values! Obviously, it is ri
 
 ```{r centering, echo = FALSE}
 om$birthdate <- om$birthdate - 1810
-fit7 <- coxph(Surv(enter, exit, event) ~ sex * birthdate, data = om)
+fit7 <- coxreg(Surv(enter, exit, event) ~ sex * birthdate, data = om)
 (res <- round(summary(fit7)$coefficients[, 1:2], 5))
 ```
 
@@ -323,7 +335,7 @@ text(-10, 0.89, "Women")
 In our example data, the covariates `birthdate` and `imr.birth` are continuous, and we get
 
 ```{r botcont}
-fit8 <- coxph(Surv(enter, exit, event) ~ birthdate * imr.birth, data = om)
+fit8 <- coxreg(Surv(enter, exit, event) ~ birthdate * imr.birth, data = om)
 (res <- round(summary(fit8)$coefficients[, 1:2], 5))
 ```
 
@@ -382,112 +394,3 @@ Some general advise regarding model selection is given here.
 *    If interaction effects are present, the corresponding main
 effects *must* be there.
 
-
-## Doing it in **R**
-\index{Functions!coxreg|(}
-
-We utilize the male mortality data, Skellefteå 1800--1820, to
-illustrate the aspects of an ordinary Cox regression. Males aged 20 (exact)
-are sampled between 1820 and 1840 and followed to death or reaching the age
-of 40, when they are right censored. So in effect male mortality in the
-ages 20--40 are studied. The survival time starts counting at zero for each
-individual at his 21st birthdate (that is, at exact age 20 years).
-
-There are two **R** functions that are handy for a quick look at a data
-frame, `str`\index{str} and `head`\index{head}. The first give a
-summary description of the *structure* of an **R** object, often a
-*data frame* \index{data frame}
-
-```{r str_cov,echo=TRUE}
-library(eha) #Loads also the data frame 'mort'
-str(mort)
-```
-
-```{r getd_cov,echo=FALSE}
-n.obj <- NROW(mort)
-```
-First, there is information about the data frame: It *is* a 
-`data.frame`, with six variables measured on `r n.obj` objects. Then
-each 
-variable is individually described: name, type, and a few of the first values.
-The values are usually rounded to a few digits. The *Factor* line is
-worth noticing: It is of course a `factor` covariate, it takes two
-levels, `lower` and `upper`. Internally, the levels are coded 1, 2,
-respectively. Then (by default), `lower` (with internal code equal to
-1) is the `reference category`. If desired, this can be changed with the
-`relevel` function.
-
-```{r relevel_cov}
-mort$ses2 <- relevel(mort$ses, ref = "upper")
-str(mort)
-```
-Comparing the information about the variables `ses` and `ses2`, you
-find that the codings, and also the reference categories, are
-reversed. Otherwise the variables are identical, and any analysis involving
-any of
-them as an explanatory variable would lead to identical *conclusions*,
-but not identical parameter estimates, see below.
-
-The function `head` prints the first few lines (observations) of a data
-frame  (there is also a corresponding `tail` function that prints a few
-of the *last* rows). 
-
-```{r str3_cov}
-head(mort)
-```
-Apparently, the variables `ses` and `ses2` are identical, but we know
-that behind the scenes they are formally different; different coding and
-(therefore) different reference category. This shows up in analyzes
-involving the two variables, one at a time.
-
-First the analysis is run with `ses`.
-
-```{r mortreg_cov}
-res <- coxreg(Surv(enter, exit, event) ~ ses + birthdate, 
-              data = mort)
-res
-```
-Then the variable `ses2` is inserted instead.
-
-```{r mortreg2_cov}
-res2 <- coxreg(Surv(enter, exit, event) ~ ses2 + birthdate, 
-               data = mort)
-res2
-```
-Notice the difference; it is only formal. The substantial results are
-completely equivalent.
-
-### Likelihood Ratio Test
-
-If we judge the result by the Wald $p$-values, it seems as if both
-variables are highly significant. To be sure it is advisable to apply the
-likelihood ratio test. In **R**, this is easily achieved by applying the 
-  `drop1` function on the result, `res`,  of the Cox regression.
-
-```{r drop_cov}
-drop1(res, test = "Chisq")
-```
-In fact, we have performed *two* likelihood ratio tests here. First,
-the effect of removing `ses` from the full model. The $p$-value for
-this test is very small, $p = 0.00005998$. The scientific notation,
-5.998e-05 means that the decimal point should be moved five steps to the
-left (that's the minus sign). The reason for this notation is essentially
-space-saving. Then, the second LR test concerns the absence or presence of
-`birthdate` in the full model. This also gives a small $p$-value, $p =
-0.006972$. 
-
-The earlier conclusion is not altered; both variables are highly significant.
-
-### The estimated baseline cumulative hazard function
-\index{cumulative hazard function|(} 
-
-The estimated baseline cumulative function (see Equation \@ref(eq:bashaz)) is best
-plotted by the `plot` command, see Figure \@ref(fig:basl).
-
-```{r basl_cov,fig=TRUE,echo=FALSE, fig.cap="Estimated cumulative baseline hazard function."}
-plot(res)
-```
-
-The figure shows the baseline cumulative hazard function for a
-*reference* individual (i.e., with the value zero on all covariates). 
-\index{cumulative hazard function|)} 

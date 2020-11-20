@@ -1,14 +1,16 @@
-# Cox Regression
+# Proportional Hazards and Cox Regression
 
 ```{r setup3,include=FALSE}
 par(las = 1) # Doesn't work? Later?
-knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE)
-options(show.signif.stars = FALSE)
+knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE, fig.height = 4)
+options(show.signif.stars = FALSE, warn = 2)
 ```
 
-We move slowly from the two-sample case, via the $k$-sample case, to the
+*Proportional hazards* is a property of survival models that is fundamental for the
+development of non-parametric regression models. After defining this property,
+we move slowly from the two-sample case, via the $k$-sample case, to the
 general regression model. On this route, we  start with the *log-rank test*
-and end up with *Cox regression* and the *proportional hazards model* [@cox72]. 
+and end up with *Cox regression* [@cox72]. 
 
 ## Proportional Hazards {#sec:ph3}
 \index{proportional hazards}
@@ -64,23 +66,25 @@ the first (and vice versa), so more correct would be to state one part as a
 definition and the other as a corollary.
 The important part of this definition is "$\textit{for all }t \ge 0$",
 and that 
-the constant $\psi$ *does not depend on $t$*. Think of the hazard
+the constant $\psi$ *does not depend on $t$*. 
+
+Think of the hazard
 functions as age-specific mortality for two groups, e.g., women and
 men. It is "well known" that women have lower mortality than men in all
 ages. It would therefore be reasonable to assume proportional
 hazards in that case. It would mean that the female *relative*
-advantage is equally large in all ages. See Example \@ref(exm:sw192) for a
-demonstration of this example of *proportional hazards*\index{proportional hazards}. 
+advantage is equally large in all ages. See Example \@ref(exm:sw192) for an
+investigation of this statement. 
 
-```{example, sw192, name = "Male and female mortality, Sweden 2001-2019", echo = TRUE}
+```{example, sw192, name = "Male and female mortality, Sweden 2001--2019", echo = TRUE}
 ```
 This is a continuation of Example \@ref(exm:sw19), and here we involve the male 
 mortality alongside with the female, see Figure \@ref(fig:twosex2). We also 
-expand the calendar time period to the 21st century, as far as we have data now.
-The reason for this is the random fluctuations in low ages, caused by the 
-extremely low mortality rates.
+expand the calendar time period to the years 2001--2019.
+The reason for this is that random fluctuations in low ages, caused by the 
+extremely low mortality rates, blur the picture.
 
-```{r twosex2, echo = FALSE, fig.cap = "Female and male mortality by age, Sweden 2001-2019.", fig.height = 3}
+```{r twosex2, echo = FALSE, fig.cap = "Female and male mortality by age, Sweden 2001-2019. The right hand panel shows the ratio between the male and female mortality by age.", fig.height = 3}
 library(eha)
 females <- swepop[swepop$sex == "women" & swepop$year %in% 2001:2019, 
                   c("age", "pop", "year")]
@@ -95,7 +99,7 @@ males$deaths <- swedeaths[swedeaths$sex == "men" &
                                 swedeaths$year %in% 2001:2019, "deaths"]
 males <- aggregate(males[c("pop", "deaths")], by = males["age"], FUN = sum)
 males$mort <- males$deaths / males$pop
-par(mfrow = c(1, 2), las = 1)
+oldpar <- par(mfrow = c(1, 2), las = 1)
 plot(males$age, males$mort, type = "l", lty = 2, xlab = "Age", ylab = "Hazards")
 lines(females$age, females$mort, type = "l", lty = 1)
 legend("topleft", legend = c("Men", "Women"), lty = c(2, 1))
@@ -103,12 +107,13 @@ abline(h = 0)
 plot(males$age[1:101], males$mort[1:101] / females$mort[1:101], type = "l",
      ylim = c(0.9, 3), xlab = "Age", ylab = "Hazard ratio")
 abline(h = 1, lty = 2)
+par(oldpar)
 ```
 
 As you can see, the "common knowledge" of proportional hazards is disproved by the 
 right hand panel in Figure \@ref(fig:twosex2). On the other hand, the left hand 
 panel gives a rather different impression, and this illustrates the need to choose good 
-approaches to graphical presentation.
+approaches to graphical presentation, depending on what you want to show.
 $\Box$
 
 It must be emphasized that the proportional hazards assumption is an assumption 
@@ -120,11 +125,12 @@ panel of Figure \@ref(fig:twosex2) would suit this purpose better if drawn on a
 log scale, see Figure \@ref(fig:logtwosex2).
 
 ```{r logtwosex2, echo = FALSE, fig.cap = "Female and male mortality by age, Sweden 2001-2019. Log scale.", fig.height = 3}
-par(las = 1)
+oldpar <- par(las = 1, cex.axis = 0.8)
 plot(males$age, males$mort, type = "l", lty = 2, xlab = "Age", 
      log = "y", ylab = "Log hazards")
 lines(females$age, females$mort, type = "l", lty = 1)
 legend("topleft", legend = c("Men", "Women"), lty = c(2, 1))
+par(oldpar)
 ```
 
 The advantage of the log scale is twofold: (i) Small numbers are magnified so you 
@@ -137,7 +143,7 @@ functions with the proportionality constant $\psi = 2$).
 
 ```{r prophazfig3,fig=TRUE,echo=FALSE, fig.cap = "Two hazard functions that are proportional. The proportionality constant is 2.",  fig.scap="Proportional hazard functions.", fig.height = 3}
 library(eha)
-oldpar <- par(las = 1, mfrow = c(1, 2))
+oldpar <- par(las = 1, mfrow = c(1, 2), cex.axis = 0.8)
 x <- seq(0,1, length = 500)
 #y <- dweibull(x, scale = 1, shape = 3) / (1 - pweibull(x, scale = 1, shape = 3))
 y <- hweibull(x, scale = 1, shape = 3)
@@ -157,9 +163,8 @@ abline(h = 0)
 par(oldpar)
 ```
 
-The proportionality is often difficult to judge by eye, so in order make it
-easier to see, the plot can be made on a *log scale* as in the right hand panel of 
-Figure \@ref(fig:prophazfig3). Note that both dimensions are on a log scale. This type of plot,
+In the right hand panel of Figure \@ref(fig:prophazfig3), note that both 
+dimensions are on a log scale. This type of plot,
 constructed from empirical data, is called a *Weibull plot*\index{Weibull plot} 
 in reliability applications: If the lines are
 straight lines, then data are well fitted by a Weibull
@@ -184,28 +189,28 @@ theoretically impossible except in the trivial case that the
 proportionality constant is unity.
 
 
-```{r prophazfig2,fig=TRUE,echo=FALSE,height=5, fig.cap="The effect of proportional hazards on the density and survival functions.",fig.scap="Effect of proportional hazards."}
-oldpar <- par(mfrow = c(2, 2))
+```{r prophazfig2,fig=TRUE,echo=FALSE,height=5, fig.cap="The effect of proportional hazards on the density and survival functions.",fig.scap="Effect of proportional hazards.", fig.height = 5}
+oldpar <- par(mfrow = c(2, 2), las = 1)
 x <- seq(0,2.5, length = 500)
 library(eha)
 y <- hweibull(x, scale = 1, shape = 3)
 z <- hweibull(x, scale = 2^(1/3), shape = 3)
-plot(x, y, type = "l", main = "Hazards", xlab = "Time", ylab = "Hazards")
+plot(x, y, type = "l", main = "Hazards", xlab = "Time", ylab = "")
 lines(x, z, lty = 2)
 abline(h = 0)
 y <- Hweibull(x, scale = 1, shape = 3)
 z <- Hweibull(x, scale = 2^(1/3), shape = 3)
-plot(x, y, type = "l", main = "Cumulative hazards", xlab = "Time", ylab = "Cum. hazards")
+plot(x, y, type = "l", main = "Cumulative hazards", xlab = "Time", ylab = "")
 lines(x, z, lty = 2)
 abline(h = 0)
 y <- dweibull(x, scale = 1, shape = 3)
 z <- dweibull(x, scale = 2^(1/3), shape = 3)
-plot(x, y, type = "l", main = "Density functions", xlab = "Time", ylab = "Density")
+plot(x, y, type = "l", main = "Density functions", xlab = "Time", ylab = "")
 lines(x, z, lty = 2)
 abline(h = 0)
 y <- pweibull(x, scale = 1, shape = 3, lower.tail = FALSE)
 z <- pweibull(x, scale = 2^(1/3), shape = 3, lower.tail = FALSE)
-plot(x, y, type = "l", main = "Survival functions", xlab = "Time", ylab = "Survival", ylim = c(0, 1))
+plot(x, y, type = "l", main = "Survival functions", xlab = "Time", ylab = "", ylim = c(0, 1))
 lines(x, z, lty = 2)
 abline(h = 0)
 ##
@@ -215,7 +220,9 @@ par(oldpar)
 ## The Log-Rank Test
 
 The *log-rank test* \index{Tests!log-rank} is a $k$-sample test
-of equality of survival functions. We first look at the two-sample case,
+of equality of survival functions. It is a powerful test against proportional hazards 
+alternatives, but may be very weak otherwise. 
+We first look at the two-sample case,
 that is, $k = 2$.
 
 \subsection{Two samples}
@@ -259,9 +266,8 @@ for (i in 1:10){
 }
 ```
 
-The data in Figure \@ref(fig:twosample) can be presented i tabular form, see Table \@ref(tab:exlr).
-
-```{r exlr, echo = FALSE}
+The data in Figure \@ref(fig:twosample) can be presented i tabular form, see Table \@ref(tab:exlr3).
+```{r exlr3, echo = FALSE}
 library(survival)
 ex.data <- data.frame(group = c(rep("numbers", 5), rep("letters", 5)),
                       time = c(4,2,6,1,3.5,5,3,6,1,2.5),
@@ -269,107 +275,6 @@ ex.data <- data.frame(group = c(rep("numbers", 5), rep("letters", 5)),
                                 TRUE, FALSE, TRUE, FALSE))
 knitr::kable(ex.data, booktabs = TRUE, caption = "Example data for the log-rank test..")
 ```
-
-<!--
-\begin{figure}[ht!]
-\begin{center}
-\psset{yunit=0.45cm}
-\pspicture(-1, -1.5)(10,12)% Data
-\psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,11)
-\psset{linecolor=black}
-\uput[90](9,-1.5\baselineskip){t}
-\uput[90](0.5,11){Person No.}
-%1
-\uput[0](-0.7,1){{\bf  1}}
-\psline(0,1)(4,1)
-\uput[0](4,1){+}
-%\pscircle(4,1){4pt}
-\psline[linestyle=dotted](4,0)(4,10.2)
-%\uput[90](4,-2\baselineskip){$t_{(2)}$}%\psline(0,1)(4,1)
-\uput[90](4,-1.5\baselineskip){$t_{(3)}$}%\psline(0,1)(4,1)
-%2
-\uput[0](-0.7,2){{\bf  2}}
-\psline(0,2)(2,2)
-%\uput[0](4.2,1){+}
-\pscircle(2,2){4pt}
-%\psline[linestyle=dashed](2,0)(2,5)
-%\uput[90](4,-2\baselineskip){$t_{(1)}$}%\psline(0,1)(4,1)
-%3
-\uput[0](-0.7,3){{\bf  3}}
-\psline(0,3)(6,3)
-\uput[0](6,3){+}
-%\pscircle(4,1){4pt}
-\psline[linestyle=dotted,linecolor=black](6,0)(6,10.2)
-\uput[90](6,-1.5\baselineskip){$t_{(5)}$}
-%4
-\uput[0](-0.7,4){{\bf  4}}
-\psline(0,4)(1,4)
-\uput[0](1,4){+}
-%\pscircle(4,1){4pt}
-\psline[linestyle=dotted,linecolor=black](1,0)(1,10.2)
-%\uput[90](1,-2\baselineskip){$t_{(1)}$}%\psline(0,1)(4,1)
-%\uput[90](1,-1.5\baselineskip){ 1}%\psline(0,1)(4,1)
-%5
-\uput[0](-0.7,5){{\bf  5}}
-\psline(0,5)(3.5,5)
-%\uput[0](4.2,1){+}
-\pscircle(3.5,5){4pt}
-%\psline[linestyle=dashed](4,0)(4,5)
-%\uput[90](4,-2\baselineskip){$t_{(1)}$}\psline(0,1)(4,1)
-%\endpspicture
-%\psset{yunit=0.6cm}
-
-%\pspicture(-1, -1.5)(10,6)% Data
-%\psaxes[ticks=none,labels=none,linewidth=1pt]{->}(9,5.5)
-%\uput[90](9,-1.5\baselineskip){duration}
-%\uput[90](0.5,5.5){Person No.}
-%1
-\psset{linecolor=black}
-\uput[0](-0.7,6){{\bf  A}}
-\psline[linestyle=dashed](0,6)(5,6)
-\uput[0](5,6){+}
-%\pscircle(4.5,6){4pt}
-\psline[linecolor=black,linestyle=dotted](5,0)(5,10.2)
-\uput[90](5,-1.5\baselineskip){$t_{(4)}$}
-%\uput[90](5,-1.5\baselineskip){5}%\psline(0,1)(4,1)
-%2
-\uput[0](-0.7,7){{\bf  B}}
-\psline[linestyle=dashed](0,7)(3,7)
-\uput[0](3,7){+}
-%\pscircle(2,7){4pt}
-\psline[linestyle=dotted,linecolor=black](3,0)(3,10.2)
-\uput[90](3,-1.5\baselineskip){$t_{(2)}$}
-%3
-\uput[0](-0.7,8){{\bf  C}}
-\psline[linestyle=dashed](0,8)(6,8)
-%\uput[0](6.2,8){+}
-\pscircle(6,8){4pt}
-%\psline[linestyle=dashed,linecolor=black](6,0)(6,10.2)
-%\uput[90](6,-2\baselineskip){$t_{(3)}$}%\psline(0,1)(4,1)
-%\uput[90](6,-1.5\baselineskip){ 6}%\psline(0,1)(4,1)
-%4
-\uput[0](-0.7,9){{\bf  D}}
-\psline[linestyle=dashed](0,9)(1,9)
-\uput[0](1,9){+}
-%\pscircle(4,1){4pt}
-%\psline[linestyle=dashed,linecolor=black](1,0)(1,5)
-%\uput[90](1,-2\baselineskip){$t_{(1)}$}%\psline(0,1)(4,1)
-\uput[90](1,-1.5\baselineskip){$t_{(1)}$}
-%5
-\uput[0](-0.7,10){{\bf  E}}
-\psline[linestyle=dashed](0,10)(2.5,10)
-%\uput[0](4.2,1){+}
-\pscircle(2.5,10){4pt}
-%\psline[linestyle=dashed](4,0)(4,5)
-%\uput[90](4,-2\baselineskip){$t_{(1)}$}\psline(0,1)(4,1)
-\endpspicture
-\caption[Two-sample data]{Two-sample data, the {\tt letters} (dashed) and the {\tt numbers}
-  (solid). Circles denote censored observations, plusses uncensored.}
-\label{fig:twosample}
-\end{center}
-\end{figure}
--->
-
 We are interested in investigating whether `letters` and `numbers`
 have the same survival chances or not. Therefore, the hypothesis
 
@@ -380,42 +285,6 @@ is formulated. In order to test $H_0$, we make five tables, one
 for each observed *event time*\index{event time}, see
 Table \@ref(tab:lr1), where the the first table, relating to failure time $t_{(1)} = 1$, is shown.
 
-<!--
-\begin{table}[ht!]
-\tabletitle[Log rank test summary]{Five $2\times 2$ tables. Each table
-  reports the situation at one
-  observed failure time point, i.e., at $t_{(1)}, \ldots, t_{(5)}$.}
-\label{tab:lr1}
-\begin{tabular}{|c|l|cc|r|}
-Time & Group & Deaths & Survivals & Total \\ \hline
-$t_{(1)}$ & {\tt numbers}  &   1    &    4      & 5 \\
-& {\tt letters}   &   1    &    4      & 5 \\ \hline
-& Total &   2    &    8      & 10 \\ \hline \hline
-$t_{(2)}$ &  {\tt numbers}  &   0    &    3      & 3 \\
-& {\tt letters}   &   1    &    2      & 3 \\ \hline
-& Total &   1    &    5      & 6 \\ \hline \hline
-$t_{(3)}$ &  {\tt numbers}  &   1    &    1      & 2 \\
-& {\tt letters}   &   0    &    2      & 2 \\ \hline
-& Total &   1    &    3      & 4 \\ \hline \hline
-$t_{(4)}$ &  {\tt numbers}  &   0    &    1      & 1 \\
-& {\tt letters}   &   1    &    1      & 2 \\ \hline
-& Total &   1    &    2      & 3 \\ \hline \hline
-$t_{(5)}$ &  {\tt numbers}  &   1    &    0      & 1 \\
-& {\tt letters}   &   0    &    1      & 1 \\ \hline
-& Total &   1    &    1      & 2 \\ \hline \hline
-\end{tabular}
-\end{table}
-
-
-Table: (\#tab:lr1) The $2 \times 2$ table for the first event time.
-
-| Group   | Deaths | Survivals | **Total** |
-|---------|--------|-----------|-------|
-| numbers |  1     |  4        |  5    |
-| letters |  1     |  4        |  5    |
-| **Total**   |  2     |  8        | 10    |  
-
--->
 
 ```{r lr1, echo = FALSE}
 xx <- matrix(c(1,1,2,4,4,8,5,5,10), ncol = 3)
@@ -433,7 +302,8 @@ from the viewpoint of the `numbers`.
 
 The *expected* number is calculated under $H_0$, i.e., as if there is
 no difference between `letters` and `numbers` regarding mortality. It is further
-assumed that the two margins (Total) are given (fixed). 
+assumed that the two margins (Total) are given (fixed) and that the number of 
+deaths follows a hypergeometric distribution, which gives the variance. 
 
 Then, given two deaths in
 total and five out of ten observations are from the group `numbers`,
@@ -484,7 +354,7 @@ Under the null hypothesis, this is an observed value from a
 $\chi^2(1)$\index{Distributions!chi-square@$\chi^2$}
 distribution, and $H_0$ should be rejected for *large* values of
 $T$. Using a *level of significance* of 5%, the cutting point for the
-value of $T$ is 3.84, far from our observed value of 1.41. The
+value of $T$ is 3.84, far from our observed value of 0.028. The
 conclusion is
 therefore that there is no (statistically significant) difference in
 survival chances between `letters` and `numbers`.
@@ -521,27 +391,28 @@ fit
 ```
 
  The result of the logrank test is given by the $p$-value
-`r fit$p.value` , a very small number. Thus, there is a very significant 
+`r round(100 * fit$p.value, 4)` per cent, a very small number. Thus, there is a very significant 
 difference in mortality between men and women.
 But *how large* is the difference? The log-rank test has no answer to this question.
 
 Remember that this result depends on the proportional hazards
-assumption. We can graphically check it, see Figure \@ref(fig:logrank3)
+assumption. We can graphically check it, see Figure \@ref(fig:logrank3).
 
-```{r logrank3, fig.cap = "Cumulative hazards for women and men in ages 60-85, 19th century Sweden.", echo = FALSE, fig.height = 4}
+```{r logrank3, fig.cap = "Cumulative hazards for women and men in ages 60-85, 19th century Sweden.", echo = FALSE, fig.height = 3}
 par(mfrow = c(1, 2), las = 1)
-plot(fit, main = "Normal scale")
-plot(fit, fn = "log", main = "Log scale", printLegend = "bottomright")
+plot(fit, main = "Normal scale", xlab = "Age")
+plot(fit, fn = "log", main = "Log scale", xlab = "Age", printLegend = "bottomright")
 ```
 
 
-The proportionality assumption seems to be a good description from 60 to
-85 years of age, but it is more doubtful in the very high ages (not shown). One
-reason for this may be that the high-age estimates are based on few
-observations (most of the individuals in the sample died earlier), so
-random fluctuations have a large impact in the high ages, but it is also an often 
-observed phenomenon that differences in mortality between groups tend to vanish in
-the extremely high ages.
+The proportionality assumption appears to be a good description looking at the left hand
+panel, but it looks more doubtful on the log scale. It is an often 
+observed phenomenon that differences in mortality between human groups, 
+not only women and men, tend to vanish in the extremely high ages.
+The validity of our test result, however, is not affected by this deviation from
+proportionality, since the result was *rejection*. We can be confident in the fact 
+that there is a significant difference, since violation of the proportionality assumption
+*in itself* implies a difference.
 
 ### Several samples
 
@@ -563,9 +434,7 @@ fit
 The degrees of freedom for the *score test*\index{Tests!score}
 is now 2, equal to the number
 of levels in `civ` 
-minus one. Being `unmarried` seem to have great impact on
-old age mortality. It is however recommended to check the proportionality
-assumption graphically, see Figure \@ref(fig:grbp3).
+minus one. Figure \@ref(fig:grbp3) shows the cumulative hazards for each group.
 
 ```{r grbp3, fig.cap = "Old age male mortality by civil status, cumulative hazards.", echo=FALSE, fig.height = 4}
 par(las = 1)
@@ -584,8 +453,7 @@ There is obviously nothing much that indicates non-proportionality in this case
 either. Furthermore, the ordering is what one would expect.
 
 We do not go deeper into this matter here, mainly because the logrank test
-is a special case of Cox regression, which will be described in
-detail later in this chapter.
+is a special case of *Cox regression*.
 
 <!--
 There are however two special cases of the
@@ -769,7 +637,7 @@ In order to calculate the cumulative hazards function for an individual
 with a specific covariate vector $\mathbf{x}$, use the formula
 
 \begin{equation*}
-\hat{H}(t; \mathbf{x}) = \hat{H}_0(t) e^{(\mathbf{x})\hat{\boldsymbol{\beta}}}.
+\hat{H}(t; \mathbf{x}) = \hat{H}_0(t) e^{\mathbf{x}\hat{\boldsymbol{\beta}}}.
 \end{equation*}
 
 The corresponding survival functions may be estimated by the relation
@@ -780,38 +648,11 @@ The corresponding survival functions may be estimated by the relation
 
 It is also possible to use the terms in the sum \@ref(eq:bashaz) to build
 an estimator analogous to the Kaplan-Meier estimator \@ref(eq:km2). In
-practice, there is no big difference between the two methods. 
+practice, there is no big difference between the two methods. For more on 
+interpretation of parameter estimates and model selection, see the appropriate chapter. 
 \index{baseline hazard function!estimation of|)}
 
 
-## Interpretation of parameter estimates
-
-In the proportional hazards model the parameter estimates are logarithms of
-risk ratios relative to the baseline hazard. The precise interpretations of
-the coefficients for the two types of covariates are discussed. 
-The conclusion is that $e^\beta$ has a more direct and intuitive
-interpretation than $\beta$ itself.
-
-### Continuous covariate 
-
-If $x$ is a continuous covariate, and
-$h(t; x) = h_0(t)e^{\beta x}$,
-then
-
-\begin{equation*}
-\frac{h(t; x+1)}{h(t; x)} = \frac{h_0(t)e^{\beta (x+1)}}
-{h_0(t)e^{\beta x}} = e^\beta.
-\end{equation*}
-so the risk increases with a factor $e^\beta$, when $x$ is
-increased by one unit. In other words,
-$e^\beta$ is a *relative risk*\index{relative risk} (or a *hazard
-  ratio*\index{hazard ratio}, which often is a preferred term in certain professions).
-
-### Factor
-
-For a factor covariate, in the usual coding with a reference category,
-$e^\beta$ is the relative risk compared to that reference
-category.
 
 ## Proportional hazards in discrete time
 \index{proportional hazards!discrete time}
@@ -823,7 +664,7 @@ to the interval $(0, 1)$. Therefore, the definition of proportional hazards
 used for continuous time is unpractical; the multiplication of a
 probability by a constant may result in a quantity larger than one.
 
-One way of introducing proportional hazards in discrete time is to regard
+One way of motivating proportional hazards in discrete time is to regard
 the discreteness as a result of grouping true continuous time data, for
 which the proportional hazards assumption hold. For
 instance, in a follow-up study of human mortality, we may only have data
@@ -860,7 +701,7 @@ short for "complementary log-log" or $\boldsymbol{\beta}\mathbf{x} =\log(-\log(p
 to see that, let 
 
 \begin{equation}
-  (1 - h_j) = \exp(-\exp(\alpha_j)), \; j = 1, \ldots, k
+  (1 - h_j) = \exp(-\exp(\alpha_j)), \; j = 1, \ldots, k,
 \end{equation}
 and
 
@@ -868,7 +709,7 @@ and
 X_j = \left\{ \begin{array}{ll}
           1, & t_{j-1} \le T < t_j \\
           0, & \text{otherwise}%t_1 \le T < t_2 \\
-         \end{array} \right., \quad j = 1, \ldots, k
+         \end{array} \right., \quad j = 1, \ldots, k.
 \end{equation*}
 Then 
 
@@ -883,137 +724,117 @@ Then
 \end{equation*}
 This is logistic regression with a cloglog link. Note that extra parameters
 $\alpha_1, \ldots, \alpha_k$ are introduced, one for each potential event
-age. They correspond to the baseline hazard function in continuous time,
+time (interval). They correspond to the baseline hazard function in continuous time,
 but are be estimated simultaneously with the regression parameters.
-
-## Model selection
-
-In regression modeling, there is often several competing models for
-describing data. In general, there are no strict rules for ``correct
-selection''. However, for *nested* models\index{nested model}, there
-are some formal guidelines. For a precise definition of this concept, see
-Appendix A. 
-
-
-### Model selection in general
-
-Some general advise regarding model selection is given here. 
-
-*    Remember, there are no \emph{true} models, only some *useful*
-  ones. This statement is attributed to G.E.P.\ Box.
-*    More than one model may be useful.
-*    Keep \emph{important} covariates in the model.
-*    Avoid automatic stepwise procedures!
-*    If interaction effects are present, the corresponding main
-effects *must* be there.
 
 
 ## Doing it in **R**
 \index{Functions!coxreg|(}
 
-We utilize the male mortality data, Skellefteå 1800--1820, to
-illustrate the aspects of an ordinary Cox regression. Males aged 20 (exact)
+We utilize the *child mortality* data, Skellefteå 1850--1884, to
+illustrate tsome aspects of an ordinary Cox regression. Newborn in the parish
 are sampled between 1820 and 1840 and followed to death or reaching the age
-of 40, when they are right censored. So in effect male mortality in the
-ages 20--40 are studied. The survival time starts counting at zero for each
-individual at his 21st birthdate (that is, at exact age 20 years).
+of 15, when they are right censored. So in effect child mortality in the
+ages 20--40 are studied. The data set is named `child` and available in `eha`.
 
 There are two **R** functions that are handy for a quick look at a data
-frame, `str`\index{str} and `head`\index{head}. The first give a
+frame, `str`\index{str} and `head`\index{head}. The function `head` prints the 
+first few lines (observations) of a data
+frame  (there is also a corresponding `tail` function that prints a few
+of the *last* rows). 
+
+```{r head3}
+library(eha) #Loads also the data frame 'mort'.
+ch <- child[, c("birthdate", "sex", "socBranch", 
+                "enter", "exit", "event")] # Select interesting columns.
+head(ch)
+```
+
+The function `str` gives a
 summary description of the *structure* of an **R** object, often a
 *data frame* \index{data frame}
 
-```{r str,echo=TRUE}
-library(eha) #Loads also the data frame 'mort'
-str(mort)
+```{r str3, echo=TRUE}
+str(ch)
 ```
 
-```{r getd,echo=FALSE}
-n.obj <- NROW(mort)
+```{r getd3,echo=FALSE}
+n.obj <- NROW(ch)
 ```
 First, there is information about the data frame: It *is* a 
 `data.frame`, with six variables measured on `r n.obj` objects. Then
 each 
 variable is individually described: name, type, and a few of the first values.
-The values are usually rounded to a few digits. The *Factor* line is
-worth noticing: It is of course a `factor` covariate, it takes two
-levels, `lower` and `upper`. Internally, the levels are coded 1, 2,
-respectively. Then (by default), `lower` (with internal code equal to
-1) is the `reference category`. If desired, this can be changed with the
-`relevel` function.
+The values are usually rounded to a few digits. The *Factor* lines are
+worth noticing: They describe of course `factor` covariates and the 
+levels. Internally, the levels are coded 1, 2, ...,
+respectively.
 
-```{r relevel}
-mort$ses2 <- relevel(mort$ses, ref = "upper")
-str(mort)
-```
-Comparing the information about the variables `ses` and `ses2`, you
-find that the codings, and also the reference categories, are
-reversed. Otherwise the variables are identical, and any analysis involving
-any of
-them as an explanatory variable would lead to identical *conclusions*,
-but not identical parameter estimates, see below.
+Also note the variable `birthdate`: It is of the `Date` type, and it has some 
+quirks when used in regression models.
 
-The function `head` prints the first few lines (observations) of a data
-frame  (there is also a corresponding `tail` function that prints a few
-of the *last* rows). 
-
-```{r str3}
-head(mort)
-```
-Apparently, the variables `ses` and `ses2` are identical, but we know
-that behind the scenes they are formally different; different coding and
-(therefore) different reference category. This shows up in analyzes
-involving the two variables, one at a time.
-
-First the analysis is run with `ses`.
 
 ```{r mortreg}
-res <- coxreg(Surv(enter, exit, event) ~ ses + birthdate, 
-              data = mort)
-res
+res <- coxreg(Surv(exit, event) ~ sex + socBranch + birthdate, 
+              data = ch)
+print(summary(res), digits = 4)
 ```
-Then the variable `ses2` is inserted instead.
 
-```{r mortreg2}
-res2 <- coxreg(Surv(enter, exit, event) ~ ses2 + birthdate, 
-               data = mort)
-res2
+Note that the coefficient for `birthdate` is equal to 0.0000 (with four decimals),
+yet it is significantly different from zero. The explanation is that the time unit 
+behind Dates is *day*, and it would be more reasonable to use *year* as time unit.
+It can be accomplished by creating a new covariate, call it `cohort`, which is 
+*birth year*. It is done with the aid of the functions `toTime` (in eha) and `floor`:
+
+```{r tocoh3}
+ch$cohort <- floor(toTime(ch$birthdate))
+fit <- coxreg(Surv(exit, event) ~ sex + socBranch + cohort, data = ch)
+print(summary(fit), digits = 4, short = TRUE)
 ```
-Notice the difference; it is only formal. The substantial results are
-completely equivalent.
 
-### Likelihood Ratio Test
-
-If we judge the result by the Wald $p$-values, it seems as if both
-variables are highly significant. To be sure it is advisable to apply the
-likelihood ratio test. In **R**, this is easily achieved by applying the 
-  `drop1` function on the result, `res`,  of the Cox regression.
-
-```{r drop}
-drop1(res, test = "Chisq")
-```
-In fact, we have performed *two* likelihood ratio tests here. First,
-the effect of removing `ses` from the full model. The $p$-value for
-this test is very small, $p = 0.00005998$. The scientific notation,
-5.998e-05 means that the decimal point should be moved five steps to the
-left (that's the minus sign). The reason for this notation is essentially
-space-saving. Then, the second LR test concerns the absence or presence of
-`birthdate` in the full model. This also gives a small $p$-value, $p =
-0.006972$. 
-
-The earlier conclusion is not altered; both variables are highly significant.
+Note the argument `short = TRUE` in the print statement. It suppresses the general 
+statistics that were printed in the previous output below the table of coefficients. 
 
 ### The estimated baseline cumulative hazard function
 \index{cumulative hazard function|(} 
 
 The estimated baseline cumulative function (see Equation \@ref(eq:bashaz)) is best
-plotted by the `plot` command, see Figure \@ref(fig:basl).
+plotted by the `plot` command, see Figure \@ref(fig:basl3).
 
-```{r basl,fig=TRUE,echo=FALSE, fig.cap="Estimated cumulative baseline hazard function."}
-plot(res)
+```{r basl3,fig=TRUE,echo=FALSE, fig.cap="Estimated cumulative baseline hazard function.", fig.height = 3}
+par(las = 1)
+plot(fit, xlab = "Age")
 ```
 
 The figure shows the baseline cumulative hazard function for an
-*average* individual (i.e., with the value zero on all covariates when
-all covariates are *centered* around their weighted means. 
+individual with the value zero on all covariates. What does it mean here? There are two
+covariates, the first is `ses` with reference value `lower`, and the second is `birthdate`,
+with reference value 0! So Figure \@ref(fig:basl3) shows the the estimated cumulative hazards
+function for a man born on January 1 in the year 0 (which does not exist, by the way)
+and who belongs to a lower social class. This is not a reasonable extrapolation, and we
+need to get a new reference value for `birthdate`. It should be within the range of the 
+observed values, which is given by the `range` function:
+
+```{r range3, echo = TRUE}
+range(ch$cohort)
+```
+So a reasonable value to subtract is 1860 (or any meaningful value in the range):
+
+```{r bd3}
+ch$cohort <- ch$cohort - 1860
+res3 <- coxreg(Surv(exit, event) ~ sex + socBranch + cohort, data = ch)
+print(summary(res3), digits = 4, short = TRUE)
+```
+As you can see, nothing changes regarding the parameter estimates (because no 
+interactions are present). What about the baseline cumulative hazards graph?
+
+```{r basl33,fig=TRUE,echo=FALSE, fig.cap="Estimated cumulative baseline hazard function, centered birthdate at 1810."}
+par(las = 1)
+plot(res3, xlab = "Age")
+```
+
+The two Figures \@ref(fig:basl3) and \@ref(fig:basl33) are identical, *except* for
+the the numbers on the $y$ axis. This would *not* hold for the corresponding plots
+of the baseline *survival* function (try it!).
+
 \index{cumulative hazard function|)} 

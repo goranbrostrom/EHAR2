@@ -212,10 +212,10 @@ fit.b <- coxreg(Surv(next.ivl, event) ~ year + age, data = first,
                 method = "breslow")
 ## The hybrid mppl:
 fit.mp <- coxreg(Surv(next.ivl, event) ~ year + age, data = first, 
-                 method = "mppl")
+                 method = "mppl", coxph = FALSE)
 ## True discrete:
 fit.ml <- coxreg(Surv(next.ivl, event) ~ year + age, data = first, 
-                 method = "ml")
+                 method = "ml", coxph = FALSE)
 ```
 
 Then we compose a table of the four results, see Table \@ref(tab:5compt). 

@@ -190,9 +190,11 @@ The last examples above were examples of *recycling*; If two vectors
 of different lengths occur in an expression, the shorter one is recycled
 (repeated) as many times as necessary. For instance
 ```{r recycling}
+op <- options(warn = -1) # Turn off warnings.
 x <- c(1, 2, 3)
 y <- c(2, 3)
 x / y
+options(op) # Set warnings to original state.
 ```
 so the actual operation performed is
 ```{r nexC}
@@ -202,7 +204,7 @@ It is most common with the shorter vector being of length one, for instance, a
 scalar multiplication. If the length of the longer vector is not a multiple
 of the length of the shorter vector, a warning is issued: `longer
   object length is not a multiple of shorter object length` (not shown
-above). This is often a sign of a mistake in the code.
+above). This is often a sign of a mistake in the code (so do not turn off warnings!).
 
 ### Precedence
 
@@ -694,24 +696,6 @@ fert$min.age <- min.age[indx]
 ``` 
 Check this for yourself! And read the help pages for `match` and
 `tapply` carefully.
-
-#### General utility functions
-
-
-*   **pmax, pmin** Calculates the parallel max and min, respectively.
-```{r pmC}
-x <- c(2, 3, 1, 7)
-y <- c(1, 2, 3)
-pmin(x, y)
-min(x, y)
-``` 
-*   **ifelse** A vectorized version of `if`.
-```{r ifeC}
-x <- rexp(6)
-d <- ifelse(x > 1, 0, 1)
-x
-d
-``` 
 
 
 ## Help in **R**

@@ -1,5 +1,12 @@
 # Poisson Regression
 
+```{r setupcovars5,include=FALSE}
+par(las = 1) # Doesn't work? Later?
+knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE)
+options(show.signif.stars = FALSE)
+library(eha)
+```
+
 Here *Poisson regression*\index{Poisson regression} is introduced and
 its connection to Cox regression\index{Cox regression} is discussed. We
 start by defining the Poisson distribution, then discuss the
@@ -158,11 +165,12 @@ $x$ is related to survival is given by\index{Functions!coxreg}
 ```{r coxbb}
 library(eha)
 fit <- coxreg(Surv(enter, exit, event) ~ x, data = dat)
-fit
-fit$hazards
+summary(fit)
+haz <- hazards(fit)
+haz
 ```
 
-Note that fit$hazards is a `list` with one component per
+Note that `haz` is a *list* with one component per
 stratum. In this case there is only one stratum, so the list has one
 component. This component is a matrix with two columns; the first contains
 the observed distinct failure times, and the second the corresponding
@@ -188,7 +196,7 @@ our small example, `glm` is fine:
 
 ```{r poisreg}
 fit2 <- glm(event ~ riskset + x, family = poisson, data = datB)
-(co <- coefficients(fit2[1:4]))
+(co <- coefficients(fit2)[1:4])
 co[2:4] <- co[2:4] + co[1]
 ``` 
 
@@ -200,23 +208,9 @@ the *frailty* estimates for the clustering based on `riskset`.
 exp(co)
 ``` 
 
-These numbers are the hazard atoms in the baseline hazard estimation, so
-they should be equal to the output from `fit$hazards` in the Cox
-regression. This is not the case, and this depends on the fact that 
-  `coxreg` estimates the baseline hazards at the mean of the covariate,
-i.e., at $x = 0.5$ in our toy example. The easiest way to make the numbers
-comparable is
-by subtracting 0.5 from $x$ in the Poisson regression.
-
-```{r poisreg2}
-datB$x <- datB$x - fit$means
-fit2 <- glm(event ~ riskset + x, family = poisson, data = datB)
-(co <- coefficients(fit2[1:4]))
-co[2:4] <- co[2:4] + co[1]
-exp(co)
-```
- 
-This is exactly what `coxreg` produced.
+These numbers are the hazard atoms in the baseline hazard estimation, and
+they are equal to the output from `hazards(fit)` in the Cox
+regression. 
 
 This correspondence between Poisson and Cox regression was pointed out by
  @joh83. 

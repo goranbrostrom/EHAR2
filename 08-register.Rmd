@@ -101,11 +101,8 @@ The graph of the baseline hazard function ("age-specific mortality") is shown in
 Figure \@ref(fig:base7).
 
 ```{r base7, fig.cap = "Baseline hazard function, women 1995. Model based.", echo = FALSE}
-plot(fit, fn = "haz", main = "", xlab = "Age", ylab = "Mortality", col = "red",
-     axes = FALSE)
-axis(1)
-axis(2, las = 1)
-box()
+par(las = 1)
+plot(fit, fn = "haz", main = "", xlab = "Age", ylab = "Mortality", col = "red")
 abline(h = 0)
 abline(v = sf$rmean, lty = 3)
 text(78, 0.4, "Expected life at birth (81.1)", srt = 90, cex = 0.8)
@@ -339,10 +336,10 @@ A graph of the baseline hazard functions is shown in Figure \@ref(fig:wbhaz7).
 ```{r wbhaz7, fig.cap = "Hazard functions, males and females, unmarried elite. Sweden 2002-2014.", echo = FALSE}
 par(las = 1)
 plot(fit, fn = "haz", col = c("blue", "red"), lty = c(1, 2), xlab = "Age", 
-     main = "", axes = FALSE)
+     main = "")
 axis(1, at = seq(30, 110, by = 10))
-axis(2, las = 1)
-box()
+##axis(2, las = 1)
+##box()
 abline(h = 0)
 ```
 
