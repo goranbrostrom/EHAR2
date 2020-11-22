@@ -51,7 +51,8 @@ lot of work with translation from the former to the latter. For the moment, all
 Chapters are translated (but not polished).
 Adding new material and updating the old is on its way. 
 
-The first two chapters are now (`r datum`) in shape, work is continuing on Chapter 3.
+The first six chapters are now (`r datum`) in shape, work is continuing on Chapter 7.
+I have decided to swap chapter 7 and 8 (6 and 7 in the first edition) for a better logic flow. 
 
 This work is done in parallel with updating and expanding the `eha` package [@eha].
 

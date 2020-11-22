@@ -3,7 +3,7 @@
 ```{r setupcovars6,include=FALSE}
 par(las = 1) # Doesn't work? Later?
 knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE)
-options(show.signif.stars = FALSE)
+options(show.signif.stars = FALSE, warn = 2)
 library(eha)
 ```
 
@@ -261,14 +261,14 @@ the help page for `risksets`.
 
 It is easy to produce the *Nelson-Aalen plot*\index{Nelson-Aalen plot}
 with the output from `risksets`, see Figure \@ref(fig:nalplot6).
-```{r nalplot6, echo = TRUE}
+```{r nalplot6, echo = TRUE, fig.cap = "Nelson-Aalen plot with risksets."}
 par(las = 1)
 plot(rs$risktimes, cumsum(rs$n.event / rs$size), type = "s", 
      xlab = "Duration (years)", ylab = "Cumulative hazards")
 abline(h = 0)
 ```
 
-One version of the corresponding survival function is shown in Figure \@ref(figkmout6).
+One version of the corresponding survival function is shown in Figure \@ref(fig:kmout6).
 ```{r kmout6,fig.height = 5,fig.cap="Survival plot with the aid of the function risksets.",fig.scap="Survival plot with the aid of the function risksets"}
 par(las = 1)
 sur <- exp(-cumsum(rs$n.event / rs$size))
