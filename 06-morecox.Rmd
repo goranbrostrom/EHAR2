@@ -1,5 +1,12 @@
 # More on Cox Regression
 
+```{r setupcovars6,include=FALSE}
+par(las = 1) # Doesn't work? Later?
+knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE)
+options(show.signif.stars = FALSE)
+library(eha)
+```
+
 Necessary and vital concepts like
 *time-dependent covariates*, *communal covariates*, handling of
 *ties*, *model checking*, *sensitivity analysis*, etc, 
@@ -92,8 +99,8 @@ causality taking place when allowing for it.
 Communal\index{communal covariate} (external)\index{external
   covariate} covariates are covariates that vary in time 
 outside any individual, and is common to all individuals at each specific
-\emph{calendar} time. In econometric literature, such a variable is often
-called \emph{exogenous}\index{exogenous covariate}. This could be viewed
+*calendar* time. In econometric literature, such a variable is often
+called *exogenous*\index{exogenous covariate}. This could be viewed
 upon as a special case of a time-varying covariate, but without the danger
 of reversed causality that was discussed above. 
 
@@ -138,7 +145,7 @@ the way of treating `foodprices` as a time-varying covariate.
 ```{r analcomm}
 fit <- coxreg(Surv(enter, exit, event) ~ ses + sex + foodprices, 
                 data = scand)
-round(summary(fit)$coefficients, 3)
+print(summary(fit), short = FALSE)
 ```
 
 
@@ -253,34 +260,20 @@ which is another component of the list. For the rest of the components, see
 the help page for `risksets`.
 
 It is easy to produce the *Nelson-Aalen plot*\index{Nelson-Aalen plot}
-with the output from `risksets`. The code is
-```{r 5nal,fig=FALSE}
-plot(rs$risktimes, cumsum(rs$n.event / rs$size), type = "s", 
-     xlab = "Duration (years)", ylab = "Cumulative hazards")
-abline(h = 0)
-```
-and the result is shown in Figure \@ref(fig:5nalplot).
-
-```{r 5nalplot,fig=TRUE,echo=FALSE,fig.cap="Nelson-Aalen plot with the aid of the function risksets"}
+with the output from `risksets`, see Figure \@ref(fig:nalplot6).
+```{r nalplot6, echo = TRUE}
+par(las = 1)
 plot(rs$risktimes, cumsum(rs$n.event / rs$size), type = "s", 
      xlab = "Duration (years)", ylab = "Cumulative hazards")
 abline(h = 0)
 ```
 
-One version of the corresponding survival can be constructed by
-```{r 5km,fig=FALSE}
-sur <- exp(-cumsum(rs$n.event / rs$size))
-plot(rs$risktimes, sur, type = "s", 
-     xlab = "Duration (years)", ylab = "Surviving fraction")
-abline(h = 0)
-```
-and the result is shown in Figure \@ref(fig:5kmout)
-
-```{r 5kmout,fig=TRUE,echo=FALSE,fig.cap="Survival plot with the aid of the function risksets.",fig.scap="Survival plot with the aid of the function risksets"}
+One version of the corresponding survival function is shown in Figure \@ref(figkmout6).
+```{r kmout6,fig.height = 5,fig.cap="Survival plot with the aid of the function risksets.",fig.scap="Survival plot with the aid of the function risksets"}
+par(las = 1)
 sur <- exp(-cumsum(rs$n.event / rs$size))
 plot(rs$risktimes, sur, type = "s", 
      xlab = "Duration (years)", ylab = "Surviving fraction")
 abline(h = 0)
 ```
 
-	 
