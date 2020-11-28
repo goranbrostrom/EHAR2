@@ -217,8 +217,11 @@ Identical results as we can see. This correspondence between Poisson and Cox reg
  `method = "ml"`, we can compare output from `coxreg` and `glm` with `family = binomial`.
  
 ```{r compacoxml}
-fit.ml <- coxreg(Surv(enter, exit, event) ~ x, method = "ml", data = dat)
-fit.b <- glm(event ~ riskset + x, family = binomial(link = "cloglog"), data = datB)
+fit.ml <- coxreg(Surv(enter, exit, event) ~ x, 
+                 method = "ml", data = dat)
+fit.b <- glm(event ~ riskset + x, 
+             family = binomial(link = "cloglog"), 
+             data = datB)
 rbind(coef(fit.ml),  coef(fit.b)["x"])
 ```
  

@@ -114,7 +114,7 @@ As you can see, the "common knowledge" of proportional hazards is disproved by t
 right hand panel in Figure \@ref(fig:twosex2). On the other hand, the left hand 
 panel gives a rather different impression, and this illustrates the need to choose good 
 approaches to graphical presentation, depending on what you want to show.
-$\Box$
+
 
 It must be emphasized that the proportional hazards assumption is an assumption 
 that always must be
@@ -136,6 +136,7 @@ par(oldpar)
 The advantage of the log scale is twofold: (i) Small numbers are magnified so you 
 can see them, and (ii) on the log scale, proportional hazards implies a constant
 vertical distance between the curves, which is easier to see for the human eye.
+$\Box$
 
 For an example of a perfect fit to the proportional hazards model, see
 Figure \@ref(fig:prophazfig3) (two *Weibull* hazard

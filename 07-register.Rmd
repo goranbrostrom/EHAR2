@@ -22,15 +22,20 @@ age and sex of the newborn, number of deaths by age and sex, and so on. In the
 package **eha**, there are two data sets taken from [Statistics Sweden](https://scb.se),
 `swepop` and `swedeaths`.
 
-The content of `swepop` looks like this (first six rows out of 10504 rows in total):
+The content of `swepop` is shown in Table \@ref(tab:swepop7) (first five rows out
+of 10504 rows in total).
 
+\tiny
 ```{r swepop7, echo = FALSE, message = FALSE}
 library(eha)
+library(kableExtra)
 sw <- swepop
 sw$id <- NULL
 rownames(sw) <- 1:NROW(sw)
-head(sw)
+kbl(head(sw, 5), booktabs = TRUE, caption = "First rows of 'swepop'.",
+                label = "swepop7")
 ```
+\normalsize
 It contains the average Swedish population size by year, age, and sex, where age 
 is grouped into one-year classes, but the highest age class, labelled 100, is in fact 
 "ages 100 and above". The original table gives the population sizes at the end of each year,
@@ -38,22 +43,23 @@ but here we have calculated an average size over the year in question by taking 
 of the actual value and the corresponding value from the previous year. The population size 
 can in this way be used as "total time at risk" or *exposure*. 
 
-The content of `swedeaths` is (first six rows):
+The content of `swedeaths` (first five rows) is shown in Table \@ref(tab:swedeaths7).
 
 ```{r swedeaths7, echo = FALSE}
 deaths <- swedeaths
 deaths$id <- NULL
 rownames(deaths) <- 1:NROW(deaths)
-head(deaths)
+kbl(head(deaths, 5), booktabs = TRUE, caption ="First rows of 'swedeaths'.")
 ```
 
 The `(age, sex, year)` columns in the two data frames are identical, so we can 
 create a suitable data frame for analysis simply by putting `swedeaths$deaths`
 into the data frame `swepop` and rename it to `sw`. The first rows of `sw` are
+(Table \@ref(tab:sw7)).
 
-```{r sw7}
+```{r sw7, echo = FALSE}
 sw$deaths <- deaths$deaths
-head(sw)
+kbl(head(sw, 5), booktabs = TRUE, caption = "First rows of combined data frame.")
 ```
 
 The response variable in our analysis is two-dimensional: `(deaths, pop)`, 
@@ -78,15 +84,15 @@ reading, writing and organizing the user operation). The interesting value for u
 is that the total elapsed time was around six tenth of a second.
 
 
-2.   The response is `oe(deaths. pop)` where `oe`is short for "occurrence/exposure".
+2.   The response is `oe(deaths, pop)` where `oe`is short for "occurrence/exposure".
 
-3.   All covariates need a *reference value*. For factors with the default coding,
+3.   All covariates have a *reference value*. For factors with the default coding,
 the reference category is given, but for continuous covariates we need to specify
 it, if we are not satisfied with the default value *zero*. In the case with the 
 covariate `year`, we are certainly *not* satisfied with zero as reference point, 
-but we choose a suitable value in the range of the observed values. This is done in
+so we choose a suitable value in the range of the observed values. This is done in
 practice by *subtracting* the reference value from the corresponding variable, 
-`year - 1995` in our case. In the output above, this will only affect the value
+forming `year - 1995` in our case. In the output above, this will only affect the value
 of *Restricted mean survival*, which is calculated for a "reference individual",
 in this case *a woman living her life during the year 1995*. There are not many such 
 women, of course, what we are doing here is comparing periods, not cohorts.
@@ -95,7 +101,10 @@ women, of course, what we are doing here is comparing periods, not cohorts.
 that is unbounded in time, we should specify the range for our data. The lower 
 limit is given by `min(age)` (the argument `time`), but there is no natural upper limit.
 The choice of the value for `last` do not affect parameter estimates and general 
-conclusions, it only affects plots in the right tail (slightly). 
+conclusions, it only affects plots in the extreme of the right tail (slightly). 
+
+5. Note the "Restricted mean survival": It gives the expected remaining life 
+*at birth* for a *woman* in the *year 1995* (the reference values).
 
 The graph of the baseline hazard function ("age-specific mortality") is shown in 
 Figure \@ref(fig:base7).
@@ -181,13 +190,15 @@ the period 2007--2019.
 
 Finally, we investigate the development of expected life ($e_0$) over time, see Figure
 \@ref(fig:e07).
-```{r e07, fig.cap = "Expected life at birth by sex and year (period data)."}
+
+```{r e07, fig.cap = "Expected life at birth by sex and year (period data).", echo = FALSE}
 fem <- numeric(52)
 mal <- numeric(52)
 i <- 0
 for (year in 1968:2019){
     i <- i + 1
-    fit <- tpchreg(oe(deaths, pop) ~ strata(sex), data = sw[sw$year == year, ], 
+    fit <- tpchreg(oe(deaths, pop) ~ strata(sex), 
+                   data = sw[sw$year == year, ], 
                    time = age, last = 101)
     x <- summary(fit)
     fem[i] <- x$rmean[1]
@@ -218,20 +229,25 @@ that is, the number of individuals is *huge*.
 As an example, we have mortality data consisting of all Swedish citizens aged
 30 and above for the years 2001--2013. It may be described as yearly censuses, where 
 all Swedish persons alive at December 31 the specific year, are registered together 
-with vital information. It starts with register data of the form
+with vital information. It starts with register data of the form shown in 
+Table \@ref(tab:vitalform7).
 
 ```{r vitalform7, echo = FALSE}
 rl <- readRDS("rawlis.rds")
-rl
+##rl$region <- rl$municipality
+##rl$municipality <- NULL
+rownames(rl) <- 1:4
+kbl(rl, booktabs = TRUE, caption = "Register data, Sweden December 31, 2001.") %>%
+     kable_styling(font_size = 10)   
 ```
 
-which are the the first four rows of the data file representing December 31, 2001.
 The variables are
 
 *   **id** A unique id number, which allows us to link information from different
 sources (and years) to one individual.
 *   **year** The present year, 2001, ..., 2013.
-*   **birthdate** A constructed variable, due to integrity reasons, birth time information
+*   **sex**  Female or male.^
+*   **birthdate** A constructed variable. Due to integrity reasons, birth time information
 is only given in the form of year and quarter of the year. So the *birthdate* is created
 by year and the first quarter is represented by the decimal places ".125" (equal roughly
 to February 15), the second quarter is ".375", third ".625", and finally the fourth 
@@ -240,24 +256,28 @@ month and a half, which is deemed to be a good enough precision concerning adult
 mortality.
 *   **deathdate** Is given by day in the sources. The missing value symbol (*NA*) 
 is given to those who are not registered as dead before January 1, 2014.
-*   **civst, ses, municipality** Information about *civil status*, 
+*   **civst, ses, region** Information about *civil status*, 
 *socioeconomic status*, and *geographic area*, respectively.
 
 From this yearly information, survival data is created by following each individual 
 one year ahead, until the next "census". Age at start, `enter`, is calculated by 
 subtracting `birthdate` from the date of presence, `year + 1`. For an individual 
 with a deathdate less than or equal to `enter + 1 = year + 2`, the variable `exit` is 
-calculated as `deathdate - birthdate` and the variable `event` is set etual to one, otherwise 
+calculated as `deathdate - birthdate` and the variable `event` is set equal to one, otherwise 
 `exit = enter + 1` and `event = 0`, a censored observation.
 
-The result of this is shown for the same individuals as above:
+The result of this is shown for the same individuals as above in Table \@ref(tab:workedform7).
 
 ```{r workedform7, echo = FALSE}
 wl <- readRDS("worklis.rds")
-wl
+##wl$region <- wl$municipality # Change name.
+##wl$municipality <- NULL
+rownames(wl) <- 1:4
+kbl(wl[, c("id", "year", "enter", "exit", "event")], booktabs = TRUE,caption = "Constructed data, Sweden December 31, 2001.") %>%
+     kable_styling(font_size = 10)   
 ```
 
-This file from the year 2001 (covering the year 2002!) contains 5.8 million individuals
+This file from the year 2001 (covering the year 2002!) contains *5.8 million* individuals
 and 92 thousand deaths. To perform a Cox regression on such massive data sets 
 (and there are thirteen of them) is time, software, 
 and hardware consuming, but there is a simple remedy: Make tables and fit piecewise 
@@ -266,31 +286,38 @@ constant proportional hazards models.
 This is done with the aid of the `eha` function `toTpch` as follows:
 
 ```
-lisa2001$cohort <- floor(lisa2001$birthdate)
-listab2001 <- toTpch(Surv(enter, exit, event) ~ ses + cohort + year + 
-                                              civst + municipality + ses,
-                                    data = lisa2001,
-                                    cuts = c(seq(30, 100, by = 5), 110))
+lisa2001$cohort <- floor(lisa2001$birthdate) 
+listab2001 <- toTpch(Surv(enter, exit, event) ~ sex + cohort + year + 
+                                                civst + region + ses,
+                     data = lisa2001, 
+                     cuts = c(seq(30, 100, by = 5), 105))
 ```
-
-Note the creation of the valiable `cohort`: The function `floor` simply removes 
-the decimals from a positive number. The result is (four first rows)
 
 ```{r maketableread7, echo = FALSE, comment=""}
 lisa2001 <- readRDS("mytables/listab2001.rds")
-head(lisa2001, 4)
+lisa2001$region <- lisa2001$municipality
+lisa2001$municipality <- NULL
+kableExtra::kbl(head(lisa2001, 4), booktabs = TRUE, digits = 4,
+                caption = "Mortality in ages above 30, Sweden 2002 ('year' = 2001).", 
+                label = "maketableread7") %>%
+    kable_styling(font_size = 10)
 ```
 
+Note the creation of the variable `cohort`: The function `floor` simply removes 
+the decimals from a positive number. The result is shown in 
+Table \@ref(tab:maketableread7) (four first rows) 
 which is a table with  `r nrow(lisa2001)` rows. That is, one row for each unique 
 combination of the six covariates, empty combinations excluded. Note the two created
 variables, `event` which is the total number of events for each combination of covariates, 
 and `exposure`, which is total time at risk for each corresponding combination.
 
+
 In the survival analysis, the pair `(event, exposure)` is the *response*, and 
 behind the scene, *Poisson regression* is performed with `event` as response and 
 `log(exposure)` as *offset*.
 
-Finally, thirteen similar tables are created (one for each year 2001--2013) and merged.
+Finally, thirteen similar tables are created (one for each year 2001--2013) and 
+merged, using the **R** command `rbind`.
 
 
 
@@ -302,6 +329,10 @@ Finally, thirteen similar tables are created (one for each year 2001--2013) and 
 ##    listab <- rbind(listab, xx)
 ##}
 listab <- readRDS("mytables/listab.rds")
+listab$ses <- relevel(listab$ses, ref = "worker")
+listab$civst <- relevel(listab$civst, ref = "married")
+levels(listab$age)[15] <- "100-105"
+listab$cohort <- NULL
 ```
 
 A summary of the result gives
@@ -310,34 +341,60 @@ A summary of the result gives
 *   Number of deaths: `r round(sum(listab$event) / 1000000, 2)` millions.
 *   Total time at risk: `r round(sum(listab$exposure / 1000000), 2)` million years.
 
-Now this data set is conveniently analyzed with the aid of the function `tpcpreg` 
+Now this data set is conveniently analyzed with the aid of the function `tpchreg` 
 in `eha`. An example:
 
-```{r runtable7, comment = ""}
-fit <- tpchreg(oe(event, exposure) ~ strata(sex) + civst + ses, data = listab, time = age,
-               last = 110)
+```{r runtable7, comment = "",results = "asis", echo = FALSE}
+listab$year <- listab$year - 2000 # Enumerate (center)!
+list2 <- aggregate(cbind(event, exposure) ~ sex + civst + ses + 
+                       year + age, FUN = sum, data = listab)
+fit <- tpchreg(oe(event, exposure) ~ strata(sex) + civst + ses + 
+                   year, data = list2, time = age, last = 105)
 xx <- summary(fit)
-xx
-##fit
+if (knitr::is_latex_output()){
+    fit.ltx <- tpchreg(oe(event, exposure) ~ strata(sex) + civst + ses + 
+                   year, data = list2, time = age, last = 105)
+    dr = drop1(fit.ltx, test = "Chisq")[-2, ] # A hack!!
+    ltx(summary(fit.ltx), dr = dr, 
+        caption = "Mortality in Sweden 2002-2014, ages 30 and above.", 
+        label = "runtable7")
+}
+```
+
+```{r runtable7html, echo = FALSE}
+if (knitr::is_html_output()) print(xx)
 ```
 
 We note a couple of things here:
 
-1.   All *p*-values are effective zero, a consequence of of the huge amount of data.
+1.   The data frame `listab` contains `r NROW(listab)` records, and the execution time 
+of a Poisson regression might take a long time. Since we did not use the covariates 
+`region` (a factor with 25 levels) and `cohort` (92 levels), we could aggregate over 
+these variables which resulted 
+in the data frame `list2` with only `r NROW(list2)` records. This cuts down 
+computing time by approximately 99 per cent, or to 0.17 seconds from 17 seconds. 
+The results are not affected by this. Also note the similarity between 
+the `formula` arguments of the two functions `aggregate` and `tpchreg`. 
+The differences are that in `aggregate`, the function `cbind` is used instead 
+of `oe`, and `strata()` is left out.
+
+2.   All *p*-values are effectively zero, a consequence of of the huge amount of data.
 It is also reasonable to claim that this constitutes a *total investigation*, and 
 therefore *p*-values are meaningless.
 
-2. Note the "Restricted mean survival": It gives the expected remaining life *at
-age 30* for an *unmarried person* in the *elite* social class, that is, the expected 
-age of death is `r round(30 + xx$rmean, 2)` years for males and females, respectively.
+3. The restricted mean survival 
+*at age 30* for a *married worker* in the *year 2002* is `r round(xx$rmean, 2)` 
+years for men and women,
+that is, the expected age of death is `r round(30 + xx$rmean, 2)` years for 
+men and women alive at 30, respectively.
 
-A graph of the baseline hazard functions is shown in Figure \@ref(fig:wbhaz7).
+A graph of the survival functions is shown in Figure \@ref(fig:wbhaz7).
 
-```{r wbhaz7, fig.cap = "Hazard functions, males and females, unmarried elite. Sweden 2002-2014.", echo = FALSE}
+```{r wbhaz7, fig.cap = "Survival above 30, males and females, married worker, Sweden 2002.", echo = FALSE, fig.height = 3.5}
 par(las = 1)
-plot(fit, fn = "haz", col = c("blue", "red"), lty = c(1, 2), xlab = "Age", 
-     main = "")
-axis(1, at = seq(30, 110, by = 10))
+plot(fit, fn = "sur", col = c("blue", "red"), lty = c(1, 2), xlab = "Age", 
+     main = "", printLegend = "center")
+axis(1, at = seq(30, 100, by = 10))
 ##axis(2, las = 1)
 ##box()
 abline(h = 0)

@@ -111,7 +111,7 @@ food prices are available. In this example we use deviation from the log
 trend in annual rye prices, shown in Figure \@ref(fig:logrye).
 
 
-```{r logrye,fig=TRUE,echo=FALSE,fig.cap = "Log rye price deviations from trend, 19th century southern Sweden.", fig.scap="Log rye price deviations from trend"}
+```{r logrye,fig=TRUE,echo=FALSE,fig.cap = "Log rye price deviations from trend, 19th century southern Sweden.", fig.scap="Log rye price deviations from trend", fig.height=3}
 library(eha)
 data(logrye)
 plot(logrye$year, logrye$foodprices, xlab = "Year", ylab = "Log price",
@@ -123,9 +123,10 @@ The idea behind this choice of transformation is to focus on deviations
 from the "normal" as a proxy for *short-term variation in economic
   stress*. We illustrate the idea with a subset of the built-in data set `scania`, and we show the information for individual No. 1.
 
-```{r scand,echo=TRUE}
+```{r scand,echo=FALSE}
 library(eha)
-scand <- scania[, c("id", "enter", "exit", "event", "birthdate", "sex", "ses")]
+scand <- scania[, c("id", "enter", "exit", "event", 
+                    "birthdate", "sex", "ses")]
 scand[scand$id == 1, ]
 ```
 
@@ -261,7 +262,7 @@ the help page for `risksets`.
 
 It is easy to produce the *Nelson-Aalen plot*\index{Nelson-Aalen plot}
 with the output from `risksets`, see Figure \@ref(fig:nalplot6).
-```{r nalplot6, echo = TRUE, fig.cap = "Nelson-Aalen plot with risksets."}
+```{r nalplot6, echo = TRUE, fig.cap = "Nelson-Aalen plot with risksets.", fig.height = 3}
 par(las = 1)
 plot(rs$risktimes, cumsum(rs$n.event / rs$size), type = "s", 
      xlab = "Duration (years)", ylab = "Cumulative hazards")
@@ -269,7 +270,7 @@ abline(h = 0)
 ```
 
 One version of the corresponding survival function is shown in Figure \@ref(fig:kmout6).
-```{r kmout6,fig.height = 5,fig.cap="Survival plot with the aid of the function risksets.",fig.scap="Survival plot with the aid of the function risksets"}
+```{r kmout6,fig.height = 3,fig.cap="Survival plot with the aid of the function risksets.",fig.scap="Survival plot with the aid of the function risksets"}
 par(las = 1)
 sur <- exp(-cumsum(rs$n.event / rs$size))
 plot(rs$risktimes, sur, type = "s", 

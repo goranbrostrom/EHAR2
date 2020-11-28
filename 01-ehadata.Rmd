@@ -684,7 +684,7 @@ text(1875, 7.5, "Cohort data")
 The first few lines are
 
 ```{r cmfirst1, echo = FALSE}
-print(child[1:5, ], row.names = FALSE)
+print(child[1:5, colnames(child) != "enter"], row.names = FALSE)
 ```
 
 Not that the variable `enter` really is redundant here: It is always equal to zero
