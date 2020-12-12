@@ -3,7 +3,7 @@
 ```{r setup3,include=FALSE}
 par(las = 1) # Doesn't work? Later?
 knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE, fig.height = 4)
-options(show.signif.stars = FALSE, warn = 2)
+options(show.signif.stars = FALSE, warn = 1)
 ```
 
 *Proportional hazards* is a property of survival models that is fundamental for the
@@ -733,10 +733,10 @@ but are be estimated simultaneously with the regression parameters.
 \index{Functions!coxreg|(}
 
 We utilize the *child mortality* data, Skellefteå 1850--1884, to
-illustrate tsome aspects of an ordinary Cox regression. Newborn in the parish
+illustrate some aspects of an ordinary Cox regression. Newborn in the parish
 are sampled between 1820 and 1840 and followed to death or reaching the age
 of 15, when they are right censored. So in effect child mortality in the
-ages 20--40 are studied. The data set is named `child` and available in `eha`.
+ages 0--15 is studied. The data set is named `child` and available in `eha`.
 
 There are two **R** functions that are handy for a quick look at a data
 frame, `str`\index{str} and `head`\index{head}. The function `head` prints the 

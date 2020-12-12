@@ -3,7 +3,7 @@
 ```{r setupcovars6,include=FALSE}
 par(las = 1) # Doesn't work? Later?
 knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE)
-options(show.signif.stars = FALSE, warn = 2)
+options(show.signif.stars = FALSE, warn = 1)
 library(eha)
 ```
 
