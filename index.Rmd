@@ -10,7 +10,7 @@ link-citations: yes
 colorlinks: yes
 lot: yes
 lof: yes
-fontsize: 12pt
+fontsize: 11pt
 monofont: "Source Code Pro"
 monofontoptions: "Scale=0.7"
 site: bookdown::bookdown_site
@@ -56,7 +56,7 @@ now continuing on Chapter 8: Parametric Models. (I expect a major rewrite of thi
 Chapters 7 and 8 (6 and 7 in the first edition) are swapped for a better logic flow. 
 
 This work is done in parallel with updating and expanding the `eha` package [@eha],
-now in version 2.8.1.9998 (not released on CRAN, but available on gitHub).
+now in the version  shown below (not released on CRAN, but available on gitHub).
 
 The R session information when last compiling this book is shown below:
 
