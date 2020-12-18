@@ -248,13 +248,18 @@ Chapter 2, the life and its connection to the survival function.
 ```{example, name = "Mortality in ages 61--80, Sweden 2007."}
 ```
 \label{ex:sw07}
-In `eha`, there is the data set `swe07` (a subset and combination of `swepop` 
-and `swedeaths`), which contains population size and number of deaths by age 
+We create a data set `swe07` (a subset and combination of `swepop` 
+and `swedeaths` in `eha`), which contains population size and number of deaths by age 
 and sex in Sweden 2007. The age span is restricted to ages 61--80.
 
 ```{r swe07}
-head(swe07)
-tail(swe07)
+swe07 <- swepop[swepop$year == 2007, ]
+swe07$deaths <- swedeaths$deaths[swedeaths$year == 2007]
+swe07 <- swe07[swe07$age >= 61 & swe07$age <= 80, c("age", "sex", "deaths", "pop")]
+pout <- rbind(head(swe07, 5), c("...", "...", "...", "..."), tail(swe07, 5))
+knitr::kable(pout, booktabs = TRUE, row.names = FALSE, label = "swe076180",
+             caption = "Swedish population data 2007, ages 61-80.")
+
 ```
 
 The Poisson model is, where $D_{ij}$ is number of deaths and $P_{ij}$
@@ -294,7 +299,7 @@ fit a Poisson regression model.
 
 ```{r poisreg3}
 swe07$age <- factor(swe07$age)
-fit <- glm(deaths ~ offset(log.pop) + sex + age, family = poisson, 
+fit <- glm(deaths ~ offset(log(pop)) + sex + age, family = poisson, 
            data = swe07)
 drop1(fit, test = "Chisq")
 ```
@@ -320,7 +325,7 @@ same over ages?
 To answer that question, we introduce an interaction:
 
 ```{r point}
-fit1 <- glm(deaths ~ offset(log.pop) + sex * age, 
+fit1 <- glm(deaths ~ offset(log(pop)) + sex * age, 
             family = poisson, data = swe07)
 drop1(fit1, test = "Chisq")
 ```
@@ -376,8 +381,8 @@ size during one year is a very good approximation of the exact total
 exposure time (in years).
 
 ```{r rawcal}
-femal <- swe07[swe07$sex == "female", ]
-mal <- swe07[swe07$sex == "male", ]
+femal <- swe07[swe07$sex == "women", ]
+mal <- swe07[swe07$sex == "men", ]
 f.rate <- femal$deaths / femal$pop
 m.rate <- mal$deaths / mal$pop
 ```

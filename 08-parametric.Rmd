@@ -181,7 +181,7 @@ The Gompertz families of distributions are defined in essentially two ways in th
 for this is the the families need to be different depending on whether proportional
 hazards or accelerated failure time models are under consideration.
 
-Tn the *proportional hazards* case, the *rate* formulation is used, and it is
+In the *proportional hazards* case, the *rate* formulation is used, and it is
 characterized by an exponentially increasing hazard function with fixed rate `r`:
 
 \begin{equation}
@@ -198,15 +198,15 @@ distributions, and the corresponding regression model is written as
 h(t; x, p, r, \beta) = p e^{r t} e^{\beta x}, \quad t > 0.
 \end{equation}
 
-### Applications
+### Application
 
 
 ```{example name = "Old age mortality."}
 ```
 The data set **oldmort** in the **R** package **eha** contains
   life histories of people followed from their 60th birthday to their 100th, or 
-  until death  born between June 28, 1765 and December 31, 1820
-  in Skellefteå . The data set is described in detail in Chapter 1. See 
+  until death, born between June 28, 1765 and December 31, 1820
+  in Skellefteå. The data set is described in detail in Chapter 1. See 
   Table \@ref(tab:olddata8), where the most important variables are shown.
   Note that the number 60 has been subtracted from the original values, so that 
   they measure time since age 60 instead of age. The reason for this will be explained 
@@ -319,11 +319,16 @@ but after that the exponential growth slows down. The early growth rate is
 ```{r gowecot8}
 out <- cbind(fit.g$coefficients[1:n.co], out)
 colnames(out) <- c("Gompertz", "Cox", "Weibull")
-out <- round(out, 4)
-knitr::kable(out, booktabs = TRUE, caption = "Coefficients with Gompertz, Cox and Weibull regressions, data oldmort.")
+out <- round(out, 3)
+knitr::kable(out, booktabs = TRUE, caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale duration.")
 ```
 
+The Gompertz and Cox models are very close, both regarding regression parameter estimates and 
+baseline hazard functions.
+
 $\Box$
+
+
 
 ### The parametric model with left truncation
 
@@ -334,16 +339,32 @@ semi-parametric Cox regression, an additive change of time scale will only shift
 the estimated cumulative hazards along the x-axis.
 
 But for parametric models it matters, and we illustrate it by repeating the 
-previous Weibull and Cox regression analyses with the original time scale.
+previous Weibull, Gompertz,  and Cox regression analyses with the original time scale. 
+The consequence is that focus is shifted from a conditional (on survival until 60) analysis
+to an unconditional, where the baseline hazard and regression coefficients are estimated for
+the *full life span* (0--100 years of age).
 
 ```{r origts8}
+fit.g <- phreg(Surv(enter, exit, event) ~ sex + ses.50 + region, data = oldmort, dist = "gompertz")
 fit.w <- phreg(Surv(enter, exit, event) ~ sex + ses.50 + region, data = oldmort)
 fit.c <- coxreg(Surv(enter, exit, event) ~ sex + ses.50 + region, data = oldmort)
-summary(fit.w)$coefficients
+yy <- round(cbind(fit.g$coefficients[1:n.co], fit.c$coefficients, fit.w$coefficients[n.co]), 3)
+colnames(yy) <- c("Gompertz", "Cox", "Weibull")
+knitr::kable(out, booktabs = TRUE, caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale age.")
 ```
 
 Compare these fitted coefficients with the earlier: We are closer to the Cox 
 regression parameter estimates now!
+
+Let us look at the baseline hazards, see Figure \@ref(fig:origtsfig8).
+
+```{r origtsfig8, fig.cap = "Gompertz vs Cox and Weibull vs Cox"}
+op = par(mfrow = c(1, 2), las = 1)
+plotHaz(fit.g, fit.c, interval = c(0, 100))
+plotHaz(fit.w, fit.c, interval = c(0, 100))
+par(op)
+```
+
 
 ```{example name = "Length of birth intervals, Weibull model."}
 ```
