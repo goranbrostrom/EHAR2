@@ -366,341 +366,6 @@ par(op)
 ```
 
 
-```{example name = "Length of birth intervals, Weibull model."}
-```
-The data set **fert** in the **R** package **eha** contains
-  birth intervals for married women in 19th century Skellefteå. It is
-  described in detail in Chapter 1.
-  Here only the
-  intervals starting with the first birth for each woman are considered.
-  First the data are extracted and examined.
-
-
-
-```{r fert6.12}
-library(eha)
-data(fert)
-f12 <- fert[fert$parity == 1, ]
-f12$Y <- Surv(f12$next.ivl, f12$event)
-head(f12)
-```
-
-Some women never got a second child, for instance the first woman (**id  = 1**) above. 
-Also, note the just created variable $Y$; it is printed
-as a vector, with some values having a trailing``$+$''; Those are the
-censored observations (**event = 0**). But $Y$ is really a matrix, in
-this case with two columns. The first column equals **next.ivl** and the
-second is **event**.
-
-```{r Y12}
-is.matrix(f12$Y)
-dim(f12$Y)
-```
-
-Next, the proportional hazards *Weibull* regression is fit and the
-likelihood ratio 
-tests for an effect of each covariate is performed. 
-Remember that the function *drop1*\index{Functions!*drop1*} is the
-one to use for the latter task. 
-
-```{r phweib}
-fit.w <- phreg(Y ~ age + year + ses, data = f12)
-drop1(fit.w, test = "Chisq")
-```
-
-Three variables are included, two are extremely significant, $age$,
-mother's age at start of the interval, and $year$, the calendar year at
-the start of the interval. The variable *ses*, socio-economic status,
-is also statistically significant, but not to the extent of the other two. 
-
-**Note:** When we say that a variable is "significant", we are rejecting the
-hypothesis that the true parameter value attached to it is equal to zero.
-
-Now take a look at the actual fit.
-
-```{r fitw, echo = FALSE}
-fit.w
-kof <- fit.w$coef[1]
-```
-
-The estimated coefficient for **age**, 
-`r round(kof, digits = 3)`, is negative, indicating lower
-risk of a birth with increasing age. The effect of calendar time is
-positive and indicating an increase in the intensity of giving birth of the
-size approximately 5 per thousand. Regarding *socio-economic status*,
-*farmer* wives have the highest fertility and the *upper* class the
-lowest, when it comes to getting a second child. Finally, we see that the
-estimate for "$\log(\text{shape})$" is positive ($0.299$) and significantly
-different from zero. This means that the intensity is increasing with
-duration, see Figure \@ref(fig:weibfert6).
-
-```{r weibfert6, fig.cap="Estimated Weibull baseline distribution for length of interval between first and second birth.", fig.scap = "Weibull birth intervals"}
-oldpar <- par(mfrow = c(1, 2))
-plot(fit.w, fn = "haz")
-plot(fit.w, fn = "cum")
-par(oldpar)
-``` 
-
-$\Box$
-
-### The Lognormal model
-
-An example of a more complex family of distributions with the proportional
-hazards property is to start with a
-*lognormal* distribution.
-The family of *lognormal* distributions is characterized by the fact that
-taking the natural logarithm of a random variable from the family gives a
-random variable from the family of *Normal* distributions. Both the
-hazard and the survivor functions lack closed forms.
-Furthermore, multiplying the hazard function by a constant not equal to 1
-leads to a non-lognormal hazard function.
-
-So, while we for the *Weibull* family of distributions found subfamilies with
-proportional hazards by keeping $p$ fixed and varying $\lambda$, for the
-*lognormal* distribution we cannot use the same trick. Instead, by
-multiplying the hazard function by a constant we arrive at a three-parameter
-family of distributions. 
-The lognormal proportional hazards model is
-possible to fit with the function **phreg**.
-
-```{example, name = "Length of birth intervals, Lognormal model."}
-```
-  The data are already extracted and examined in the previous example.
-  Next, the proportional hazards *lognormal* regression and the likelihood
-  ratio tests for an effect of each covariate are given.
-
-```{r phlognorm}
-fit.lognorm <- phreg(Y ~ age + year + ses, data = f12, 
-                     dist = "lognormal")
-drop1(fit.lognorm, test = "Chisq")
-``` 
-
-
-Three variables are included, two are extremely significant. First the
-variable **age**, mother's age at start of the interval, and second
-  *year*, the calendar year at the start of the interval. The variable 
-  *ses*, socio-economic status, is also significant, but to the extent of
-the previous two. 
-
-Now take a look at the actual fit.
-```{r fitlogist}
-fit.lognorm
-``` 
-
-```{r secret16,echo=FALSE}
-kof <- fit.lognorm$coef[1]
-``` 
-
-The estimated coefficient for age, 
-`r round(kof, digits = 3)`, is negative, indicating lower
-risk of a birth with increasing age. The effect of calendar time is
-positive and indicating an increase in the intensity of giving birth of the
-size approximately 4 per thousand. Regarding *socio-economic status*,
-farmer wives have the highest fertility and the unknown and
-upper classes the 
-lowest, when it comes to getting a second child. Finally, in
-Figure \@ref(fig:lognormfert6) it is clear that the hazard function is first
-increasing to a maximum around 3 years after the first birth and then
-decreasing. This is quite a different picture compared to the Weibull fit
-in Figure \@ref(fig:weibfert6)! This shows the weakness with the Weibull model; it
-allows only for *monotone* (increasing or decreasing) hazard
-functions.
-
-```{r lognormfert6,fig.cap="Estimated lognormal baseline distribution for length of birth intervals.",echo=FALSE}
-oldpar <- par(mfrow = c(1, 2))
-plot(fit.lognorm, fn = "haz", main = "Hazard function")
-plot(fit.lognorm, fn = "cum", main = "Cumulative hazard function")
-par(oldpar)
-``` 
-
-It was created using
-```{r crepl1,echo=TRUE,fig=FALSE}
-oldpar <- par(mfrow = c(1, 2))
-plot(fit.lognorm, fn = "haz", main = "Hazard function")
-plot(fit.lognorm, fn = "cum", main = "Cumulative hazard function")
-par(oldpar)
-``` 
-$\Box$
-
-
-### The Loglogistic model
-
-### The Extreme Value model
-
-### The Gompertz model
-
-## Comparing the Weibull and Lognormal fits
-
-From looking at Figures \@ref(fig:weibfert6) and \@ref(fig:lognormfert6), it
-seems obvious that at least one of the fits must be less good: The
-*Weibull* cumulative hazards
-curve is convex and the *lognormal* one is concave, and the estimates
-of the two hazard
-functions are very different in shape. There are two direct ways
-of comparing the fits.
-
-The first way to compare is to look at the maximized log likelihoods. For
-the *Weibull* fit it is `r round(fit.w$loglik[2], digits = 2)` and for
-the *lognormal* fit it is 
-`r round(fit.lognorm$loglik[2], digits = 2)`. The rule is that the
-largest value wins, so the *lognormal* model is the clear winner. Note that
-we do not claim to perform a formal test here; a likelihood ratio test
-would require that the two models we want to compare are nested, but that
-is not the case here. This is (here) equivalent to using the AIC\index{AIC}
-as a 
-measure of comparison, because the two models have the same number of
-parameters to estimate.
-
-The second method of comparison is graphical. We can plot the cumulative
-hazard functions\index{cumulative hazard function}
-against the nonparametric estimate from a Cox
-regression\index{Cox regression} 
-fit, and judge which looks closer. It starts by fitting a Cox model with
-the same covariates:\index{Functions!\fun{coxreg}}
-
-```{r coxr6}
-fit.cr <- coxreg(Y ~ age + year + ses, data = f12)
-``` 
-
-Then the function **check.dist** (from **eha*) is called. We start
-with the *Weibull* fit:
-
-```{r weibcheck6,fig.cap="Check of the Weibull model, birth intervals."}
-check.dist(fit.cr, fit.w)
-``` 
-
-This fit (Figure \@ref(fig:weibcheck6)) looks very poor: One reason is that
-the longest waiting time for an observed event is about 12 years, while
-some women simply do not get more than one child, with a long waiting time
-ending in a censoring as a result. The time span from around 12 to 25
-simply has no events, and the nonparametric estimate of the hazard function
-in that interval is zero. The Weibull distribution fit cannot cope with
-that. 
-
-One possibility is to try to fit a Weibull distribution only for the 12
-first years of duration. Note below that after calling **age.window**,
-$Y$ *must* be recreated! This is the danger with this "lazy" approach.
-
-```{r trunc6f12cens}
-f12$enter <- rep(0, NROW(f12))
-f12.cens <- age.window(f12, c(0, 12), 
-                       surv = c("enter", "next.ivl", "event"))
-f12.cens$Y <- Surv(f12.cens$enter, f12.cens$next.ivl, 
-                   f12.cens$event)
-fit.wc <- phreg(Y ~ age + year + ses, data = f12.cens)
-fit.c <- coxreg(Y ~ age + year + ses, data = f12.cens)
-fit.wc
-``` 
-
-Compare the Weibull fit with what we had without cutting off
-durations at 12. 
-The comparison with the nonparametric cumulative hazards function is now
-seen in Figure \@ref(fig:weibcheckcens6).
-
-```{r weibcheckcens6, fig.cap = "Check of the Weibull model, birth intervals censored at 12.", fig.scap = "Check of the Weibull model, censored birth intervals."}
-check.dist(fit.c, fit.wc)
-``` 
-
-This wasn't much better. Let's look what happens with the lognormal
-distribution. 
-
-We continue using the data censored at 12 and refit the lognormal model.
-
-```{r trunc6f12cens.ln}
-fit.lnc <- phreg(Y ~ age + year + ses, data = f12.cens, 
-                 dist = "lognormal")
-``` 
-
-Then, in Figure \@ref(fig:lncheckcens6) we check the fit against the
-nonparametric fit again.
-
-```{r lncheckcens6, fig.cap="Check of the lognormal model, birth intervals censored at 12.",fig.scap="Check of the lognormal model, birth intervals"}
-check.dist(fit.c, fit.lnc)
-``` 
-
-It is not very much better. In fact, this empirical distribution has
-features that the ordinary parametric distributions cannot cope with: Its
-hazard function starts off being zero for almost one year (birth intervals
-are rarely shorter than one year), then it grows rapidly and soon decreases
-towards zero again.
-
-There is, however one parametric distribution that is flexible enough: The
-piecewise constant hazard distribution.
-
-### The piecewise constant hazard (pch) model{#pch6}
-
-The pch distribution is flexible because you can add as many parameters as
-you want. We will try it on the birth interval data. We start off with just
-four intervals, and the non-censored data set.
-
-```{r pch6fert}
-fit.pch <- phreg(Surv(next.ivl, event) ~ age + year + ses, 
-                 data = f12, dist = "pch", cuts = c(4, 8, 12))
-fit.c <- coxreg(Surv(next.ivl, event) ~ age + year + ses, 
-                data = f12)
-fit.pch
-``` 
-
-Then we check the fit in Figure \@ref(fig:pchcheck6).
-
-```{r pchcheck6,fig.cap="Check of the pch model, uncensored birth intervals."}
-check.dist(fit.c, fit.pch)
-``` 
-
-This is not good enough. We need shorter intervals close to zero, so
-
-```{r pchfert2}
-fit.pch <- phreg(Surv(next.ivl, event) ~ age + year + ses, 
-                 data = f12, dist = "pch", cuts = 1:13)
-fit.pch
-``` 
-
-This gives us 14 intervals with constant baseline hazard, that is, 14
-parameters to estimate only for the baseline hazard function! But the fit
-is good, see Figure \@ref(fig:pch13check6). In fact, it is almost perfect!
-
-```{r pch13check6,fig.cap = "Check of the pch model with thirteen constant hazard intervals, uncensored birth intervals." }
-check.dist(fit.c, fit.pch)
-``` 
-
-One of the advantages with parametric models is that it is easy to study
-and plot the hazard function, and not only the cumulative hazards function,
-which is the dominant tool for (graphical) analysis in the case of the
-nonparametric model of Cox regression\index{Cox regression}. For the
-piecewise constant model 
-just fitted we get the estimated hazard function in Figure \@ref(fig:pchhaz6).
-
-```{r pchhaz6,fig.cap="The estimated hazard function for the length of birth intervals, piecewise constant hazard distribution."}
-plot(fit.pch, fn = "haz")
-``` 
-
-The peak is reached during the third year of waiting, and after that the
-intensity of giving birth drops fast, and it becomes zero after 12 years.
-
-What are the implications for the estimates of the regression parameters of
-the different choices of parametric model? Let us compare the regression
-parameter estimates only for the three distributional assumptions, *Weibull*,
-*lognormal*, and *pch*. See Table \@ref(tab:threecomp6).
-
-```{r threecomp6,echo=FALSE}
-##require(xtable)
-##fit.c$coef
-##fit.w$coef
-##fit.lognorm$coef
-##fit.pch$coef
-ta <- cbind(fit.c$coef[1:5], fit.pch$coef[1:5], fit.w$coef[1:5], fit.lognorm$coef[1:5])
-colnames(ta) <- c("Cox", "Pch", "Weibull", "Lognormal")
-ta <- round(exp(ta), digits = 3)
-knitr::kable(ta, booktabs = TRUE, caption = "Parameter estimates under different distribution assumptions for the birth intervals data.")
-``` 
-
-We can see that the differences are not large. However, the two assumptions
-closest to the "truth", the Cox model and the Pch model, are very close,
-while the other two have larger deviations. So an appropriate choice of
-parametric model seems to be somewhat important, contrary to "common
-knowledge", which says that it is not so important to have a good fit of
-the baseline hazard, if the only interest lies in the regression parameters. 
-
 ### Testing the proportionality assumption with the Pch model
 
 One advantage with the piecewise constant hazard model is that it is easy
@@ -1248,6 +913,342 @@ for the *Weibull* distribution, the AFT and the PH models are the same, and
 $p$-values and the signs of the parameter estimates should be the same.
 $\Box$
 \index{Functions!\fun{aftreg}|)}
+
+
+```{example name = "Length of birth intervals, Weibull model."}
+```
+The data set **fert** in the **R** package **eha** contains
+  birth intervals for married women in 19th century Skellefteå. It is
+  described in detail in Chapter 1.
+  Here only the
+  intervals starting with the first birth for each woman are considered.
+  First the data are extracted and examined.
+
+
+
+```{r fert6.12}
+library(eha)
+data(fert)
+f12 <- fert[fert$parity == 1, ]
+f12$Y <- Surv(f12$next.ivl, f12$event)
+head(f12)
+```
+
+Some women never got a second child, for instance the first woman (**id  = 1**) above. 
+Also, note the just created variable $Y$; it is printed
+as a vector, with some values having a trailing``$+$''; Those are the
+censored observations (**event = 0**). But $Y$ is really a matrix, in
+this case with two columns. The first column equals **next.ivl** and the
+second is **event**.
+
+```{r Y12}
+is.matrix(f12$Y)
+dim(f12$Y)
+```
+
+Next, the proportional hazards *Weibull* regression is fit and the
+likelihood ratio 
+tests for an effect of each covariate is performed. 
+Remember that the function *drop1*\index{Functions!*drop1*} is the
+one to use for the latter task. 
+
+```{r phweib}
+fit.w <- phreg(Y ~ age + year + ses, data = f12)
+drop1(fit.w, test = "Chisq")
+```
+
+Three variables are included, two are extremely significant, $age$,
+mother's age at start of the interval, and $year$, the calendar year at
+the start of the interval. The variable *ses*, socio-economic status,
+is also statistically significant, but not to the extent of the other two. 
+
+**Note:** When we say that a variable is "significant", we are rejecting the
+hypothesis that the true parameter value attached to it is equal to zero.
+
+Now take a look at the actual fit.
+
+```{r fitw, echo = FALSE}
+fit.w
+kof <- fit.w$coef[1]
+```
+
+The estimated coefficient for **age**, 
+`r round(kof, digits = 3)`, is negative, indicating lower
+risk of a birth with increasing age. The effect of calendar time is
+positive and indicating an increase in the intensity of giving birth of the
+size approximately 5 per thousand. Regarding *socio-economic status*,
+*farmer* wives have the highest fertility and the *upper* class the
+lowest, when it comes to getting a second child. Finally, we see that the
+estimate for "$\log(\text{shape})$" is positive ($0.299$) and significantly
+different from zero. This means that the intensity is increasing with
+duration, see Figure \@ref(fig:weibfert6).
+
+```{r weibfert6, fig.cap="Estimated Weibull baseline distribution for length of interval between first and second birth.", fig.scap = "Weibull birth intervals"}
+oldpar <- par(mfrow = c(1, 2))
+plot(fit.w, fn = "haz")
+plot(fit.w, fn = "cum")
+par(oldpar)
+``` 
+
+$\Box$
+
+### The Lognormal model
+
+An example of a more complex family of distributions with the proportional
+hazards property is to start with a
+*lognormal* distribution.
+The family of *lognormal* distributions is characterized by the fact that
+taking the natural logarithm of a random variable from the family gives a
+random variable from the family of *Normal* distributions. Both the
+hazard and the survivor functions lack closed forms.
+Furthermore, multiplying the hazard function by a constant not equal to 1
+leads to a non-lognormal hazard function.
+
+So, while we for the *Weibull* family of distributions found subfamilies with
+proportional hazards by keeping $p$ fixed and varying $\lambda$, for the
+*lognormal* distribution we cannot use the same trick. Instead, by
+multiplying the hazard function by a constant we arrive at a three-parameter
+family of distributions. 
+The lognormal proportional hazards model is
+possible to fit with the function **phreg**.
+
+```{example, name = "Length of birth intervals, Lognormal model."}
+```
+  The data are already extracted and examined in the previous example.
+  Next, the proportional hazards *lognormal* regression and the likelihood
+  ratio tests for an effect of each covariate are given.
+
+```{r phlognorm}
+fit.lognorm <- phreg(Y ~ age + year + ses, data = f12, 
+                     dist = "lognormal")
+drop1(fit.lognorm, test = "Chisq")
+``` 
+
+
+Three variables are included, two are extremely significant. First the
+variable **age**, mother's age at start of the interval, and second
+  *year*, the calendar year at the start of the interval. The variable 
+  *ses*, socio-economic status, is also significant, but to the extent of
+the previous two. 
+
+Now take a look at the actual fit.
+```{r fitlogist}
+fit.lognorm
+``` 
+
+```{r secret16,echo=FALSE}
+kof <- fit.lognorm$coef[1]
+``` 
+
+The estimated coefficient for age, 
+`r round(kof, digits = 3)`, is negative, indicating lower
+risk of a birth with increasing age. The effect of calendar time is
+positive and indicating an increase in the intensity of giving birth of the
+size approximately 4 per thousand. Regarding *socio-economic status*,
+farmer wives have the highest fertility and the unknown and
+upper classes the 
+lowest, when it comes to getting a second child. Finally, in
+Figure \@ref(fig:lognormfert6) it is clear that the hazard function is first
+increasing to a maximum around 3 years after the first birth and then
+decreasing. This is quite a different picture compared to the Weibull fit
+in Figure \@ref(fig:weibfert6)! This shows the weakness with the Weibull model; it
+allows only for *monotone* (increasing or decreasing) hazard
+functions.
+
+```{r lognormfert6,fig.cap="Estimated lognormal baseline distribution for length of birth intervals.",echo=FALSE}
+oldpar <- par(mfrow = c(1, 2))
+plot(fit.lognorm, fn = "haz", main = "Hazard function")
+plot(fit.lognorm, fn = "cum", main = "Cumulative hazard function")
+par(oldpar)
+``` 
+
+It was created using
+```{r crepl1,echo=TRUE,fig=FALSE}
+oldpar <- par(mfrow = c(1, 2))
+plot(fit.lognorm, fn = "haz", main = "Hazard function")
+plot(fit.lognorm, fn = "cum", main = "Cumulative hazard function")
+par(oldpar)
+``` 
+$\Box$
+
+
+### The Loglogistic model
+
+### The Extreme Value model
+
+### The Gompertz model
+
+## Comparing the Weibull and Lognormal fits
+
+From looking at Figures \@ref(fig:weibfert6) and \@ref(fig:lognormfert6), it
+seems obvious that at least one of the fits must be less good: The
+*Weibull* cumulative hazards
+curve is convex and the *lognormal* one is concave, and the estimates
+of the two hazard
+functions are very different in shape. There are two direct ways
+of comparing the fits.
+
+The first way to compare is to look at the maximized log likelihoods. For
+the *Weibull* fit it is `r round(fit.w$loglik[2], digits = 2)` and for
+the *lognormal* fit it is 
+`r round(fit.lognorm$loglik[2], digits = 2)`. The rule is that the
+largest value wins, so the *lognormal* model is the clear winner. Note that
+we do not claim to perform a formal test here; a likelihood ratio test
+would require that the two models we want to compare are nested, but that
+is not the case here. This is (here) equivalent to using the AIC\index{AIC}
+as a 
+measure of comparison, because the two models have the same number of
+parameters to estimate.
+
+The second method of comparison is graphical. We can plot the cumulative
+hazard functions\index{cumulative hazard function}
+against the nonparametric estimate from a Cox
+regression\index{Cox regression} 
+fit, and judge which looks closer. It starts by fitting a Cox model with
+the same covariates:\index{Functions!\fun{coxreg}}
+
+```{r coxr6}
+fit.cr <- coxreg(Y ~ age + year + ses, data = f12)
+``` 
+
+Then the function **check.dist** (from **eha*) is called. We start
+with the *Weibull* fit:
+
+```{r weibcheck6,fig.cap="Check of the Weibull model, birth intervals."}
+check.dist(fit.cr, fit.w)
+``` 
+
+This fit (Figure \@ref(fig:weibcheck6)) looks very poor: One reason is that
+the longest waiting time for an observed event is about 12 years, while
+some women simply do not get more than one child, with a long waiting time
+ending in a censoring as a result. The time span from around 12 to 25
+simply has no events, and the nonparametric estimate of the hazard function
+in that interval is zero. The Weibull distribution fit cannot cope with
+that. 
+
+One possibility is to try to fit a Weibull distribution only for the 12
+first years of duration. Note below that after calling **age.window**,
+$Y$ *must* be recreated! This is the danger with this "lazy" approach.
+
+```{r trunc6f12cens}
+f12$enter <- rep(0, NROW(f12))
+f12.cens <- age.window(f12, c(0, 12), 
+                       surv = c("enter", "next.ivl", "event"))
+f12.cens$Y <- Surv(f12.cens$enter, f12.cens$next.ivl, 
+                   f12.cens$event)
+fit.wc <- phreg(Y ~ age + year + ses, data = f12.cens)
+fit.c <- coxreg(Y ~ age + year + ses, data = f12.cens)
+fit.wc
+``` 
+
+Compare the Weibull fit with what we had without cutting off
+durations at 12. 
+The comparison with the nonparametric cumulative hazards function is now
+seen in Figure \@ref(fig:weibcheckcens6).
+
+```{r weibcheckcens6, fig.cap = "Check of the Weibull model, birth intervals censored at 12.", fig.scap = "Check of the Weibull model, censored birth intervals."}
+check.dist(fit.c, fit.wc)
+``` 
+
+This wasn't much better. Let's look what happens with the lognormal
+distribution. 
+
+We continue using the data censored at 12 and refit the lognormal model.
+
+```{r trunc6f12cens.ln}
+fit.lnc <- phreg(Y ~ age + year + ses, data = f12.cens, 
+                 dist = "lognormal")
+``` 
+
+Then, in Figure \@ref(fig:lncheckcens6) we check the fit against the
+nonparametric fit again.
+
+```{r lncheckcens6, fig.cap="Check of the lognormal model, birth intervals censored at 12.",fig.scap="Check of the lognormal model, birth intervals"}
+check.dist(fit.c, fit.lnc)
+``` 
+
+It is not very much better. In fact, this empirical distribution has
+features that the ordinary parametric distributions cannot cope with: Its
+hazard function starts off being zero for almost one year (birth intervals
+are rarely shorter than one year), then it grows rapidly and soon decreases
+towards zero again.
+
+There is, however one parametric distribution that is flexible enough: The
+piecewise constant hazard distribution.
+
+### The piecewise constant hazard (pch) model{#pch6}
+
+The pch distribution is flexible because you can add as many parameters as
+you want. We will try it on the birth interval data. We start off with just
+four intervals, and the non-censored data set.
+
+```{r pch6fert}
+fit.pch <- phreg(Surv(next.ivl, event) ~ age + year + ses, 
+                 data = f12, dist = "pch", cuts = c(4, 8, 12))
+fit.c <- coxreg(Surv(next.ivl, event) ~ age + year + ses, 
+                data = f12)
+fit.pch
+``` 
+
+Then we check the fit in Figure \@ref(fig:pchcheck6).
+
+```{r pchcheck6,fig.cap="Check of the pch model, uncensored birth intervals."}
+check.dist(fit.c, fit.pch)
+``` 
+
+This is not good enough. We need shorter intervals close to zero, so
+
+```{r pchfert2}
+fit.pch <- phreg(Surv(next.ivl, event) ~ age + year + ses, 
+                 data = f12, dist = "pch", cuts = 1:13)
+fit.pch
+``` 
+
+This gives us 14 intervals with constant baseline hazard, that is, 14
+parameters to estimate only for the baseline hazard function! But the fit
+is good, see Figure \@ref(fig:pch13check6). In fact, it is almost perfect!
+
+```{r pch13check6,fig.cap = "Check of the pch model with thirteen constant hazard intervals, uncensored birth intervals." }
+check.dist(fit.c, fit.pch)
+``` 
+
+One of the advantages with parametric models is that it is easy to study
+and plot the hazard function, and not only the cumulative hazards function,
+which is the dominant tool for (graphical) analysis in the case of the
+nonparametric model of Cox regression\index{Cox regression}. For the
+piecewise constant model 
+just fitted we get the estimated hazard function in Figure \@ref(fig:pchhaz6).
+
+```{r pchhaz6,fig.cap="The estimated hazard function for the length of birth intervals, piecewise constant hazard distribution."}
+plot(fit.pch, fn = "haz")
+``` 
+
+The peak is reached during the third year of waiting, and after that the
+intensity of giving birth drops fast, and it becomes zero after 12 years.
+
+What are the implications for the estimates of the regression parameters of
+the different choices of parametric model? Let us compare the regression
+parameter estimates only for the three distributional assumptions, *Weibull*,
+*lognormal*, and *pch*. See Table \@ref(tab:threecomp6).
+
+```{r threecomp6,echo=FALSE}
+##require(xtable)
+##fit.c$coef
+##fit.w$coef
+##fit.lognorm$coef
+##fit.pch$coef
+ta <- cbind(fit.c$coef[1:5], fit.pch$coef[1:5], fit.w$coef[1:5], fit.lognorm$coef[1:5])
+colnames(ta) <- c("Cox", "Pch", "Weibull", "Lognormal")
+ta <- round(exp(ta), digits = 3)
+knitr::kable(ta, booktabs = TRUE, caption = "Parameter estimates under different distribution assumptions for the birth intervals data.")
+``` 
+
+We can see that the differences are not large. However, the two assumptions
+closest to the "truth", the Cox model and the Pch model, are very close,
+while the other two have larger deviations. So an appropriate choice of
+parametric model seems to be somewhat important, contrary to "common
+knowledge", which says that it is not so important to have a good fit of
+the baseline hazard, if the only interest lies in the regression parameters. 
 
 
 ## Proportional hazards or AFT model?
