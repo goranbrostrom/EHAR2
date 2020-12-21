@@ -206,11 +206,12 @@ h(t; x, p, r, \beta) = p e^{r t} e^{\beta x}, \quad t > 0.
 The data set **oldmort** in the **R** package **eha** contains
   life histories of people followed from their 60th birthday to their 100th, or 
   until death, born between June 28, 1765 and December 31, 1820
-  in Skellefteå. The data set is described in detail in Chapter 1. See 
+  in Skellefteå. The data set is described in detail in Chapter 1. The variable
+  `enter` is age at start of the given interval, and `exit` contains the age at 
+  the end of the interval. We need to calculate *follow-up time* since age 60, so a new 
+  data frame, `olm`, created as a copy of `oldmort` and then subtracting 60 as described. 
+  See 
   Table \@ref(tab:olddata8), where the most important variables are shown.
-  Note that the number 60 has been subtracted from the original values, so that 
-  they measure time since age 60 instead of age. The reason for this will be explained 
-  soon.
   
 ```{r olddata8, echo = FALSE}
 library(eha)
@@ -226,7 +227,8 @@ kbl(head(olm, 5), booktabs = TRUE, row.names = FALSE,
 ```
 
 The variable names are more or less self explanatory,  *enter*  and *exit* time 
-in years since the sixtieth birthday, *age* is age at start of follow-up, and *ses.50*
+in years since the sixtieth birthday, *age* is age at start of follow-up 
+(the original `enter` variable), and *ses.50*
 is socio-economic status at age 50. 
 The variable *event* is 
 an indicator of death at the duration given by `exit`.
@@ -332,7 +334,7 @@ $\Box$
 
 ### The parametric model with left truncation
 
-The data set `oldmort' contain left-truncated life histories as a consequence of
+The data set `oldmort` contain left-truncated life histories as a consequence of
 using *age* as time scale. In the presentation above we chose to change the time scale 
 so that the origin was age 60 (sharp). This is of no importance when fitting the
 semi-parametric Cox regression, an additive change of time scale will only shift
@@ -368,191 +370,9 @@ par(op)
 
 ### Testing the proportionality assumption with the Pch model
 
-One advantage with the piecewise constant hazard model is that it is easy
-to test 
-the assumption of proportional hazards. But it cannot be done directly with
-the **phreg** function. There is, however, a simple alternative. Before
-we show how to do it, we must show how to utilize Poisson regression when
-analyzing the pch model. We do it by reanalyzing the birth intervals data. 
 
-First, the data set is split up after the cuts in *strata*. This
-is done with the aid of the **survSplit** function in the **survival**
-package. 
 
-```{r splitsurv6}
-f12 <- fert[fert$parity == 1, ]
-f12$enter <- 0 # 0 expands to a vector
-f12.split <- survival::survSplit(f12, cut = 1:13, start = "enter", 
-                       end = "next.ivl", event = "event", 
-                       episode = "ivl")
-head(f12.split)
-``` 
-
-To see better what happened, we sort the new data frame by **id**
-and **enter**.
-
-```{r sortt}
-f12.split <- f12.split[order(f12.split$id, f12.split$enter), ]
-head(f12.split)
-``` 
-
-We see that a new variable **ivl**, is created. It tells us which
-interval we are looking at. You may notice that the variables enter
-and ivl happens to be equal here; it is because our intervals start
-by 0, 1, 2, \ldots, 13, as given by cuts above.
-
-In the Poisson regression to follow, we model the probability that 
-$event = 1$. This probability will depend on the length of the studied
-interval, here $next.ivl - enter$, which for our data mostly equals one.
-The exact value we need is the logarithm of this difference, and it will be
-entered as an *offset*\index{offset} in the model.
-
-Finally, one parameter per interval is needed, corresponding to the
-piecewise constant hazard function. This is accomplished by including `ivl` as
-a *factor* in the model. Thus we get
-
-```{r poispch6}
-f12.split$offs <- log(f12.split$next.ivl - f12.split$enter)
-f12.split$ivl <- as.factor(f12.split$ivl)
-fit12.pn <- glm(event ~ offset(offs) + 
-                age + year + ses + ivl, 
-                family = "poisson", data = f12.split)
-drop1(fit12.pn, test = "Chisq")
-``` 
-
-The piecewise cutting (ivl) is very statistically significant, but
-some caution with the interpretation is recommended: The cut generated 13
-parameters, and there may 
-be too few events in some intervals. This easily checked with the function
-**tapply**\index{Functions!tapply}, which is very handy for doing calculations on
-subsets of the data frame. In this case we want to sum the number ofevents in each interval:
-
-```{r sumivl6}
-tapply(f12.split$event, f12.split$ivl, sum)
-``` 
-
-A reasonable interpretation of this is to restrict attention to the 10
-first years; only one birth occurs after a longer waiting time. Then it
-would be reasonable to collapse the intervals in $(7, 10]$ to one
-interval. Thus
-
-```{r collapsebir6}
-fc <- age.window(f12.split, c(0, 11), 
-                 surv = c("enter", "next.ivl", "event"))
-levels(fc$ivl) <- c(0:6, rep("7-11", 7))
-tapply(fc$event, fc$ivl, sum)
-``` 
-
-Note two things here. First the use of the function 
-**age.window**\index{Functions!\fun{age.window}}, second the **levels** function. The
-first makes an "age cut" in the Lexis diagram, i.e., all spells are
-censored at (exact) age 11. The second is more intricate; factors can be
-tricky to handle. The problem here is that after age.window, the new
-data frame contains only individuals with values $(0, 1, \ldots, 11)$ on
-the factor variable ***ivl**, but it is still *defined* as a factor
-with 14 levels. The call to **levels** collapses the last seven to "7-11".
-
-Now we rerun the analysis with the new data frame.
-
-```{r rerunpch6}
-fit <- glm(event ~  offset(offs) + age + year + ses + ivl, 
-           family = "poisson", data = fc)
-drop1(fit, test = "Chisq")
-``` 
-
-This change in categorization does not change the general conclusions about
-statistical significance at all.
-
-Now let us include interactions with ivl in the model.
-
-```{r rerunpch62}
-fit.ia <- glm(event ~  offset(offs) + (age + year + ses) * ivl, 
-              family = "poisson", data = fc)
-drop1(fit.ia, test = "Chisq")
-``` 
-
-There is an apparent interaction with age, which is not very
-surprising; younger mothers will have a longer fertility period ahead than
-old mothers. The other interactions do not seem to be very important, so we
-remove them and rerun the model once again.
-
-```{r rerun2pch6}
-fit.ia <- glm(event ~  offset(offs) + year + ses + age * ivl, 
-              family = "poisson", data = fc)
-drop1(fit.ia, test = "Chisq")
-``` 
-
-Let us look at the parameter estimates.
-```{r rer6}
-summary(fit.ia)
-``` 
-
-We can see (admittedly not clearly) a tendency of decreasing intensity in
-the later intervals with higher age.
-
-This can actually also be done with **phreg** and the *Weibull* model and
-fixed **shape** at one (i.e., an *exponential* model).
-
-```{r rerexp6}
-fit.exp <- phreg(Surv(enter, next.ivl, event) ~  year + ses + 
-                 age * ivl, dist = "weibull", shape = 1, 
-                 data = fc)
-drop1(fit.exp, test = "Chisq")
-``` 
-
-The parameter estimates are now presented like this.
-
-```{r rerexp6pres}
-fit.exp
-``` 
-
-A lot of information, but the same content as in the output from the
-Poisson regression. However, here we get the exponentiated parameter
-estimates, in the column *Exp(Coef)*. These numbers are *risk
-    ratios* (or relative risks), and easier to interpret.
-
-What should be done with the interactions? The simplest way to go to get an
-easy-to-interpret result is to categorize age and make separate
-analyzes, one for each category 
-of age. Let us do that; first we have to decide on how to
-categorize: there should not be too many categories, and not too few
-mothers (or births) in any category. As a starting point, take three
-categories by cutting age at (exact) ages 25 and 30:
-
-```{r cutage6}
-fc$agegrp <- cut(fc$age, c(0, 25, 30, 100), 
-                 labels = c("< 25", "25-30", ">= 30"))
-table(fc$agegrp)
-``` 
-
-Note the use of the function **cut**. It "cuts" a continuous variable
-into pieces, defined by the second argument. Note that we must give lower
-and upper bounds; I chose 0 and 100, respectively. They are of course not
-near real ages, but I am sure that no value falls outside the interval $(0,
-100)$, and that is the important thing here. Then I can (optionally) give
-names to each category with the argument **labels**.
-
-The tabulation shows that the oldest category contains relatively few
-mothers. Adding to that, the oldest category will probably also have fewer
-births. We can check that with the aid of the function **tapply**.
-
-```{r tappcut6}
-tapply(fc$event, fc$agegrp, sum)
-``` 
-
-Now, rerun the last analysis for each **agegrp** separately. For
-illustration only, we show how to do it for the first age group:
-
-```{r grpbir16}
-fit.ses1 <- phreg(Surv(enter, next.ivl, event) ~  year + ses + ivl,
-dist = "weibull", shape = 1, data = fc[fc$agegrp == "< 25", ])
-fit.ses1
-``` 
-
-You may try to repeat this for all age groups and check if the regression
-parameters for **year** and **ses** are very different. Hint: They are not.
-
-## Choosing the best parametric model
+### Choosing the best parametric model
 
 
 For modeling survival data with parametric proportional hazards models,
@@ -560,7 +380,7 @@ the distributions of the function **phreg** in the package **eha** are
 available. How to select a suitable parametric model is shown by a couple
 of examples.
 
-### Old age mortality {#old-age-mortality06}
+#### Old age mortality {#old-age-mortality06}
 
 The data set **oldmort** in the **R** package **eha** contains life
 histories for people aged 60 and above in the years 1860--1880, i.e., 21
