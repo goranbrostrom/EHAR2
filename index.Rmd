@@ -4,7 +4,7 @@ author: "Göran Broström"
 date: "`r Sys.Date()`"
 knit: "bookdown::render_book"
 documentclass: krantz
-bibliography: [surv2.bib]
+bibliography: [surv2.bib,cent.bib]
 biblio-style: apalike
 link-citations: yes
 colorlinks: yes

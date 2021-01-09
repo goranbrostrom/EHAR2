@@ -189,7 +189,7 @@ knitr::kable(x, booktabs = TRUE, caption = "Competing risks in Skellefteå", lab
 
 Without covariates we get the picture shown in Figure \@ref(fig:causespec10).
 ```{r nocomp9,fig=FALSE,echo=TRUE, message = FALSE}
-source("comp.R")
+source("R/comp.R")
 comp(zz$enter, zz$exit, zz$event, start.age = 15)
 ```
 -->
@@ -198,7 +198,7 @@ chapter. It is not necessary to understand before reading on. It may be
 useful as a template for those who wants to analyze competing risks.
 
 ```{r causespec10,fig=TRUE,height=6,echo=FALSE, fig.cap = "Cause-specific exit probabilities; mortality and migration from Skellefteå.", message = FALSE}
-source("comp.R")
+source("R/comp.R")
 comp(zz$enter, zz$exit, zz$event, start.age = 15)
 ```
 

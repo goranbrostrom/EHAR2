@@ -422,7 +422,7 @@ no automatic protection against this.
 The function `aareg` in the `survival` package fits the additive model. 
 ```{r aareg9, echo = FALSE, message = FALSE}
 library(eha) # Attaches the data set 'oldmort'
-fit <- aareg(Surv(enter-60, exit-60, event) ~ sex, data = oldmort)
+fit <- survival::aareg(Surv(enter-60, exit-60, event) ~ sex, data = oldmort)
 fit
 ```
 Obviously `sex` is an important variable, females have lower mortality than men.

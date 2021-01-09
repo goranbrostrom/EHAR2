@@ -15,10 +15,11 @@ book by \cite{jl03} is a good source for the study of parametric survival
 models. 
 More technical detail about parametric distributions is found in Appendix B .
 
-In **eha** three kinds of parametric models are available; the
-*proportional hazards*\index{model!parametric!PH} and the *accelerated failure
-  time*\index{model!parametric!AFT} in continuous time, and the *discrete 
-  time proportional hazards*\index{model!parametric!discrete}  models.
+Three kinds of parametric models are considered: the
+*proportional hazards*\index{model!parametric!PH} and the 
+*accelerated failure  time*\index{model!parametric!AFT} in continuous time, 
+and the *discrete time proportional hazards*\index{model!parametric!discrete} 
+models.
 
 
 ## Proportional Hazards Models
@@ -38,14 +39,16 @@ real line) as the generating function. The resulting proportional hazards
 class of distributions may or may not be a well recognized family of
 distributions. 
 
-In **R**, the package **eha** can fit parametric proportional hazards
+In **R**, **eha** is one of the packages that can fit parametric proportional hazards
 models. In the following subsections, the possibilities are examined.
 
 The parametric distribution functions that naturally can be used as the baseline
 distribution in the function `phreg` are the *Weibull*,
-*Piecewise constant hazard* (`pch`), 
-*Extreme value* and the 
-*Gompertz* distributions. The *lognormal* and *loglogistic* distributions are 
+*Extreme value*, and the *Gompertz* distributions. 
+The *Piecewise constant hazards* model is treated in the functions `pch`(individual data)
+and `tpch` (tabular data). 
+
+The *lognormal* and *loglogistic* distributions are 
 also included as possible choices and allow for hazard functions that are 
 first increasing to a maximum and then
 decreasing, while the other distributions all have monotone hazard
@@ -56,7 +59,7 @@ It is better to combine the lognormal and the
 loglogistic distributions with the accelerated failure time modeling, where they 
 naturally fit in. 
 
-See Figure \@ref(fig:6hazs) for Weibull and Gompertz hazard functions with different
+See Figure \@ref(fig:6hazs) for Weibull and Gompertz hazard functions with selected
 parameter values.
 
 ```{r 6hazs,fig.cap = "Selected hazard functions.", echo=FALSE,fig.height=5,message=FALSE}
@@ -85,27 +88,6 @@ par(oldpar)
 We note in passing that the fourth case, the Gompertz model with negative rate parameter,
 does not represent a true survival distribution, because the hazard function decreases
 too fast: There will be a positive probability of eternal life.
-<!--
-The available survival distributions are described in detail in Appendix \@ref(app:B).
-
-
-In the following, we start by looking at a typical choice of survivor
-distribution, the *Weibull* distribution, and a rather atypical
-one, the *Lognormal* distribution. One reason for the popularity of
-the *Weibull* survivor distribution is that the survivor and hazard functions
-both have fairly simple closed forms, and the proportional hazards models
-built from a *Weibull* distribution stays within the family of *Weibull*
-distributions. The *Lognormal* distribution, on the other hand, does not have
-any of these nice properties.
-
-After studying the *Weibull* and *Lognormal* distributions, we look at some
-typical data sets and find that different distributions step forward as
-good ones in different situations. One exception is the 
-*Piecewise constant  hazard (pch)* distribution, which is flexible enough to give a
-good fit to any given distribution. It is in this sense close to the
-non-parametric approach used in Cox regression. 
-
--->
 
 Experience shows that the Gompertz distribution fits adult mortality very well, in the
 ages 30 to 85, say. The modeling of mortality from birth to early adulthood, on the 
@@ -178,8 +160,8 @@ The function **phreg** in package **eha** fits models like
 
 The Gompertz families of distributions are defined in essentially two ways in the 
 **R** package `eha`: The *rate* and the *canonical* representations. The reason 
-for this is the the families need to be different depending on whether proportional
-hazards or accelerated failure time models are under consideration.
+for this is that the families need to be differently represented depending on 
+whether proportional hazards or accelerated failure time models are under consideration.
 
 In the *proportional hazards* case, the *rate* formulation is used, and it is
 characterized by an exponentially increasing hazard function with fixed rate `r`:
@@ -209,53 +191,54 @@ The data set **oldmort** in the **R** package **eha** contains
   in Skellefteå. The data set is described in detail in Chapter 1. The variable
   `enter` is age at start of the given interval, and `exit` contains the age at 
   the end of the interval. We need to calculate *follow-up time* since age 60, so a new 
-  data frame, `olm`, created as a copy of `oldmort` and then subtracting 60 as described. 
-  See 
-  Table \@ref(tab:olddata8), where the most important variables are shown.
+  data frame, `olm`, is created as a copy of `oldmort`, and then 60 is subtracted from 
+  `enter` and `exit`. 
+  See the result in
+  Table \@ref(tab:olddata8), where the most relevant variables for our purpose are shown.
   
 ```{r olddata8, echo = FALSE}
 library(eha)
 library(kableExtra)
-olm <- oldmort[, c("birthdate", "sex", "ses.50", "region", "enter", "exit", "event")]
+olm <- oldmort[, c("birthdate", "sex", "region", "enter", "exit", "event")]
 olm$age <- olm$enter # Age at start of follow-up
 olm$enter <- olm$enter - 60 # Duration since 60th birthday.
 olm$exit <- olm$exit - 60 # Ditto
 olm$birthdate <- toDate(olm$birthdate)
-kbl(head(olm, 5), booktabs = TRUE, row.names = FALSE,  
-    caption = "The data set 'olm', first rows.", label = "olddata8") %>%
-        kable_styling(font_size = 10)  
+source("R/tbl.R")
+tbl(head(olm, 5), caption = "The data set 'olm', first rows.")
+##kbl(head(olm, 5), booktabs = TRUE, row.names = FALSE, 
+  ##  caption = "The data set 'olm', first rows.", label = "olddata8") %>%
+    ##    kable_styling(font_size = 11, full_width = FALSE)  
 ```
 
-The variable names are more or less self explanatory,  *enter*  and *exit* time 
+The variable names are more or less self explanatory,  *enter*  and *exit* are time 
 in years since the sixtieth birthday, *age* is age at start of follow-up 
-(the original `enter` variable), and *ses.50*
-is socio-economic status at age 50. 
-The variable *event* is 
+(the original `enter` variable). The variable *event* is 
 an indicator of death at the duration given by `exit`.
 
 To have something to compare to, a Cox regression is performed first, see Table
-\@ref(tab:coxold8)
+\@ref(tab:coxold8). Two covariates are included in the model, `sex` and `region`.
+Both are *categorical*, `region` with three categories, *town* (reference), *industry*, and *rural*,
+and `sex` with *male* as reference category.
 
 ```{r coxold8, echo = FALSE, results="asis"}
-fit.c <- coxreg(Surv(enter, exit, event) ~ sex + ses.50 + region, data = olm)
+fit.c <- coxreg(Surv(enter, exit, event) ~ sex + region, data = olm)
 dr.c <- drop1(fit.c, test = "Chisq")
 xx <- summary(fit.c)
 cap <- "Old age mortality, Cox proportional hazards model."
 if (knitr::is_latex_output()){
     ltx(fit.c, dr = dr.c, caption = cap, label = "tab:coxold8")
 }else{
-    knitr::kable(round(xx$coefficients, 4), booktabs = TRUE, caption = cap)
+    ##knitr::kable(round(xx$coefficients, 4), booktabs = TRUE, caption = cap)
+    kbl(round(xx$coefficients, 4), booktabs = TRUE, caption = cap) %>%
+    kable_styling(font_size = 11, full_width = FALSE)
 }
-```
-
-```{r coxold8html, echo = FALSE, eval = FALSE}
-if (knitr::is_html_output()) print(xx$coefficients)
 ```
 
 Then a Weibull model is fitted, see Table \@ref(tab:weibold8).
 
 ```{r preweibold8, echo = TRUE}
-fit <- phreg(Surv(enter, exit, event) ~ sex + ses.50 + region, 
+fit <- phreg(Surv(enter, exit, event) ~ sex + region, 
              dist = "weibull", data = olm)
 xx <- summary(fit)
 ```
@@ -268,15 +251,14 @@ if (knitr::is_latex_output()){
         caption = cap, 
         label = "tab:weibold8")
 }else{
-    knitr::kable(round(xx$coefficients, 4), caption = cap, booktabs = TRUE)
+    kbl(round(xx$coefficients, 4), booktabs = TRUE, caption = cap) %>%
+    kable_styling(font_size = 11, full_width = FALSE)
+
+    ##knitr::kable(round(xx$coefficients, 4), caption = cap, booktabs = TRUE)
 }
 ```
 
-```{r weibold8html, echo = FALSE, eval = FALSE}
-if (knitr::is_html_output()) print(xx)
-```
-
-A closer look at the estimates of regression coefficients shows that they are pretty
+A closer look at the estimates of regression coefficients shows that they are not very
 close, in Table \@ref(tab:sbys8) they are put side by side for easier comparison.
 
 ```{r sbys8, echo = FALSE, results='asis'}
@@ -284,8 +266,9 @@ n.co <- length(fit.c$coefficients)
 out <- cbind(fit.c$coefficients, fit$coefficients[1:n.co])
 colnames(out) <- c("Cox", "Weibull")
 out <- round(out, 4)
-knitr::kable(out, booktabs = TRUE,
-             caption = "Coefficients with Cox and Weibull regressions, data oldmort.")
+kbl(out, booktabs = TRUE,
+             caption = "Coefficients with Cox and Weibull regressions, data oldmort.") %>%
+  kable_styling(full_width = FALSE)
 ```
 
 Let us compare the estimated cumulative baseline hazard functions, see Figure \@ref(fig:cwcolm8).
@@ -305,7 +288,7 @@ and baseline hazards estimates, see Figure \@ref(fig:gowecof8) and
 Table \@ref(tab:gowecot8).
 
 ```{r gowecof8, fig.cap = "Baseline cumulative hazards for Cox and Gompertz regressions."}
-fit.g <- phreg(Surv(enter, exit, event) ~ sex + ses.50 + region, 
+fit.g <- phreg(Surv(enter, exit, event) ~ sex + region, 
              dist = "gompertz", param = "rate", data = olm)
 plot(fit.c, xlab = "Years above age 60.")
 haz.g <- hazards(fit.g, cum = TRUE)
@@ -322,19 +305,19 @@ but after that the exponential growth slows down. The early growth rate is
 out <- cbind(fit.g$coefficients[1:n.co], out)
 colnames(out) <- c("Gompertz", "Cox", "Weibull")
 out <- round(out, 3)
-knitr::kable(out, booktabs = TRUE, caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale duration.")
+source("R/tbl.R")
+tbl(out, caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale duration since age 60.")
+##kableExtra::kbl(out, booktabs = TRUE, 
+  ##           caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale duration since age 60.")
 ```
 
 The Gompertz and Cox models are very close, both regarding regression parameter estimates and 
 baseline hazard functions.
 
-$\Box$
-
-
 
 ### The parametric model with left truncation
 
-The data set `oldmort` contain left-truncated life histories as a consequence of
+The data set `oldmort` contains left-truncated life histories as a consequence of
 using *age* as time scale. In the presentation above we chose to change the time scale 
 so that the origin was age 60 (sharp). This is of no importance when fitting the
 semi-parametric Cox regression, an additive change of time scale will only shift
@@ -347,246 +330,309 @@ to an unconditional, where the baseline hazard and regression coefficients are e
 the *full life span* (0--100 years of age).
 
 ```{r origts8}
-fit.g <- phreg(Surv(enter, exit, event) ~ sex + ses.50 + region, data = oldmort, dist = "gompertz")
-fit.w <- phreg(Surv(enter, exit, event) ~ sex + ses.50 + region, data = oldmort)
-fit.c <- coxreg(Surv(enter, exit, event) ~ sex + ses.50 + region, data = oldmort)
-yy <- round(cbind(fit.g$coefficients[1:n.co], fit.c$coefficients, fit.w$coefficients[n.co]), 3)
+fit.g <- phreg(Surv(enter, exit, event) ~ sex + region, data = oldmort, dist = "gompertz")
+fit.w <- phreg(Surv(enter, exit, event) ~ sex + region, data = oldmort)
+fit.c <- coxreg(Surv(enter, exit, event) ~ sex + region, data = oldmort)
+yy <- round(cbind(fit.g$coefficients[1:n.co], fit.c$coefficients, fit.w$coefficients[1:n.co]), 3)
 colnames(yy) <- c("Gompertz", "Cox", "Weibull")
-knitr::kable(out, booktabs = TRUE, caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale age.")
+##knitr::kable(yy, booktabs = TRUE, caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale age.")
+source("R/tbl_html.R")
+tbl_html(yy, caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale age." )
 ```
 
-Compare these fitted coefficients with the earlier: We are closer to the Cox 
-regression parameter estimates now!
+Compare these fitted coefficients with the earlier from Table \@ref(tab:gowecot8). For the Gompertz and Cox regression models, coefficients are identical, while they differ for the Weibull distribution.
 
-Let us look at the baseline hazards, see Figure \@ref(fig:origtsfig8).
+Let us look at the baseline cumulative hazards, see Figure \@ref(fig:origtsfig8), where 
+the graph is cut at ages 60 and 80 for clarity. Notice the value at Time = 60: The parametric models are
+"extrapolating" back to time at birth, and so the estimates do not represent the cumulative hazards of the conditional
+distribution, given survival to age 60. This has an impact on the estimates of the regression coefficients
+in the case of the Weibull distribution, because the *conditional* is *not* Weibull even though the unconditional is.
+This phenomenon does *not* apply to the Gompertz distribution, for which the conditional distribution is again Gompertz
+with the same rate, but with a different level. 
 
-```{r origtsfig8, fig.cap = "Gompertz vs Cox and Weibull vs Cox"}
+```{r origtsfig8, fig.cap = "Gompertz vs Cox and Weibull vs Cox estimated cumulative hazards functions."}
 op = par(mfrow = c(1, 2), las = 1)
-plotHaz(fit.g, fit.c, interval = c(0, 100))
-plotHaz(fit.w, fit.c, interval = c(0, 100))
+plotHaz(fit.g, fit.c, interval = c(60, 80), ylim = c(0, 1.6))
+plotHaz(fit.w, fit.c, interval = c(60, 80), ylim = c(0, 1.6))
 par(op)
 ```
 
+From Figure \@ref(fig:origtsfig8) it appears as if we can get the *conditional* 
+cumulative hazards simply by subtracting the value at age 60, $H(60)$, from the 
+whole curves, and that is in fact correct. In the Gompertz case, it would simply
+recover Figure \@ref(fig:gowecof8), but the Weibull case is different: Starting 
+with Figure \@ref(fig:cwcolm8) and adding the adjusted Weibull curve from 
+Figure \@ref(fig:origtsfig8) we get Figure \@ref(fig:adjweib8).
 
-### Testing the proportionality assumption with the Pch model
+```{r adjweib8, fig.cap = "Comparison of the conditional and unconditional Weibull models."}
+fit0 <- phreg(Surv(enter, exit, event) ~ sex + region, data = oldmort)
+fit60 <- phreg(Surv(enter, exit, event) ~ sex + region, data = olm)
+haz0 <- hazards(fit0)
+haz60 <- hazards(fit60)
+plot(fit.c, ylim = c(0, 8), xlab = "Age")
+lines(haz0$x, haz0$y - haz0$y[1], lty = 2, col = 2, lwd = 1.5)
+lines(haz60$x + 60, haz60$y, lty = 4, col = 4, lwd = 1.5)
+legend("topleft", legend = c("Non-parametric", "Conditional Weibull", "Weibull"), 
+       lty = c(1, 2, 4), col = c(1, 2, 4))
+```
+
+Obviously, the conditional Weibull distribution fits data much better than the 
+unconditional one. The comparison with the Gompertz distribution is shown in 
+Figure \@ref(fig:adjwg8).
+
+```{r adjwg8, fig.cap = "Comparison of the Gompertz and conditional Weibull models."}
+##fit0 <- phreg(Surv(enter, exit, event) ~ sex + region, data = oldmort)
+##fit60 <- phreg(Surv(enter, exit, event) ~ sex + region, data = olm)
+##haz0 <- hazards(fit0)
+##haz60 <- hazards(fit60)
+fit.g <- phreg(Surv(enter, exit, event) ~ sex + region, dist = "gompertz", 
+               param = "rate", data = olm)
+haz.g <- hazards(fit.g)
+plot(fit.c, ylim = c(0, 8), xlab = "Age")
+lines(haz0$x, haz0$y - haz0$y[1], lty = 2, col = 2, lwd = 1.5)
+lines(haz.g$x + 60, haz.g$y, lty = 4, col = 4, lwd = 1.5)
+legend("topleft", legend = c("Non-parametric", "Conditional Weibull", "Gompertz"), 
+       lty = c(1, 2, 4), col = c(1, 2, 4))
+```
+
+It seems as if the conditional Weibull model fits data as good as or even better 
+than the Gompertz model. The latter grows too fast in the very high ages, and 
+this is an observation found in many studies lately [@rozh17; @leva17; @italy18; @gb19].  
+
+### The piecewise constant proportional hazards model
+
+The *piecewise constant* hazard (`pch`) model can always be used in the fitting process with good results. 
+It is however an uncertainty moment in the process: How should time be cut into pieces, and how
+many pieces should there be? Two possible strategies, (i) choose equally-spaced cut points, and 
+(ii) relatively more cut points where there are many deaths, that is, where the hazard function is expected 
+to be steep.
+
+The `oldmort` data set spans a time interval of length 40 years, and we know that mortality on the age
+interval 60--100 is increasing almost exponentially, suggesting more cut points in the high ages. 
+Against that is the fact that in very high ages, say 90--100, not many observations are still around, most
+of them have already died.
+
+We may start with eight intervals of equal length, 60--65, 65--70, ..., 95--100, and fit a pch model. The 
+result is shown in Table \@ref(tab:pchold8).
+
+```{r pchold8, results='asis', echo = FALSE}
+fit.pch <- pchreg(Surv(enter, exit, event) ~ sex + region, data = oldmort, 
+                  cuts = seq(60, 100, by = 5))
+dr.pch <- drop1(fit.pch, test = "Chisq")
+cap <- "Old age mortality, pch proportional hazards model."
+if (knitr::is_latex_output()){
+  ltx(fit.pch, dr = dr.pch, 
+      caption = cap, 
+      label = "tab:pchold8")
+}else{
+  out <- summary(fit.pch)$coefficients[, -5]
+  out <- round(out, 4)
+  tbl(out, caption = cap)
+}
+```
+
+Then the baseline cumulative hazards are compared to the one from the Cox regression fit
+in Figure \@ref(fig:pcholdfig8).
+
+```{r pcholdfig8, fig.cap="Piecewise constant cumulative hazards, old age mortality."}
+check.dist(fit.pch, fit.c, main = "")
+```
+
+As expected, a good fit. It is also obvious that the estimated regression parameters 
+do not vary much between the studied models. 
+
+The piecewise constant model works well with this data set, but its real strength is its
+flexibility and speed with huge data sets. Its full potential is maximized by initially 
+tabulate the data by using the `eha` function `toTpch`. An illustration with the `oldmort` 
+data set.
+
+```{r pretab0, echo = TRUE}
+olmtab <- toTpch(Surv(enter, exit, event) ~ sex + region, 
+                 cuts = c(seq(60, 85, by = 5), 100), data = oldmort)
+```
+
+The resulting table (first five rows) is shown in Table \@ref(tab:pretab8).
+
+```{r pretab8, echo = FALSE}
+cap = "Table version of the data frame 'oldmort'."
+tbl(head(olmtab, 5), caption = cap)
+```
+
+The original data set has `r NROW(oldmort)` rows (observations), while the created
+table has only `r NROW(olmtab)` rows. The latter is analyzed via the function
+`tpchreg`, see Table \@ref(tab:tpchold8), which is identical to Table \@ref(tab:pchold8).
+
+```{r tpchold08, echo = TRUE}
+fit.tpch <- tpchreg(oe(event, exposure) ~ sex + region, data = olmtab, time = age)
+```
+
+```{r tpchold8, echo = FALSE, results = 'asis'}
+cap <- "Proportional hazards with table version of 'oldmort'."
+if (knitr::is_latex_output()){
+  dr <- drop1(fit.tpch, test = "Chisq")
+  ltx(fit.tpch, dr = dr, 
+      caption = cap,
+      label = "tab:tpchold8")
+}else{
+  out <- round(summary(fit.tpch)$coefficients[, -5], 4)
+  tbl(out, caption = cap)
+}
+```
+
+
+### Testing the proportional hazards assumption
+
+The `pch` model is well suited for a formal test of the proportional hazards model, 
+but some trickery is needed with the `eha` package. It is best shown by example, 
+and we continue by utilizing the newly created data table `olmtab`.
+
+By omitting the `time` argument in the call to `tpchreg`, an exponential (constant
+hazards) model is fitted, and the variable `age` is free to be included as a covariate.
+
+```{r prophaz8, echo = TRUE}
+fit.tpch <- tpchreg(oe(event, exposure) ~ age * (sex + region), data = olmtab)
+(dr <- drop1(fit.tpch, test = "Chisq"))
+```
+The age interaction with `sex` is very non-significant, while the effect of region on mortality 
+seems to vary significantly with age. It can be illustrated by performing a stratified
+(by region) analysis with the `time = age` variable included in the usual way, 
+then plotting the hazard functions for the three strata, see Figure 
+\@ref(fig:plotstraph8).
+
+```{r straph8, echo = TRUE}
+fit.str <- tpchreg(oe(event, exposure) ~ sex + strata(region), 
+                   time = age, data = olmtab)
+```
+
+```{r plotstraph8, fig.cap = "Hazard functions for three regions, old age mortality, Skellefteå 1860-80."}
+op <- par(mfrow = c(1, 2), cex = 0.8)
+##
+plot(fit.str, fn = "haz", col = 1:3, lty = c(1:2, 4), lwd = 1.5, 
+     main = "Hazard functions", xlab = "Age")
+abline(h = 0)
+plot(fit.str, fn = "cum", col = 1:3, lty = c(1:2, 4), lwd = 1.5, 
+     main = "Cumulative hazards functions", xlab = "Age")
+abline(h = 0)
+par(op)
+```
+
+The deviating region is `town`. It is also the smallest region, with no registered 
+deaths above age 90 with only 4.7 person years. We also note that mortality in ages 85-90
+is highest in the town, while in the younger ages the town region has the lowest mortality.
+The zero mortality in ages above age 90 is simply an artefact depending on very few 
+observed person years.
+
+Let us perform the same exercise with a larger data set, the Swedish population 1968-2019.
+(See also Example \@ref(exm:sw192) in Chapter 3.) We check the hypothesis of 
+proportional hazards between women and men, the question is: Is the female advantage of 
+the same relative size in all ages?
+
+```{r sweprop8, echo = TRUE}
+sp <- swepop
+sp$deaths <- swedeaths$deaths
+```
+
+Then 
+
+```{r strasw8, echo = TRUE}
+fit.swr <- tpchreg(oe(deaths, pop) ~ strata(sex) + I(year - 2000), last = 101,
+                   time = age, data = sp)
+rr.sex <- exp(tpchreg(oe(deaths, pop) ~ sex + I(year - 2000), last = 101,
+                   time = age, data = sp)$coefficients[1])
+cumhaz <- hazards(fit.swr, cum = TRUE) # Cumulative hazards
+haz <- hazards(fit.swr, cum = FALSE) # NOT Cumulative hazards
+```
+
+```{r plotstrasw8, fig.cap = "Mortality ratio for men vs. women, Sweden 1968-2019."}
+op <- par(mfrow = c(1, 2))
+plot(haz$x, haz$y[2, ] / haz$y[1, ], type = "l", ylim = c(1, 3), 
+     xlab = "Age", ylab = "Hazard Ratio")
+abline(h = 1)
+abline(h = rr.sex, lty = 2)
+text(5, 1.65, "PH")
+plot(cumhaz$x, cumhaz$y[2, ] / cumhaz$y[1, ], type = "l", ylim = c(1, 3), 
+     xlab = "Age", ylab = "Cumulative Hazard Ratio")
+abline(h = 1)
+abline(h = rr.sex, lty = 2)
+text(5, 1.65, "PH")
+par(op)
+```
+
+We note two things: (i) The variation around the proportional hazards estimate (PH)
+is huge and (ii) the smoothing effect of accumulation is large, which we should 
+keep in mind as a warning when trying to judge proportionality in graphs of cumulative 
+hazards functions.
 
 
 
-### Choosing the best parametric model
+
+### Choosing the best parametric proportional hazards model
 
 
 For modeling survival data with parametric proportional hazards models,
-the distributions of the function **phreg** in the package **eha** are
+the distributions of the function `phreg` in the package **eha** are
 available. How to select a suitable parametric model is shown by a couple
-of examples.
+of examples using the now familiar data set `oldmort`.
 
-#### Old age mortality {#old-age-mortality06}
 
-The data set **oldmort** in the **R** package **eha** contains life
-histories for people aged 60 and above in the years 1860--1880, i.e., 21
-years. The data come from the *Demographic Data Base* at Umeå
-University, Umeå, Sweden, and cover the sawmill district of Sundsvall in
-the middle of Sweden. This was one of the largest sawmill districts in
-Europe in the late 19th century. The town Sundsvall is located in the
-district, which also contains a rural area, where farming was the main
-occupation.  
-
-```{r oldmort6}
-require(eha)
-data(oldmort)
-summary(oldmort)
-``` 
-
-A short explanation of the variables: **id** is an identification
-number. It connects records (follow-up intervals) that belong to one
-person. **m.id, f.id** are mother's and father's identification numbers,
-respectively. **enter, exit** and **event** are the components of the
-*survival object*, i.e., start of interval, end of interval, and an
-indicator of whether the interval ends with a death, respectively.
-
-Note that by design, individuals are followed from the day they are aged
-60. In order to calculate the follow-up times, we should subtract 60 from
+Remember that by design, individuals are followed from the day they are aged
+60. In order to calculate the follow-up times, we usually subtract 60 from
 the two columns enter and exit. Otherwise, when specifying a
 parametric survivor distribution, it would in fact correspond to a
 left-truncated (at 60) distribution. However, for a Cox
-regression\index{Cox regression}, this 
-makes no difference.
+regression\index{Cox regression}, this  makes no difference.
 
-The covariate (factor) **ses.50** is the socio-economic status at
-(approximately) age 50. The largest category is **unknown**. We have
-chosen to include it as a level of its own, rather than treating it as
-missing. One reason is that we cannot assume *missing at random*
-here. On the contrary, a missing value strongly indicates that the person
-belongs to a lower class, or was born early.
-
-```{r oldmort6.reg}
+```{r oldmort6.reg,echo=TRUE}
 om <- oldmort
-om$Y <- Surv(om$enter - 60, om$exit - 60, om$event)    
-fit.w <- phreg(Y ~ sex + civ + birthplace, data = om)
-fit.w
+fm <- as.formula("Surv(enter, exit, event) ~ sex + region")
+fm0 <- as.formula("Surv(enter - 60, exit - 60, event) ~ sex + region")
+fit.w <- phreg(fm, data = oldmort)
+o.w <- extractAIC(fit.w)[2]
+fit.w0 <- phreg(fm0, data = oldmort)
+o.w0 <- extractAIC(fit.w0)[2]
 ``` 
-
-Note how we introduced the new variable $Y$; the sole purpose of this is to
-get more compact formulas in the modeling.
-
 
 Here we applied a *Weibull* baseline distribution (the *default*
-distribution in **phreg**; by specifying nothing, the Weibull is chosen).
-Now let us repeat this with all the distributions in the phreg package.
+distribution in `phreg`; by specifying nothing, the Weibull is chosen). Note also the 
+way we can store a formula for future use: This is particularly useful when the same 
+model will be fitted several times while changing some attribute, like baseline distribution.
+Now let us repeat this with the `pch`, `gompertz` and `ev` distributions in the phreg 
+package, for both the unconditional and conditional approaches. 
 
 ```{r allreg6}
-ln <- phreg(Y ~ sex + civ + birthplace, data = om, 
-            dist = "lognormal")
-ll <- phreg(Y ~ sex + civ + birthplace, data = om, 
-            dist = "loglogistic")
-g <- phreg(Y ~ sex + civ + birthplace, data = om, 
-           dist = "gompertz")
-ev <- phreg(Y ~ sex + civ + birthplace, data = om, 
+pch <- pchreg(fm, data = oldmort, cuts = c(seq(60, 85, by = 5), 100))
+o.pch <- extractAIC(pch)[2]
+g <- phreg(fm, data = om,  dist = "gompertz", param = "rate")
+o.g <- extractAIC(g)[2]
+ev <- phreg(fm, data = om, 
             dist = "ev")
+o.ev <- extractAIC(ev)[2]
+g0 <- phreg(fm, data = oldmort, 
+           dist = "gompertz")
+o.g0 <- extractAIC(g0)[2]
+ev0 <- phreg(fm, data = oldmort, 
+            dist = "ev")
+o.ev0 <- extractAIC(ev0)[2]
 ``` 
 
-Then we compare the maximized log-likelihoods and choose the distribution with the
-largest value.
+Then we compare the AICs and choose the distribution with the
+smallest value.
 
 ```{r compare6}
-xx <- c(fit.w$loglik[2], ln$loglik[2], ll$loglik[2], 
-        g$loglik[2], ev$loglik[2])
-names(xx) <- c("w", "ln", "ll", "g", "ev")
-xx
+source("R/tbl.R")
+xx <- c(o.w, o.w0, o.g, o.g0, o.ev, o.ev0, o.pch, o.pch)
+xx <- matrix(xx, ncol = 4)
+colnames(xx) <- c("Weibull", "Gompertz", "EV", "PCH")
+rownames(xx) <- c("Conditional", "Unconditional")
+tbl(xx)
 ``` 
 
-The *Gompertz* (g) distribution gives the largest value of the
-maximized log likelihood. Let us graphically inspect the fit, see
-Figure \@ref(fig:graphi6). 
+First we note that only for the Weibull distribution it makes a difference which time scale 
+(age or duration) is used. The Gompertz distribution gives the best fit, but the *conditional*
+Weibull (age as time scale) is very close. We also saw this graphically earlier (Figure \@ref(fig:adjwg8)).
 
-```{r graphi6,fig.cap="Graphical fit: Gompertz baseline versus the nonparametric (Cox regression, dashed)."}
-fit.c <- coxreg(Y ~ sex + civ + birthplace, data = om)
-check.dist(fit.c, g)
-``` 
-
-The fit is obviously great during the first 30 years (ages 60--90), but
-fails somewhat thereafter. One explanation to "the failure" is that after age
-90, not so 
-many persons are still at risk (alive); another is that maybe the mortality
-levels off at very high ages (on a very high level, of course).
-
-The Gompertz hazard function is shown in Figure \@ref(fig:gomphaz6).
-
-```{r gomphaz6,fig.cap="Estimated Gompertz hazard function for old age mortality data."}
-plot(g, fn = "haz")
-``` 
-
-It is an exponentially increasing function of time; the Gompertz model
-usually fits old age mortality very well.
-
-The $p$-values measure the significance of a group compared to the
-reference category, but we would also like to have an overall $p$-value for
-the covariates (factors) as such, i.e., answer the question "does
-birthplace matter?". This can be achieved by running an analysis without
-birthplace:
-
-```{r without6}
-fit.w1 <- phreg(Y ~ sex + civ, data = om) 
-fit.w1
-``` 
-
-Then we compare the *max log likelihoods*:
-`r round(fit.w$loglik[2], digits = 3)` and
-`r round(fit.w1$loglik[2], digits = 3)`, respectively. The test
-statistic is 2 times the difference, 
-`r round(2 * (fit.w$loglik[2] - fit.w1$loglik[2]), digits = 3)`. 
-Under the null hypothesis of no **birthplace** effect on mortality, 
-this test statistic has an approximate
-$\chi^2$ distribution with 2 degrees of freedom. The degrees of freedom is
-the number of omitted parameters in the reduced model, two in this
-case. This because the factor **birthplace** has three levels.
-
-There is a much simpler way of doing this, and that is to use the function
- `drop1`. As its name may suggest, it drops one variable at a time and
-reruns the fit, calculating the max log likelihoods and differences as above.
-
-```{r drop6}
-drop1(fit.w, test = "Chisq")
-``` 
-
-As you can see, we do not only recover the test statistic for 
-  birthplace, we get the corresponding tests for all the involved
-covariates. Thus, it is obvious that both sex and civ have a
-statistically very significant  effect on old age mortality, while 
-  birthplace does not mean much. Note that these effects are measured in
-the presence of the other two variables.
-
-We can plot the baseline distribution by
-```{r plotno6}
-plot(fit.w)
-``` 
-
-with the result shown in Figure \@ref(fig:6weibas).
-
-```{r 6weibas,echo=FALSE,fig.cap="Baseline distribution of remaining life at 60 for an average  person. Weibull model."}
-plot(fit.w)
-``` 
-
-We can see one advantage with parametric models here: They make it
-possible to estimate the hazard and density functions. This is much
-trickier with a semi-parametric model like the Cox proportional hazards
-model. Another question is, of course, how well the Weibull model fits the
-data. One way to graphically check this is to fit a Cox
-regression\index{Cox regression} model
-and compare the two cumulative hazards plots. This is done by using the
-function **check.dist**:\index{cumulative hazard function} 
-
-```{r chekwei6, echo=FALSE}
-fit <- coxreg(Y ~ sex + civ + birthplace, data = om)
-##check.dist(fit, fit.w)
-``` 
-
-The result is shown in Figure \@ref(fig:6chekwei).
-
-```{r 6chekwei,echo=FALSE,fig.cap="Baseline distribution of remaining life at 60 for an average person. Weibull model."}
-check.dist(fit, fit.w)
-``` 
-
-Obviously, the fit is not good; the Weibull model cannot capture the fast
-rise of the hazard by age. An exponentially increasing hazard function may
-be needed, so let us 
-try the **Gompertz** distribution:
-
-```{r gomp6}
-fit.g <- phreg(Y ~ sex + civ + birthplace, data = om, 
-               dist = "gompertz")
-fit.g
-``` 
-
-One sign of a much better fit is the larger value of the maximized log
-likelihood, `r round(fit.g$loglik[2], digits = 3)` versus 
-`r round(fit.w$loglik[2], digits = 3)` for the Weibull fit. 
-  The comparison to the Cox regression\index{Cox regression} fit is given by
-
-```{r chekgom6}
-check.dist(fit, fit.g)
-``` 
-
-with the result shown in Figure~\ref{fig:6chekgom}.
-
-
-```{r 6chekgom,echo=FALSE,fig.cap="Check of a Gompertz fit. The solid line is the cumulative hazards function from the Gompertz fit, and the dashed line is the fit from a Cox regression."}
-check.dist(fit, fit.g)
-``` 
-
-This is a much better fit. The deviation that starts above 30
-(corresponding to the age 90) is no big issue; in that range few people are
-still alive and the random variation takes over. Generally, it seems as if
-the Gompertz distribution fits old age mortality well.
-
-The plots of the baseline Gompertz distribution is shown in Figure \@ref(fig:6gombas).
-
-```{r 6gombas,echo=FALSE,fig.cap="Baseline distribution of remaining life at 60 for an average person. Gompertz model.", height=6}
-plot(fit.g)
-``` 
-
-Compare to the corresponding fit to the Weibull model, Figure \@ref(fig:6weibas).
-
+The reason that the `pch` model fares so badly is that it is punished for the large 
+number of parameters (eight) it uses to estimate the baseline hazard.
 
 ## Accelerated Failure Time Models
 
@@ -607,7 +653,7 @@ time  and the
 proportional hazards models concerning the hazard functions is illustrated.
 
 ```{r aftph6,fig.cap="Proportional hazards (left) and accelerated failure time model (right). The baseline distribution is Loglogistic with shape 5 (dashed).",echo=FALSE}
-x <- seq(0, 3, length = 1000)
+x <- seq(0.001, 3.001, length = 1000)
 par(mfrow = c(1, 2))
 plot(x, 2 * hllogis(x, shape = 5), type = "l", ylab = "", main = "PH", xlab = "Time")
 lines(x, hllogis(x, shape = 5), lty = 2)
@@ -616,8 +662,10 @@ lines(x, hllogis(x, shape = 5), lty = 2)
 ```
 
 The AFT hazard is not only multiplied by 2, it is also shifted to the left;
-the process is accelerated. Note how the hazards in the AFT case converges
+the process time is accelerated. Note how the hazards in the AFT case converges
 as time increases. This is usually a sign of the suitability of an AFT model. 
+
+
 
 ### The AFT regression model
 \index{model!parametric!AFT|(}
@@ -641,75 +689,21 @@ i.e., an ordinary linear regression model for the log survival times. In
 the absence of right censoring and left truncation, this model can be
 estimated by least squares. However, the presence of these forms of
 incomplete data makes it necessary to rely on maximum likelihood
-methods. In **R**, there is the functions `aftreg` in the package 
+methods. In **R**, the functions `aftreg` in the package 
   **eha** and the function `survreg` in the package **survival** that
-perform the task of fitting AFT models.
+perform the task of fitting AFT models. The package **flexsurv** [@flexsurv] has some useful 
+functionality in this area.
 
 Besides differing parametrizations, the main difference between
   `aftreg` and `survreg` is that the latter does not allow for left
 truncated data. One reason for this is that left truncation is a much
 harder problem to deal with in AFT models than in proportional hazards models.
 
-Here we describe the implementation in `aftreg`. A detailed description
-of it can be found in Appendix \@ref(app:B). The model is built around 
-*scale-shape* families of distributions:
+A detailed description of the implementation  of the AFT models in `eha` is 
+found in Appendix \@ref(app:B).
 
-\begin{equation}
-S^\star\bigl\{t, (\lambda, p)\bigr\} = S_0\biggl\{\biggl(\frac{t}{\lambda}\biggr)^p\biggr\}, \quad t > 0; \;
-\lambda, p > 0,
-(\#eq:6aftnull)
-\end{equation}
 
-where $S_0$ is a fixed distribution. For instance, the exponential with
-parameter 1:
-
-\begin{equation*}
-S_0(t) = e^{-t}, \quad t > 0,
-\end{equation*}
-
-generates, through \@ref(eq:6aftnull), the *Weibull* family
-\@ref(eq:6weibull) of distributions.
-
-%The allowance for left
-%truncation and time-varying covariates forces the consideration of the
-%extended model
-
-\newcommand{\tl}{\biggl(\frac{t\exp(\boldsymbol{\beta}\mathbf{x})}{\lambda}\biggr)^p}
-
-With time-constant covariate vector $\mathbf{x}$, the AFT model is 
-
-\begin{equation}
-    S(t; (\lambda, p, \boldsymbol{\beta}), \mathbf{x}) = S^\star\bigl\{t\exp(\boldsymbol{\beta}\mathbf{x}),
-    (\lambda, p)\bigr\} =
-    S_0\biggl\{\biggl(\frac{t\exp(\boldsymbol{\beta}\mathbf{x})}{\lambda}\biggr)^p\biggr\},
-  \quad t > 0,
-\end{equation}
-
-and this leads to the following description of the hazard function:
-
-\begin{multline*}
-    h(t; (\lambda, p, \boldsymbol{\beta}), \mathbf{x}) = \exp(\boldsymbol{\beta}\mathbf{x})
-    h^\star\bigl(t\exp(\boldsymbol{\beta}\mathbf{x})\bigr) = \\
-    \exp(\boldsymbol{\beta}\mathbf{x})\frac{p}{\lambda} 
-    \biggl(\frac{t\exp(\boldsymbol{\beta}\mathbf{x})}{\lambda}\biggr)^{p-1}h_0\biggl\{\tl\biggr\},
-    \quad t > 0, 
-\end{multline*}
-
-where $\mathbf{x} = (x_1, \ldots, x_p)$ is a vector of covariates, and
-$\boldsymbol{\beta} = (\beta_1, \ldots, \beta_p)$ is the corresponding
-        vector of regression coefficients.
-\index{model!parametric!AFT|)}
-        
-\subsection{Different parametrizations}
-\index{Functions!\fun{aftreg}|(}
-In **R**, there are two functions that can estimate AFT regression models, the
-function `aftreg` in the package **eha**, and the function 
-`survreg` in the package **survival**. In the case of no time-varying
-covariates and no left truncation, they fit the same models (given a common
-baseline distribution), but use different parametrizations, which will be
-explained here.
-
-### AFT models in **R**
+### AFT modeling in **R**
 
  We repeat the examples from the proportional hazards section, but with AFT
  models instead. 
@@ -719,11 +713,17 @@ explained here.
  
  For a description of this data set, see above. Here we fit an AFT model
  with the *Weibull* distribution. This should be compared to the proportional
- hazards model with the *Weibull* distribution, see earlier in this chapter.
+ hazards model with the Weibull distribution, see earlier in this chapter.
  
-```{r oldmort6.aft}
-fit.w1 <- aftreg(Y ~ sex + civ + birthplace, data = om)
-fit.w1
+```{r oldmort8.aft}
+source("R/fit.out.R")
+fit.w1 <- aftreg(fm, data = om)
+if (knitr::is_latex_output()){ # PDF
+        dr <- drop1(fit.w1, test = "Chisq")
+        ltx(fit.w1, dr = dr, caption = caption, label = "tab:oldmort8.aft")
+}else{ # HTML
+    summary(fit.w1)
+}
 ```
 
 Note that the "Max. log. likelihood" is exactly the same, but the
@@ -1003,33 +1003,33 @@ you want. We will try it on the birth interval data. We start off with just
 four intervals, and the non-censored data set.
 
 ```{r pch6fert}
-fit.pch <- phreg(Surv(next.ivl, event) ~ age + year + ses, 
-                 data = f12, dist = "pch", cuts = c(4, 8, 12))
+fit.pch <- pchreg(Surv(next.ivl, event) ~ age + year + ses, 
+                 data = f12, cuts = c(0, 4, 8, 12))
 fit.c <- coxreg(Surv(next.ivl, event) ~ age + year + ses, 
                 data = f12)
 fit.pch
 ``` 
 
-Then we check the fit in Figure \@ref(fig:pchcheck6).
+Then we compare the cumulative hazards in Figure \@ref(fig:pchcheck8).
 
-```{r pchcheck6,fig.cap="Check of the pch model, uncensored birth intervals."}
-check.dist(fit.c, fit.pch)
+```{r pchcheck8,fig.cap="Check of the pch model, uncensored birth intervals."}
+compHaz(fit.c, fit.pch)
 ``` 
 
 This is not good enough. We need shorter intervals close to zero, so
 
 ```{r pchfert2}
-fit.pch <- phreg(Surv(next.ivl, event) ~ age + year + ses, 
-                 data = f12, dist = "pch", cuts = 1:13)
+fit.pch <- pchreg(Surv(next.ivl, event) ~ age + year + ses, 
+                 data = f12, cuts = 0:13)
 fit.pch
 ``` 
 
-This gives us 14 intervals with constant baseline hazard, that is, 14
+This gives us 13 intervals with constant baseline hazard, that is, 14
 parameters to estimate only for the baseline hazard function! But the fit
-is good, see Figure \@ref(fig:pch13check6). In fact, it is almost perfect!
+is good, see Figure \@ref(fig:pch13check8). In fact, it is almost perfect!
 
-```{r pch13check6,fig.cap = "Check of the pch model with thirteen constant hazard intervals, uncensored birth intervals." }
-check.dist(fit.c, fit.pch)
+```{r pch13check8,fig.cap = "Check of the pch model with thirteen constant hazard intervals, uncensored birth intervals." }
+compHaz(fit.c, fit.pch)
 ``` 
 
 One of the advantages with parametric models is that it is easy to study
@@ -1086,7 +1086,7 @@ specify the Gompertz distribution in the call (remember, the *Weibull*
 distribution is the default choice, both for `phreg` and `aftreg`).\
 
 ```{r oldln6.aft}
-fit.g1 <- aftreg(Y ~ sex + civ + birthplace, data = om, dist = "gompertz")
+fit.g1 <- aftreg(fm, data = om, dist = "gompertz")
 fit.g1
 ```
 
