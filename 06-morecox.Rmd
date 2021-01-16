@@ -88,11 +88,10 @@ truncation).  $\Box$
 A word of caution: Marriage status may be interpreted as an
 *internal* covariate, i.e., the change of marriage status is
 individual, and may depend on health status. For instance, maybe only
-healthy persons get married. If so, a vital condition in Cox regression is
-violated; the risk of dying may only be modeled by conditions from the
-strict history of each individual. Generally, the use of time dependent
-covariates is dangerous, and one should always think of possible reversed
-causality taking place when allowing for it.
+healthy persons get married. So, the risk is that *health status* acts as a 
+confounder in the relation between marriage and survival. Generally, 
+the use of time dependent internal covariates is dangerous, and one should always think 
+of possible confounding or reverse causality taking place when allowing for it.
 
 ## Communal covariates
 

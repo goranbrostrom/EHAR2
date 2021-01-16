@@ -51,8 +51,8 @@ lot of work with translation from the former to the latter. For the moment, all
 Chapters are translated (but not polished).
 Adding new material and updating the old is on its way. 
 
-The first seven chapters are now (`r datum`) in shape (in the first wave), work is 
-now continuing on Chapter 8: Parametric Models. (I expect a major rewrite of this chapter).
+The first eight chapters are now (`r datum`) in shape (in the first wave), work is 
+now continuing on the rest of the Chapters.
 Chapters 7 and 8 (6 and 7 in the first edition) are swapped for a better logic flow. 
 
 This work is done in parallel with updating and expanding the `eha` package [@eha],

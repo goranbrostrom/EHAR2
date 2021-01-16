@@ -443,7 +443,7 @@ F(t)  =  \sum_{i: r_i \le t} p_i, \quad -\infty < t < \infty,
 is the cumulative distribution function, and
 
 \begin{equation*}
-S(t) = \sum_{i: r_i \ge x} p_i, \quad -\infty < t < \infty,
+S(t) = \sum_{i: r_i \ge t} p_i, \quad -\infty < t < \infty,
 \end{equation*}
 
 is the survival function.

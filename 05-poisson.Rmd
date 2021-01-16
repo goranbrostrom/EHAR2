@@ -234,8 +234,8 @@ rbind(coef(fit.ml),  coef(fit.b)["x"])
 For completeness, the connection between the Poisson distribution and the
 *piecewise constant hazard model*
 \index{piecewise constant hazard}\index{Distributions!piecewise constant hazard}
-is mentioned here.  This is explored in detail in Section \@ref(pch6)
-(Chapter 7), where the Poisson formulation is cast into a survival analysis
+is mentioned here.  This is explored in detail in 
+Chapter 7, where the Poisson formulation is cast into a survival analysis
 costume and very straightforward to use.
 
 ## Tabular lifetime data

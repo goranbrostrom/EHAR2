@@ -576,7 +576,7 @@ Data:
 (t_{i0}, t_i, d_i, \mathbf{x}_i), \; i = 1, \ldots, n,
 \end{equation}
 
-where $t_{i0}$ is the *left truncation time point* (if $y_{i0} = 0$ for all $i$, 
+where $t_{i0}$ is the *left truncation time point* (if $t_{i0} = 0$ for all $i$, 
 then this variable may be omitted),
 $t_i$ is the *end time point*,
 $d_i$ is the *"event indicator"* ($1$ or *TRUE* if event, else $0$ or *FALSE*), and
@@ -686,17 +686,17 @@ P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x}) =
  =  1 - \frac{S(t_j \mid \mathbf{x})}{S(t_{j-1} \mid \mathbf{x})}
  =  1 -
 \left(\frac{S_0(t_j)}{S_0(t_{j-1})}\right)^{\exp(\boldsymbol{\beta}\mathbf{x})} \\
-= 1 - (1 - h_i)^{\exp(\boldsymbol{\beta}\mathbf{x})}
+= 1 - (1 - h_j)^{\exp(\boldsymbol{\beta}\mathbf{x})}
 \end{multline}
-with $h_i = P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x} =
+with $h_j = P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x} =
 \mathbf{0})$, $j = 1, \ldots, k$. We take \eqref{eq:dischaz} as the
 \emph{definition} of proportional hazards in discrete time.
 
 ### Logistic regression
 
 It turns out that a proportional hazards model in discrete time, according
-to definition \eqref{eq:dischaz}, is nothing else than a *logistic
-  regression*\index{logistic regression}
+to definition \@ref(eq:dischaz), is nothing else than a 
+*logistic regression*\index{logistic regression}
 model with the *cloglog link*\index{cloglog link function} (cloglog is
 short for "complementary log-log" or $\boldsymbol{\beta}\mathbf{x} =\log(-\log(p))$). In order
 to see that, let 

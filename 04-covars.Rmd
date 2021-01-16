@@ -386,11 +386,11 @@ Appendix A.
 
 Some general advise regarding model selection is given here. 
 
-*    Remember, there are no \emph{true} models, only some *useful*
-  ones. This statement is attributed to G.E.P.\ Box.
+*    Remember, there are no *true* models, only some *useful*
+  ones. This statement is attributed to G.E.P. Box.
 *    More than one model may be useful.
-*    Keep \emph{important} covariates in the model.
+*    Keep *important* covariates in the model.
 *    Avoid automatic stepwise procedures!
-*    If interaction effects are present, the corresponding main
-effects *must* be there.
+*    If interaction terms are present, the corresponding main
+terms must be there. (There are some exceptions to this rule.)
 
