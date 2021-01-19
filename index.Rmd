@@ -40,23 +40,23 @@ library(eha)
 datum <- Sys.Date()
 ```
 
-This is the place for the *Preface to the Second Edition*, which is not written yet. 
-Instead, for the time being, I will try to keep you and myself updated about the 
-ongoing work with the second edition. You will find the *Preface to the First Edition*
-ahead.
+The first edition of this book was published 1i 2012, nine years ago. Since then
+the field has grown and developed rapidly, both in terms of available scientific data and
+of software development for analyzing data, not the least in the **R** environment.
+We have also seen public need of analyzing what is going on around the world, and the 
+present (2021) state of the COVID-19 pandemic is a striking example of that.
 
-*The First Edition* was written with the aid of  Sweave and LaTeX, but for the second edition 
-I have switched to **knitr** and **bookdown** (with some support of **LaTeX**). So there has been a 
-lot of work with translation from the former to the latter. For the moment, all 
-Chapters are translated (but not polished).
-Adding new material and updating the old is on its way. 
+So the time for a second edition of the book is now. The basic chapters on Cox regression 
+and proportional hazards modeling are much the same as in the first edition, but they 
+have been updated. There are two new chapters, Chapter 4, *Explanatory Variables and Regression*,
+and Chapter 7, *Register-Based Survival Data Models*. Compared to the first edition, 
+chapters have been reordered so that the logical flow is clearer.
 
-The first eight chapters are now (`r datum`) in shape (in the first wave), work is 
-now continuing on the rest of the Chapters.
-Chapters 7 and 8 (6 and 7 in the first edition) are swapped for a better logic flow. 
+*[some more to be added here...]*
 
-This work is done in parallel with updating and expanding the `eha` package [@eha],
-now in the version  shown below (not released on CRAN, but available on gitHub).
+The writing of this book has been done in parallel with the development of the **R** package
+`eha` [@eha]. All the data sets used in the examples in this book are available in `eha`, 
+so you can easily play around with them on your own.
 
 The R session information when last compiling this book is shown below:
 
