@@ -37,7 +37,7 @@ comp <- function(enter, exit, event, start.age = 0){
     abline(h = 0)
     legend(35, 0.95, lty = 1:(n+1), ##col = 1:(n+1),
            legend = c("Survival", "Dead", "Other parish",
-           "Scandinavia", "Outside Scandinavia"))
+           "Scandinavia", "Outside Scandinavia"), cex = 0.8)
     invisible(list(P = P, S = S))
 }
 
