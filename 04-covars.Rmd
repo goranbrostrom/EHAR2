@@ -392,5 +392,6 @@ Some general advise regarding model selection is given here.
 *    Keep *important* covariates in the model.
 *    Avoid automatic stepwise procedures!
 *    If interaction terms are present, the corresponding main
-terms must be there. (There are some exceptions to this rule.)
+terms must be there. (There are some exceptions to this rule, see for instance 
+the example about infant and maternal mortality in Chapter 10.)
 

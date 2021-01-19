@@ -1,7 +1,15 @@
 # Survival distributions {#app:B}
 
+```{r settingsB, echo = FALSE, include = FALSE}
+knitr::opts_chunk$set(comment = "", message = FALSE, echo = FALSE, cache = FALSE)
+options(width = 70, digits = 7)
+source("R/fit.out.R")
+source("R/tbl.R")
+```
+
+
 The survival distributions we discuss here are all available in **R**. The
-most basic survival distribution is the \emph{Exponential distribution},
+most basic survival distribution is the *Exponential distribution*,
 not because it is useful in demographic applications (it isn't), but
 because it is a reference distribution, a special case of other
 distributions, and a building block for in many useful models.

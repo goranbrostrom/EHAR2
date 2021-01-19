@@ -680,16 +680,17 @@ $$
 0 = t_0 < t_1 < t_2 < \cdots < t_k = \infty.
 $$ 
 Then
-\begin{multline}\label{eq:dischaz}
+\begin{multline}
 P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x}) =
 \frac{S(t_{j-1}\mid \mathbf{x}) - S(t_j\mid \mathbf{x})}{S(t_{j-1} \mid \mathbf{x})} \\
  =  1 - \frac{S(t_j \mid \mathbf{x})}{S(t_{j-1} \mid \mathbf{x})}
  =  1 -
 \left(\frac{S_0(t_j)}{S_0(t_{j-1})}\right)^{\exp(\boldsymbol{\beta}\mathbf{x})} \\
 = 1 - (1 - h_j)^{\exp(\boldsymbol{\beta}\mathbf{x})}
+(\#eq:dischaz)
 \end{multline}
 with $h_j = P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x} =
-\mathbf{0})$, $j = 1, \ldots, k$. We take \eqref{eq:dischaz} as the
+\mathbf{0})$, $j = 1, \ldots, k$. We take \@ref{eq:dischaz} as the
 \emph{definition} of proportional hazards in discrete time.
 
 ### Logistic regression

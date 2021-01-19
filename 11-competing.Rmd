@@ -2,6 +2,12 @@
 
 \index{competing risks|(}
 
+```{r settings11, echo = FALSE, include = FALSE}
+knitr::opts_chunk$set(comment = "", message = FALSE, echo = FALSE, cache = FALSE)
+options(width = 70, digits = 7)
+source("R/fit.out.R")
+```
+
 Classical competing risks models will be discussed, as
 well as their modern interpretations. The basic problem is that we want to
 consider more than one type of event, but where exactly one will occur. For
@@ -148,10 +154,11 @@ arrows(x0 = 6, y0 = 9, x1 = 8, y1 = 4.5, code = 2, length = 0.1)
 \label{fig:8mortmig}
 \end{figure}
 -->
-The data at hand looks like this:
-```{r datah10, echo = FALSE}
+The data at hand looks like Table \@ref(tab:datah11).
+```{r datah11, echo = FALSE}
+source("R/tbl.R")
 load("zz.RData")
-head(zz)
+tbl(head(zz[, -(2:3)], 5), caption = "Emigration and mortality data, Skellefteå 1800-1870.")
 ```
 
 A summary:
@@ -234,10 +241,14 @@ fit
 % \end{Schunk}
 -->
 Note that this is *not* Cox regression\index{Cox regression} (but
-close!). The corresponding Cox regression is
-```{r withcox8, comment = ""}
+close!). The corresponding Cox regression result is shown in 
+Table \@ref(tab:withcox11).
+
+```{r withcox11, comment = "", results = 'asis'}
 fit <- coxreg(Surv(enter, exit, event == 3) ~ parity, data = zz)
-summary(fit)
+cap <- "Competing risks by Cox regression and moved to other parish in Sweden."
+lab <- "withcox11"
+fit.out(fit, caption = cap, label = lab)
 ```
 \index{Functions!\fun{coxreg}}
 \eex

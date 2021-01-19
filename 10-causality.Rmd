@@ -1,5 +1,11 @@
 # Causality and Matching
 
+```{r settings10, echo = FALSE, include = FALSE}
+knitr::opts_chunk$set(comment = "", message = FALSE, echo = FALSE, cache = FALSE)
+options(width = 70, digits = 7)
+source("R/fit.out.R")
+```
+
 Causality is a concept that statisticians and
 statistical science traditionally shy away from. Recently, however, many
 successful attempts have been made to include the concept of causality in
@@ -615,7 +621,7 @@ per stratum. It is also possible to have a varying number of controls per case.
 As an example where two controls per case were used, let us see how a study
 of maternal death and its effect on infant mortality was performed.
 
-```{example label = "matchex9", name = "Maternal death and infant mortality"}
+```{example label = "matchex10", name = "Maternal death and infant mortality"}
 ```
 
 This is a study on historical data from northern Sweden, 1820--1895 [@gb87]. The
@@ -635,11 +641,13 @@ changes status to case (its mother dies), it is immediately censored as a
 control and starts as a case with two controls linked to it. However, this
 situation never occurred in the study.
 
-Let us load the data into **R** and look at it.
+Let us load the data into **R** and look at it, see Table \@ref(tab:matinfdat10).
 
-```{r 9matinfdat}
+```{r matinfdat10}
+source("R/tbl.R")
 library(eha)
-head(infants)
+cap <- "Infant and maternal mortality data."
+tbl(head(infants, 5), caption = cap)
 ```
 Here we see the two first triplets in the data set, which consists of 35
 triplets, or 105 individuals. Infant No. 1 (the first row) is a case, his
@@ -657,12 +665,14 @@ information suggesting that cases have higher mortality than controls after
 the fatal event of a maternal death.
 
 The matched data analysis is performed by stratifying on triplets (the
-variable `stratum`).
+variable `stratum`), see Table \@ref(tab:matchedanal10).
 
-```{r 9matchedanal}
+```{r matchedanal10, results = "asis"}
 fit <- coxreg(Surv(enter, exit, event) ~ mother + strata(stratum), 
 data = infants)
-summary(fit)
+cap = "Infant mortality, statified Cox regression."
+lab = "matchedanal10"
+fit.out(fit, label = lab, caption = cap)
 ```
 \index{Functions!\fun{coxreg}}
 The result is that mother's death increases the death risk of the infant
@@ -679,7 +689,7 @@ corresponding main effects must be included in the model.
 
 We investigate whether the effect of mother's death is modified by her age
 by first calculating an interaction term (`mage`):
-```{r mage9}
+```{r mage9, echo = TRUE}
 infants$mage <- ifelse(infants$mother == "dead", infants$age, 0)
 ```
 \index{Functions!`ifelse`} Note the use of the function `ifelse`:
@@ -690,11 +700,14 @@ in this example, the length is the same as the length of `mother` (in
 the second argument, and for each component that is `FALSE` the value
 is given by the third argument.
 
-Including the created covariate in the analysis gives
-```{r matin9}
+Including the created covariate in the analysis gives the result in 
+Table \@ref(tab:matin10).
+```{r matin10, results = 'asis'}
 fit <- coxreg(Surv(enter, exit, event) ~ mother + mage + 
               strata(stratum), data = infants)
-summary(fit)
+cap <- "Infant mortality and mother's age, stratified Cox regression."
+lab <- "matin10"
+fit.out(fit, caption = cap, label = lab)
 ```
 What happened here? The effect of mother's age is even larger than in the
 case without `mage`, but the statistical significance is gone
@@ -709,12 +722,19 @@ not very severe case, because it is very easy to get rid of.
 
 The solution? *Center*\index{centering} mother's age (`age`)! Recreate the
 variables and run the analysis  again:
-```{r matin29}
+```{r matin210pre, echo = TRUE}
 infants$age <- infants$age - mean(infants$age)
 infants$mage <- ifelse(infants$mother == "dead", infants$age, 0)
+```
+
+The result is in Table \@ref(tab:matin210).
+
+```{r matin210, results = 'asis'}
 fit1 <- coxreg(Surv(enter, exit, event) ~ mother + mage + 
               strata(stratum), data = infants)
-summary(fit1)
+cap <- "Infant mortality and mother's age, stratified Cox regression, centered mother's age."
+lab <- "matin210"
+fit.out(fit1, caption = cap, label = lab)
 ```
 The two fits are equivalent (look at the Max. log. likelihoods), but with
 different parametrizations. The second, with a centered mother's age, is

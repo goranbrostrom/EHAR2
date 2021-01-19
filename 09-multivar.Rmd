@@ -1,5 +1,11 @@
 # Multivariate survival models
 
+```{r settings9, echo = FALSE, include = FALSE}
+knitr::opts_chunk$set(comment = "", message = FALSE, echo = FALSE, cache = FALSE)
+options(width = 70, digits = 7)
+source("R/fit.out.R")
+```
+
 Sometimes survival data come in clusters, and
 multivariate, or *frailty*, models are appropriate to use.
 
@@ -70,9 +76,9 @@ implying that
 h(t) \rightarrow \min(\lambda_1, \lambda_2), \quad t \rightarrow
 \infty,
 \end{equation*}
-see Figure \@ref(fig:fig6frail).
+see Figure \@ref(fig:fig9frail).
 
-```{r fig6frail,fig=TRUE,echo=FALSE,fig.cap = "Population hazard function (solid line). The dashed lines are the hazard functions of each group, constant at 1 and 2.",fig.scap="Population hazard function."} 
+```{r fig9frail,fig=TRUE,echo=FALSE,fig.cap = "Population hazard function (solid line). The dashed lines are the hazard functions of each group, constant at 1 and 2.",fig.scap="Population hazard function."} 
 lambda1 <- 1
 lambda2 <- 2
 w <- function(t) exp(-lambda1 * t) / (exp(-lambda1 * t) + exp(-lambda2 * t))
@@ -99,7 +105,7 @@ of it changes over time. The weaker individuals die first, and the
 proportion stronger will steadily grow as time goes by.
 
 Another terminology is to distinguish between *individual* and
-*population* hazards. In Figure \@ref(fig:fig6frail) the solid line is the
+*population* hazards. In Figure \@ref(fig:fig9frail) the solid line is the
 population hazard, and the dashed lines represent the two kinds of
 individual hazards present. Of course, in a truly homogeneous population,
 these two concepts coincide.
@@ -155,13 +161,16 @@ Another popular choice of distribution for the $Z$:s is the gamma
 distribution.   
 
 In **R**, the package `coxme` [@coxme]\index{Packages!coxme} fits frailty models. 
-We look at the fertility data set in the **R** package `eha`.
-```{r fert7, message=FALSE} 
+We look at the fertility data set in the **R** package `eha`, see Table \@ref(tab:fert9).
+```{r fert9, message=FALSE, echo = FALSE} 
+source("R/tbl.R")
 library(eha)
-head(fert)
+cap <- "The fertility data set."
+out <- head(fert, 5)
+tbl(out, caption = cap)
 ``` 
 It seems natural to assume that the lengths of birth intervals vary with
-mother, so we try a frailty model with `id` as the grouping
+mother, so we try a frailty model with `id` (mother's id) as the grouping
 variable. Also notice that the first interval for each woman is measured
 from marriage (only married women are included in this data set) to first
 birth, so we will start by removing them. They are characterized by 
@@ -184,11 +193,13 @@ hold for parameter values
 at the boundary of the parameter space.
 
 One way to get a feeling for the impact of the frailty effect is to fit the
-same model but without frailty, i.e., the term `(1 | id)`.
-```{r nofrail7} 
+same model but without frailty, i.e., the term `(1 | id)`, see Table \@ref(tab:nofrail9).
+```{r nofrail9, echo = TRUE, results = "asis"} 
 fit0 <- coxreg(Surv(next.ivl, event) ~ age + ses + parity, 
                data = fe)
-summary(fit0)
+cap = "Fertility data, no-frailty model."
+lab = "nofrail9"
+fit.out(fit0, caption = cap, label = lab)
 ``` 
 \index{Functions!\fun{coxreg}}
 We can compare the two "max log likelihoods", in the frailty model the
@@ -205,30 +216,35 @@ asymptotic theory does not hold for parameter values on the boundary of the
 parameter space!). This gives an approximation of the true $p$-value that
 is not too bad.
 
-As a final example, let us look at *old age mortality* in the **R** package
+As a final example, let us look back at *old age mortality* in the **R** package
 `eha`. This example also shows a dangerous situation that is too easy
 to overlook. It has nothing to do with frailty, but with a problem caused
 by *missing data*\index{missing data}.
 
-```{example, label = "oldmortsib08",  name = "Old age mortality for siblings."}
+```{example, label = "oldmortsib09",  name = "Old age mortality for siblings."}
+```
+
 Take a look at the variables in `oldmort`:
 ```{r oldmortf7} 
-head(oldmort)
+cap = "The old age mortality data."
+tbl(tail(oldmort[, 2:9], 5), caption = cap)
 ``` 
-The variable `m.id` is *mother's id*. This means that siblings
+The variable `m.id` is *mother's id*. Siblings
 will have the same value on that variable, and we can check whether we find
-a ``sibling effect'' in the sense that siblings tend to have a similar risk
+a "sibling effect" in the sense that siblings tend to have a similar risk
 of dying.
 ```{r oldanal7} 
 fit <- coxme(Surv(enter, exit, event) ~ sex + civ + (1 | m.id), 
              data = oldmort)
 fit
 ``` 
-Now, compare with the corresponding fixed effects model:
-```{r fixold7} 
+Now, compare with the corresponding fixed effects model in Table \@ref(tab:fixold9).
+```{r fixold9, results = 'asis'} 
 fit0 <- coxreg(Surv(enter, exit, event) ~ sex + civ, 
                data = oldmort)
-summary(fit0)
+cap = "Old age mortality, fixed effects model."
+lab = "fixold9"
+fit.out(fit0, caption = cap, label = lab)
 ``` 
 Note that we now got a very much smaller value of the maximized log likelihood,
 `r as.integer(round(fit0$loglik[2]))` compared to 
@@ -241,16 +257,23 @@ values, almost 50 per cent are missing (NA), and the standard treatment of NA:s 
 variables in the analysis. So, in the first case, the frailty model, a lot
 of records are removed before analysis, but not in the second. To be able
 to compare the models we must remove all records with `m.id = NA` from
-the second analysis.
-```{r shrink7}
+the second analysis, see Table \@ref(tab:shrink9).
+
+```{r shrink9pre, echo = TRUE}
 olm <- oldmort[!is.na(oldmort$m.id), ]
 fit0 <- coxreg(Surv(enter, exit, event) ~ sex + civ, 
                data = olm)
-summary(fit0)
 ```
+
+```{r shrink9, results = 'asis', echo = FALSE}
+lab <- "shrink9"
+cap <- "Old age mortality for persons with known mother."
+fit.out(fit0, caption = cap, label = lab)
+```
+
 This is another story! We now got  very similar values of the maximized log likelihoods,
-`r round(fit0$loglik[2], 2)` compared to 
-`r round(fit$loglik[2], 2)`! The conclusion is that in this case, there
+`r round(fit0$loglik[2], 1)` compared to 
+`r round(fit$loglik[2], 1)`! The conclusion is that in this case, there
 is no frailty effect whatsoever.
 
 One lesson to learn from this example is that you have to be very cautious
@@ -361,16 +384,28 @@ It is possible utilize the connection between Poisson\index{Distributions!Poisso
 regression and  the piecewise constant proportional hazards model
 \index{Distributions!piecewise constant hazard}
 discussed in Chapter 6 to fit parametric frailty models. We look at the
-fertility data again.  The standard analysis without frailty effects is
-```{r stanal7} 
-fit0 <- phreg(Surv(next.ivl, event) ~ parity + ses,
-              dist = "pch", cuts = 1:13, data = fe)
-summary(fit0)
+fertility data again.  The standard analysis without frailty effects is shown in 
+Table \@ref(tab:stanal9).
+
+```{r stanal9pre, echo = TRUE} 
+fit0 <- pchreg(Surv(next.ivl, event) ~ parity + ses,
+              cuts = 0:13, data = fe)
+```
+
+```{r stanal9, results = 'asis'}
+cap <- "Fertility analysis, fixed effects."
+lab <- "stanal9"
+fit.out(fit0, caption = cap, label = lab)
 ``` 
+Note the use of the function `survSplit` (from the `survival` package) (\# 1), the transformation to
+`factor` for the slices of time (`years`) created by
+`survSplit`, and the creation of an offset (\# 3). This is described in
+detail in Chapter 8.
 
 For testing the presence of a random effect over women, an
-alternative is to use `glmmML`\index{Functions!\fun{glmmML}} in `eha`.
-```{r poisfertML7} 
+alternative is to use the function `glmmML`\index{Functions!\fun{glmmML}} in the package 
+with the same name.
+```{r poisfertML7, echo = TRUE} 
 library(glmmML)
 fe13 <- survSplit(fe, end = "next.ivl", event = "event", 
                   cut = 1:13, episode = "years", 
@@ -382,10 +417,6 @@ fit1 <- glmmML(event ~ parity + ses + years + offset(offs),
                data = fe13, n.points = 9)
 summary(fit)
 ``` 
-Note the use of the function `survSplit` (from the `survival` package) (\# 1), the transformation to
-`factor` for the slices of time (`years`) created by
-`survSplit`, and the creation of an offset (\# 3). This is described in
-detail in Chapter 6.
 
 The conclusion is very much the same as with the nonparametric
 (`coxme`) approach: The clustering effect of *mother* is very
@@ -404,26 +435,31 @@ the effect of covariates that are constant within clusters. In the birth
 intervals case, it is probable that `ses`, socio-economic status, would
 vary little within families. On the other hand, the effet of `birth
   order` or `mother's age` would be suitable to analyze in a stratified
-setting. 
-```{r strat7} 
-library(glmmML)
+setting, see Table \@ref(tab:strat9). 
+```{r strat9, results = 'asis'} 
+
 fit2 <- coxreg(Surv(next.ivl, event) ~ parity + prev.ivl + 
                strata(id), data = fe)
-summary(fit2)
+cap <- "Fertility data, stratified Cox regression."
+lab <- "strat9"
+fit.out(fit2, caption = cap, label = lab)
 ``` 
-Contrast this result with an unstratified analysis.
-```{r unstrat7} 
+Contrast this result with an unstratified analysis in Table \@ref(tab:unstrat9).
+```{r unstrat9, results = 'asis'} 
 fit3 <- coxreg(Surv(next.ivl, event) ~ parity + prev.ivl, 
                data = fe)
-summary(fit3)
+cap <- "Fertility data, unstratified Cox regression."
+lab <- "unstrat9"
+fit.out(fit3, caption = cap, label = lab)
 ``` 
 Note how the effect of `parity` is diminished when aggregating
 comparison over all women, while the effect of the length of the previous
 interval is enlarged. Try to explain why this result is expected! 
 
 ```{example, name =  "Matched data."}
+```
 
 Under certain circumstances it is actually possible to estimate an
 effect of a covariate that is constant within strata, but only if it is
 interacted with a covariate that is not constant within strata. 
-See Example \@ref(exm:matchex9) in Chapter 9.
+See Example \@ref(exm:matchex10) in Chapter 10.

@@ -1,5 +1,12 @@
 # (APPENDIX) Appendix {-}
 
+```{r settings12, echo = FALSE, include = FALSE}
+knitr::opts_chunk$set(comment = "", message = FALSE, echo = FALSE, cache = FALSE)
+options(width = 70, digits = 7)
+source("R/fit.out.R")
+source("R/tbl.R")
+```
+
 # Basic statistical concepts
 
 The statistical concepts that are important for understanding what is
@@ -81,8 +88,7 @@ tt <- data.frame(Group = c("I", "II", "Total"),
                  Deaths = c("d1", "d2", "d"), 
                  Survivors = c("n1 - d1", "n2 - d2", "n - d"), 
                  Total = c("n1", "n2", "n"))
-knitr::kable(tt, caption = "General table in a log rank test.", booktabs = TRUE,
-             row.names = FALSE)
+tbl(tt, caption = "General table in a log rank test.")
 ```
 
 
@@ -137,7 +143,8 @@ In a mortality study of the small town of Umeå in twentieth century northern Sw
 are especially interested in investigating the mortality among persons aged 50 and above.
 We are especially interested in whether there were any differences mortality
 between social branches. For this purpose, the data set `ume` (available in
-the package **eha**), with selected variables, is used. A summary of the data:
+the package **eha**), with selected variables, is used. A summary of the data is shown
+in Table \@ref(tab:creA).
 
 ```{r creA, echo = FALSE, message = FALSE}
 library(skum)
@@ -155,7 +162,7 @@ ume$exit[ume$enter >= ume$exit] <- ume$enter[ume$enter >= ume$exit] + 0.001
 umetab <- toTpch(Surv(enter, exit, event) ~ sex + cohort + civst + socBranch,
                  data = ume, cuts = seq(50, 95, by = 3))
 ##summary(ume)
-head(umetab)
+tbl(head(umetab, 5), caption = "Data about adult mortality in Umeå, first half of 20th ccentury.")
 ```
 
 As you can see, data is *tabulated*, so a piecewise constant hazard model is 
@@ -181,17 +188,19 @@ graph). There is a more general critique of the presentation: Too many *p*-value
 are given, and not the relevant ones either.
 
 In `eha`, the function `tpchreg` does the same thing, but with a more satisfactory
-presentation of the result:
+presentation of the result, see Table \@ref(tab:tabcA).
 
 
-```{r tabcA}
+```{r tabcA, results = 'asis'}
 fit <- tpchreg(oe(event, exposure) ~ socBranch, 
                data = umetab[umetab$civst == "married" & umetab$sex == "male", ], 
                time = age)
-summary(fit)
+cap <- "Adult mortality in Umeå, first half of 20th century, PH regression."
+lab <- "tabcA"
+fit.out(fit, caption = cap, label = lab)
 ```
 
-First, we got rid of the numerous baseline hazards estimates, and second, the 
+First, we got rid of the printing of the numerous baseline hazards estimates, and second, the 
 *factor* `socBranch` is presented in full, with all four levels. And finally, 
 the *relevant p-value*. Because, first,  the truth is that *Wald* p-values are 
 notoriously unreliably in nonlinear regression, and second, we want *p*-values for
@@ -203,8 +212,9 @@ However, note that the essential findings with the two approaches are identical.
 
 The baseline hazard function is shown in Figure \@ref(fig:bhfA).
 
-```{r bhfA, fig.cap = "The cum"}
-plot(fit)
+```{r bhfA, fig.cap = "The hazard function for old age mortality in Umeå, first half of 20th century."}
+plot(fit, fn = "haz", main = "", xlab = "Age", ylab = "Hazard function")
+abline(h = 0)
 ```
 
 
