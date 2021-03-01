@@ -7,8 +7,8 @@ options(show.signif.stars = FALSE)
 library(eha)
 ```
 
-This chapter deals with the various forms explanatory varibles can take and
-thier possible interplay. In principle, this applies to all forma of
+This chapter deals with the various forms explanatory variables can take and
+their possible interplay. In principle, this applies to all forms of
 regression analysis, but here we concentrate on survival models.
 
 
@@ -165,9 +165,9 @@ om <- om[, c("birthdate", "enter", "exit", "event", "sex", "farmer", "imr.birth"
 knitr::kable(head(om, 5), booktabs = TRUE, caption = "Old age mortality, Sundsvall 1860-1880", row.names = FALSE)
 ```
 
-The sampling frame is a rectangle in the Lexis diagram, see Figure \@ref(fig:lexmortfour). It can be described as all persons born between January 1, 1775 and January 1, 1881, and present in the solid rectangle at some moment.
+The sampling frame is a rectangle in the Lexis diagram, see Figure \@ref(fig:lexmortfour). It can be described as all persons born between January 1, 1775 and January 1, 1821, and present in the solid rectangle at some moment.
 
-```{r lexmortfour, fig.cap = "Old age mortality sampling frame, Lexis diagram.", echo = FALSE, fig.height = 4}
+```{r lexmortfour, fig.cap = "Old age mortality sampling frame, Lexis diagram.", echo = FALSE, fig.height = 5,fig.width=5}
 plot(c(1860, 1880), c(60, 60), type = "l", ylim = c(0, 100), xlim = c(1770, 1890), axes = FALSE, lwd = 1.5, xlab = "Year", ylab = "Age")
 axis(1, at = c(1775, 1821, 1860, 1881))
 axis(2, at = c(0, 60, 85, 100), las = 1)
@@ -275,7 +275,7 @@ print(summary(fit5), short = TRUE)
 ```
 
 Obviously `sex` is statistically significant, while `birthdate` is not. We go 
-irectly to the estimated coefficients after adding an interaction term to the model:
+directly to the estimated coefficients after adding an interaction term to the model:
 
 ```{r facconmulint}
 fit6 <- coxreg(Surv(enter, exit, event) ~ sex * birthdate, data = om)

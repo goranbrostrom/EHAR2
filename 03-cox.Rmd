@@ -16,7 +16,7 @@ and end up with *Cox regression* [@cox72].
 \index{proportional hazards}
 
 The property of *proportional hazards* is fundamental in Cox
-regression. It is in fact the essence of Cox's simple yet ingenious
+regression. It is in fact the essence of Cox's simple, yet ingenious
 idea. The definition is as follows:
 
 ```{definition, name="Proportional hazards"}
@@ -84,19 +84,19 @@ expand the calendar time period to the years 2001--2019.
 The reason for this is that random fluctuations in low ages, caused by the 
 extremely low mortality rates, blur the picture.
 
-```{r twosex2, echo = FALSE, fig.cap = "Female and male mortality by age, Sweden 2001-2019. The right hand panel shows the ratio between the male and female mortality by age.", fig.height = 3}
+```{r twosex2, echo = FALSE, fig.cap = "Female and male mortality by age, Sweden 2001-2020. The right hand panel shows the ratio between the male and female mortality by age.", fig.scap = "Female and male mortality by age, Sweden 2001-2021.", fig.height = 3}
 library(eha)
-females <- swepop[swepop$sex == "women" & swepop$year %in% 2001:2019, 
+females <- swepop[swepop$sex == "women" & swepop$year %in% 2001:2020, 
                   c("age", "pop", "year")]
 females$deaths <- swedeaths[swedeaths$sex == "women" & 
-                                swedeaths$year %in% 2001:2019, "deaths"]
+                                swedeaths$year %in% 2001:2020, "deaths"]
 females <- aggregate(females[c("pop", "deaths")], by = females["age"], FUN = sum)
 females$mort <- females$deaths / females$pop
 ##
-males <- swepop[swepop$sex == "men" & swepop$year %in% 2001:2019, 
+males <- swepop[swepop$sex == "men" & swepop$year %in% 2001:2020, 
                   c("age", "pop")]
 males$deaths <- swedeaths[swedeaths$sex == "men" & 
-                                swedeaths$year %in% 2001:2019, "deaths"]
+                                swedeaths$year %in% 2001:2020, "deaths"]
 males <- aggregate(males[c("pop", "deaths")], by = males["age"], FUN = sum)
 males$mort <- males$deaths / males$pop
 oldpar <- par(mfrow = c(1, 2), las = 1)
@@ -690,8 +690,8 @@ P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x}) =
 (\#eq:dischaz)
 \end{multline}
 with $h_j = P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x} =
-\mathbf{0})$, $j = 1, \ldots, k$. We take \@ref{eq:dischaz} as the
-\emph{definition} of proportional hazards in discrete time.
+\mathbf{0})$, $j = 1, \ldots, k$. We take \@ref(eq:dischaz) as the
+*definition* of proportional hazards in discrete time.
 
 ### Logistic regression
 
@@ -727,7 +727,7 @@ Then
 This is logistic regression with a cloglog link. Note that extra parameters
 $\alpha_1, \ldots, \alpha_k$ are introduced, one for each potential event
 time (interval). They correspond to the baseline hazard function in continuous time,
-but are be estimated simultaneously with the regression parameters.
+and are be estimated simultaneously with the regression parameters.
 
 
 ## Doing it in **R**
@@ -800,10 +800,10 @@ statistics that were printed in the previous output below the table of coefficie
 ### The estimated baseline cumulative hazard function
 \index{cumulative hazard function|(} 
 
-The estimated baseline cumulative function (see Equation \@ref(eq:bashaz)) is best
-plotted by the `plot` command, see Figure \@ref(fig:basl3).
+The estimated baseline cumulative function (see Equation \@ref(eq:bashaz)) is preferably
+reported by a graph using the `plot` command, see Figure \@ref(fig:basl3).
 
-```{r basl3,fig=TRUE,echo=FALSE, fig.cap="Estimated cumulative baseline hazard function.", fig.height = 3}
+```{r basl3,fig=TRUE,echo=FALSE, fig.cap="Estimated cumulative baseline hazard function.", fig.height = 4}
 par(las = 1)
 plot(fit, xlab = "Age")
 ```

@@ -12,7 +12,7 @@ options(width = 70, digits = 7)
 The thing that characterizes event history and survival data the most
 is its *dynamic* nature. Individuals are
 followed over
-time, and during that course, the timing of events of interest are
+time, and during that course, the timings of events of interest are
 noted. Naturally, things may happen that makes it necessary to interrupt an
 individual follow-up, such as the individual suddenly disappearing for some
  reason. With classical statistical tools, such as
@@ -21,7 +21,7 @@ in the analysis. The methods discussed in this book aim among other
 things, at solving such problems.
 
 
-In this introductory chapter, the use of the special techniques that
+In this introductory chapter, the special techniques that
 constitute survival and event history analysis are motivated. The concepts of
 *right censoring*\index{censoring!right} and
 *left truncation*\index{left truncation} are defined and discussed.
@@ -30,8 +30,8 @@ in this chapter.
 
 The environment R is freely (under a *GPL license*) available for
 download from [CRAN](https://cran.r-project.org). There you will find
-precompiled versions for Linux, MacOS X, and Microsoft Windows, as well as
-the full source code, which is open. See *Appendix C* for more
+precompiled versions for *Linux*, *Mac OS*, and *Microsoft Windows*, as well as
+the full *source code*, which is open. See *Appendix C* for more
 information.
 
 ## Survival data
@@ -62,7 +62,7 @@ Sweden. The name *oldmort* is an acronym for *old age
   mortality*. The source is digitized information from historical parish registers, church books. More
 information about this can be found at the web page of the
 *Centre for Demographic and Ageing Research* at Umeå University
-([CEDAR](http://www.cedar.umu.se)).
+([CEDAR](https://www.umu.se/cedar)).
 
 The sampling was done as follows: Every person who was present and alive
 and 60 years of age or above anytime between 1 January 1860 and 31 December
@@ -105,7 +105,62 @@ want row names printed, you have to use the more cumbersome
 print(oldmort[1:3, ], row.names = FALSE)
 ```
 
-There are several packages for nice printing of tables, if you want that.
+There are several packages for nice printing of tables available on CRAN.
+In this book, written 
+with the aid of the **R** packages `bookdown` [@bookdown; @bookdown20], 
+`knitr` [@knitr; @knitr20] and `kableExtra` [@kableExtra20], outputs of tables 
+and regression results are first given "asis", that is, as you will see them
+on the computer screen, but later, depending on circumstances, nice printing 
+is preferred. Code like the following is often used for regression results:
+
+```r
+fit.out <- function(fit, caption, label){
+    if (knitr::is_latex_output()){ # PDF
+        if (!missing(label)){
+            label <- paste0("tab:", label)
+        }
+        dr <- drop1(fit, test = "Chisq")
+        ltx(fit, dr = dr, caption = caption, label = label)
+    }else{ # HTML
+        xx <- regtable(summary(fit), digits = 4)
+        nn <- ncol(xx)
+        rr <- c("Max Log", "Likelihood", "", round(fit$loglik[2], 1), rep("", nn - 4))
+        xx <- rbind(xx, rr)
+        kbl(xx, booktabs = TRUE, caption = caption) %>%
+            kable_styling(font_size = 12, 
+                full_width = FALSE)
+    }
+}    
+```
+
+Essentially, if output is a *pdf* document (this printed book), the function
+`ltx` (from the package **eha**) is used, and if output is in HTML format, the
+functionality of the packages **knitr** and **kableExtra** is used.
+
+For rectangular tables (for instance, data), the code is simpler, we can use 
+**kableExtra** for both HTML and pdf output:
+
+```r
+tbl <- function(tt, caption = "", fs = 11){
+    library(kableExtra)
+    kbl(tt, caption = caption, booktabs = TRUE, row.names = FALSE) %>%
+        kable_styling(full_width = FALSE, font_size = fs, 
+                    position = "center")
+}
+```
+
+The result (with selected variables and a random sample of records) is shown in Table \@ref(tab:knex1).
+
+```{r knex1, echo = FALSE}
+source("R/tbl.R")
+set.seed(4123)
+om <- oldmort[, c(2:5, 8:11, 13)]
+om$ses.50 <- NULL
+om$birthplace <- NULL
+om$birthdate <- toDate(om$birthdate)
+cap <- "Old age mortality, 19th century Sundsvall, Sweden."
+tbl(head(om[sample(NROW(om), replace = FALSE), ], 10), caption = cap, fs = 11)
+```
 
 The variables in *oldmort* have the following definitions and
 interpretations:
@@ -258,8 +313,8 @@ operation, and the final event time is time of relapse (if any).
 
 ## Right censoring
 
-When an individual is lost to follow-up, we say that she is *right censored*
-\index{censoring!right}, see Figure&nbsp;\@ref(fig:rightcensoring).
+When an individual is lost to follow-up, we say that she is *right censored*,
+\index{censoring!right} see Figure \@ref(fig:rightcensoring).
 
 ```{r rightcensoring, fig.cap = "Right censoring", echo = FALSE, fig.height= 3}
 plot(c(0, 10), c(2, 2), type = "l", ylim = c(0, 4),
@@ -297,7 +352,8 @@ The concept of *left truncation*\index{left truncation|(}, or
 that was discussed in detail in Example \@ref(exm:oldmort01).
 Please note the
 difference compared to *left censoring*\index{censoring!left}. 
-Unfortunately, you may still see articles where these two concepts are mixed up.
+Unfortunately, you may still see scientific articles where these two 
+concepts are mixed up.
 
 It is illustrative to think of the construction of the data set
   *oldmort* as a statistical follow-up study, starting on January 1,
@@ -378,7 +434,7 @@ lex
 ```
 How do we restrict the data to fit into the rectangle given by the Lexis
 diagram in Figure&nbsp;\@ref(fig:lexis1)? With the two functions **age.window**
-and **cal.window** it is easy. The former fixes the 'age cut' while the
+and **cal.window** in `eha`, it is easy. The former fixes the 'age cut' while the
 latter makes the 'calendar time cut'.
 
 The age cut:
@@ -572,7 +628,7 @@ library(eha)
 This loads the **eha** package. In the
 examples to follow, we assume that this is already done. The main data
 source is the CEDAR, Umeå University, Sweden. However, one
-data set is taken from the home page of [Statistics Sweden](http://www.scb.se).
+data set is taken from the home page of [Statistics Sweden](https://www.scb.se).
 
 ```{example, name = "Survival of males aged 20", label = "menaged"}
 ```
@@ -743,7 +799,7 @@ controls.
 This data set is discussed and analyzed in Chapter 8.
 \index{Data sets!infant mortality|)}$\Box$
 
-```{example, name = "Mortality in Sweden 1968-2019, tabular data", label = "swedtab1"}
+```{example, name = "Mortality in Sweden 1969-2020, tabular data", label = "swedtab1"}
 ```
 \index{Data sets!tabular}
 \index{Data sets!tabular!Swedish mortality|(}
@@ -751,20 +807,20 @@ These data sets (`swepop` and `swedeaths`) are taken from Statistics
 Sweden\index{Statistics Sweden}, freely available on
 the web site \url{http://www.scb.se}. The aggregated data sets contain yearly
 information about population size and number of deaths by sex and age for the
-years 1968--2019.
+years 1969--2020.
 
-The first and last rows of `swepop` for the year 2019 are
+The first and last rows of `swepop` for the year 2020 are
 
 ```{r olmscb1, echo = FALSE}
-print(swepop[swepop$year == 2019, 1:4][1:3, ], row.names = FALSE)
-print(swepop[swepop$year == 2019, 1:4][200:202, ], row.names = FALSE)
+print(swepop[swepop$year == 2020, 1:4][1:3, ], row.names = FALSE)
+print(swepop[swepop$year == 2020, 1:4][200:202, ], row.names = FALSE)
 ```
 
 and the first and last rows of `swedeaths` are
 
 ```{r olmscb21, echo = FALSE}
-print(swedeaths[swedeaths$year == 2019, 1:4][1:3, ], row.names = FALSE)
-print(swedeaths[swedeaths$year == 2019, 1:4][200:202, ], row.names = FALSE)
+print(swedeaths[swedeaths$year == 2020, 1:4][1:3, ], row.names = FALSE)
+print(swedeaths[swedeaths$year == 2020, 1:4][200:202, ], row.names = FALSE)
 ```
 
 
@@ -779,5 +835,5 @@ The variables have the following meanings.
 *   **sex** Female or male.
 *   **age** Age in completed years.
 
-See Chapter 4 for how to analyze this data set.
+See Chapter 7 for how to analyze this data set.
 \index{Data sets!tabular!Swedish mortality|)}$\Box$

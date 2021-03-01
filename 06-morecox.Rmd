@@ -7,7 +7,7 @@ options(show.signif.stars = FALSE, warn = 1)
 library(eha)
 ```
 
-Necessary and vital concepts like
+Vital concepts like
 *time-dependent covariates*, *communal covariates*, handling of
 *ties*, *model checking*, *sensitivity analysis*, etc, 
 are introduced in this chapter.

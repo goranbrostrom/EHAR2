@@ -162,9 +162,12 @@ library(eha)
 fit <- coxreg(Surv(enter, exit, event) ~ x, data = dat)
 print(summary(fit), short = TRUE)
 ```
-The baseline hazards is given by the function `hazards`: 
+The baseline hazards is given by the function `hazards`. By default it calculates 
+the *cumulative* hazards, but here we need the non-cumulative ones, which is accomplished
+by specifying `cum = FALSE`:
+
 ```{r gethaz5}
-haz <- hazards(fit)
+haz <- hazards(fit, cum = FALSE)
 haz
 ```
 
@@ -207,7 +210,7 @@ colnames(xx) <- c("Time", "coxreg", "glm")
 xx
 ``` 
 
-Identical results as we can see. This correspondence between Poisson and Cox regression was pointed out by
+The results are identical. This correspondence between Poisson and Cox regression was pointed out by
  @joh83. However, this approach is not very useful in practical work with medium or large
  data sets, because the output from `toBinary` may be huge. For instance, with
  the data set `child`, the resulting data frame consists of slightly more than 
@@ -252,11 +255,11 @@ We create a data set `swe07` (a subset and combination of `swepop`
 and `swedeaths` in `eha`), which contains population size and number of deaths by age 
 and sex in Sweden 2007. The age span is restricted to ages 61--80.
 
-```{r swe07}
+```{r swe07, echo = FALSE}
 swe07 <- swepop[swepop$year == 2007, ]
 swe07$deaths <- swedeaths$deaths[swedeaths$year == 2007]
 swe07 <- swe07[swe07$age >= 61 & swe07$age <= 80, c("age", "sex", "deaths", "pop")]
-pout <- rbind(head(swe07, 5), c("...", "...", "...", "..."), tail(swe07, 5))
+pout <- rbind(head(swe07, 5), tail(swe07, 5))
 knitr::kable(pout, booktabs = TRUE, row.names = FALSE, label = "swe076180",
              caption = "Swedish population data 2007, ages 61-80.")
 
@@ -291,8 +294,8 @@ and
   \end{split}
 \end{equation*}
 
-This calculation shows that it is the log of the population sizes
-($\log(P_{ij}$) that is the correct *offset* to use in the Poisson regression.
+This calculation shows that it is the log of the population sizes, 
+$\log(P_{ij})$, that is the correct *offset* to use in the Poisson regression.
 First we want `age` to be a factor (no restrictions like linearity),
 then the **R** function `glm` ("generalized linear model") is used to
 fit a Poisson regression model. 

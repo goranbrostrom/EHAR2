@@ -10,12 +10,12 @@ the distribution of survival data may
 be either _continuous_ or _discrete_, but the nonparametric
 estimators\index{nonparametric estimator} of the distributions of survival
 time are discrete in any case.
-Therefore, when introducing the estimators, the discrete models are
-necessary to know.
+Therefore, the discrete models are
+necessary to know in order to understand nonparametric estimation.
 
 In the present chapter, only nonparametric estimation is discussed. This
 means that no assumptions whatsoever are made about the true underlying
-distribution. Parametric models are presented in Chapter&nbsp;6.
+distribution. Parametric models are presented in Chapter 8.
 
 ## Continuous time model descriptions
 \index{model!continuous|(}
@@ -43,7 +43,7 @@ Table \@ref(tab:lifewomen2).
 ```
 Statistics Sweden (SCB) is a government agency that produces
 statistics and have a coordinating role for the official statistics
-of Sweden. From their home page (http://www.scb.se) it is possible to
+of Sweden. From their [home page](https://www.scb.se) it is possible to
 download vital
 population statistics, like population size and number of deaths by age,
 gender, and year. From such data it is possible to construct *life tables*.
@@ -54,26 +54,26 @@ intervals of lengths 1, 5, and 10 years. We always prefer data with as much
 information as possible, so we choose the tables with age interval lengths one. 
 It is always possible to *aggregate* later, if that is preferred.
 
-There are two data sets in the R package eha that contain population size 
+There are two data sets in the **R** package **eha** that contain population size 
 information and information about number of deaths, `swepop` and `swedeaths`, 
-respectively. Both cover the years 1968--2019. We use both to construct a data frame
-`females` containing population size and number of deaths for females 2019. 
+respectively. Both cover the years 1969--2020. We use both to construct a data frame
+`females` containing population size and number of deaths for females 2020. 
 Below, the first five and last five rows are printed. Note that the last row, 
 with `age = 100` in fact includes all ages from 100 and above. It is common that
 tables like this one ends with an open interval.
 
 ```{r getpop,echo=TRUE}
 library(eha)
-females <- swepop[swepop$sex == "women" & swepop$year == 2019, 
+females <- swepop[swepop$sex == "women" & swepop$year == 2020, 
                   c("age", "pop")]
 females$deaths <- swedeaths[swedeaths$sex == "women" & 
-                                swedeaths$year == 2019, "deaths"]
+                                swedeaths$year == 2020, "deaths"]
 print(females[c(1:5, 97:101), ], row.names = FALSE)
 ```
 
 A full view of the population size by age is given in Figure \@ref(fig:scbpopfig).
 
-```{r scbpopfig, fig.cap="Female population by age, Sweden 2019.", echo = FALSE}
+```{r scbpopfig, fig.cap="Female population by age, Sweden 2020.", echo = FALSE}
 par(las = 1)
 plot(0:100, females$pop / 1000, xlab = "Age", ylab = "Thousands", type = "h",
         axes = FALSE)
@@ -84,7 +84,7 @@ box()
 
 And the numbers of deaths by age are shown in Figure \@ref(fig:scbdeadfig).
 
-```{r scbdeadfig, fig.cap="Female deaths by age, Sweden 2019.", echo = FALSE}
+```{r scbdeadfig, fig.cap="Female deaths by age, Sweden 2020.", echo = FALSE}
 par(las = 1)
 plot(0:100, females$deaths / 1000, xlab = "Age", ylab = "Thousands", type = "h", 
         axes = FALSE)
@@ -126,7 +126,7 @@ d1 <- round(females$risk[1] * 100000)
 l2 <- 100000 - d1
 l2 <- as.character(l2, digits = 5)
 knitr::kable(fem, row.names = FALSE, booktabs = TRUE,
-             caption = "Life table for Swedish women 2019.", align = "r")
+             caption = "Life table for Swedish women 2020.", align = "r")
 ```
 
 
@@ -138,11 +138,11 @@ population size over the year. Since population numbers from the SCB are
 taken at the turn of the years, the numbers in column two are averages of
 two columns in the SCB file. The third column contains the total numbers of
 deaths in each age category during the year.  The fourth and fifth columns
-are derived from the previous ones. The _risk_ is essentially the
+are derived from the previous ones. The _risk_ is the
 ratio between the number of deaths and population size for each age.
 
 Column five, _alive_, contains the actual construction of
-the life table. It depicts the actual size of a birth cohort\index{cohort},
+the life table. It depicts the actual size of a hypthetical birth cohort\index{cohort},
 _year by year_,
 exposed to the death risks of column four. It starts with 100000 (an arbitrary, 
 but commonly chosen, number) newborn females.
@@ -165,12 +165,12 @@ actual size of the (still alive) cohort is recorded age by age. That is,
 "individuals" in the synthetic cohort live their whole lives under the
 mortality conditions of the year 2019. Of course no real individual can
 experience this scenario, hence the name "synthetic
-cohort". Nevertheless, it is a useful tool to illustrate the state of
+cohort". Nevertheless, it is a useful measure for illustrating the state of
 affairs regarding mortality a given year.
 
 
 
-```{r lifetablefig, fig.cap = "Life table and survival function, females, Sweden 2019.", fig.scap = "Life table and survival function, females, Sweden 2019.", echo = FALSE,fig.height=4,message=FALSE}
+```{r lifetablefig, fig.cap = "Life table and survival function, females, Sweden 2020.", fig.scap = "Life table and survival function, females, Sweden 2019.", echo = FALSE,fig.height=4,message=FALSE}
 library(eha)
 x <- seq(0, 102, length = 1000)
 plot(x, ppch(x, 1:100, females$risk, lower.tail = FALSE), type = "l",
@@ -266,7 +266,7 @@ f(t) = \lim_{s \rightarrow 0} \frac{P(t \le T < t + s)}{s}, \quad t > 0.
 
 For the Swedish women 2019, the estimated density function is shown in Figure \@ref(fig:famdens192).
 
-```{r famdens192, ech = FALSE, fig.cap = "Density function for Swedish women 2019.", ech0 = FALSE}
+```{r famdens192, echo = FALSE, fig.cap = "Density function for the life length of Swedish women 2020.", ech0 = FALSE}
 par(las = 1)
 plot(females$age, females$risk * females$alive / 100000, 
      type = "l", xlab = "Age", ylab = "Density")
@@ -278,9 +278,9 @@ abline(h = 0)
 \index{hazard function|(}
 
 The *hazard function*\index{hazard function} is central to the understanding of survival
-analysis, so the reader is recommended to get at least an intuitive
+analysis, so you are recommended to get at least an intuitive
 understanding of it. One way of thinking of it is as an ``instant
-probability''; at a given age $t$, it measures the risk of dying in a short
+probability'' (per unit time); at a given age $t$, it measures the risk of dying in a short
 interval $(t, t + s)$ immediately after $t$, for an individual *who
   still is alive at* $t$.
 
@@ -300,7 +300,7 @@ latter is (the limit of) a
 
 For the Swedish women 2019, the estimated hazard function (age-specific mortality) is shown in Figure \@ref(fig:famhaz192).
 
-```{r famhaz192, ech = FALSE, fig.cap = "Hazard function for Swedish women 2019.", echo = FALSE}
+```{r famhaz192, ech = FALSE, fig.cap = "Hazard function for the life length of Swedish women 2020.", echo = FALSE}
 par(las = 1)
 plot(females$age, females$risk, type = "l", xlab = "Age", ylab = "Hazard")
 abline(h = 0)
@@ -352,7 +352,7 @@ successively accumulates the instant risks.
 
 The cumulative hazard function is important because it is fairly easy to
 estimate nonparametrically\index{nonparametric estimation} (i.e., without
-any restrictions), in contrast to the hazard and density functions. 
+any restrictions or assumptions), in contrast to the hazard and density functions. 
 
 For the Swedish women 2019, the estimated cumulative hazard function is shown in Figure \@ref(fig:famcumhaz192).
 
@@ -390,7 +390,7 @@ f(t) = \lambda e^{-\lambda t}, \quad \lambda > 0,\; t \ge 0.
 \end{equation*}
 The property of constant hazard implies *no aging*. This is not a
 realistic property for human mortality, but, as we will see, a useful
-benchmark, and a useful model for modelling mortality over short time
+benchmark, and a useful tool for modelling mortality over short time
 intervals (*piecewise constant hazard*). 
 \index{cumulative hazard function|)} 
 The exponential distribution is described in detail in 
@@ -404,7 +404,7 @@ reason is two-fold: (i) Even if data are generated from truly continuous
 time models, nonparametric estimation of these models will, as will be
 shown later, give rise to estimators corresponding to a discrete time
 model. This is an inherent property of nonparametric maximum likelihood
-estimators. Thus, in order to study the properties of these estimators, we
+estimation. Thus, in order to study the properties of these estimators, we
 need some knowledge of discrete time models. (ii) Data are discrete,
 usually through grouping. For instance, life lengths may be measured in
 full years, introducing *tied data*\index{tied data}.
@@ -593,11 +593,11 @@ axis(1, at = c(0:6))
 axis(2, at = 1:5, las = 1)
 ##box()
 abline(v = 0)
-text(4.2, 1, "+", cex = 1.5)
+text(4.2, 1, "+", cex = 1.2)
 lines(c(0, 2), c(2, 2))
 text(2, 2, "0")
 lines(c(0, 6), c(3, 3))
-text(6.2, 3, "+", cex = 1.5)
+text(6.2, 3, "+", cex = 1.2)
 lines(c(0, 1), c(4, 4))
 text(1.2, 4, "+", cex = 1.5)
 lines(c(0, 3), c(5, 5))
@@ -676,13 +676,13 @@ plot(c(0, 4), c(1, 1), type= "l", ylim = c(0, 5.1), xlim = c(0, 8),
 axis(1, at = c(0, 1, 4, 6))
 axis(2, at = 1:5, las = 1)
 abline(v = 0)
-text(4.2, 1, "+", cex = 1.5)
+text(4.2, 1, "+", cex = 1.2)
 lines(c(0, 2), c(2, 2))
 text(2, 2, "0")
 lines(c(0, 6), c(3, 3))
-text(6.2, 3, "+", cex = 1.5)
+text(6.2, 3, "+", cex = 1.2)
 lines(c(0, 1), c(4, 4))
-text(1.2, 4, "+", cex = 1.5)
+text(1.2, 4, "+", cex = 1.2)
 lines(c(0, 3), c(5, 5))
 text(3, 5, "0")
 abline(v = c(1, 4, 6), lty = 2)
@@ -779,6 +779,7 @@ See also
 Figure \@ref(fig:esthaz).
 
 ```{r esthaz, fig.cap = "Nonparametric estimation of the hazard function.", fig.height = 3, echo=FALSE}
+par(las = 1)
 plot(c(1, 1), c(0, 0.2), type = "l", xlim = c(0, 7), ylim = c(0, 1.2), axes = FALSE, lwd = 1.5, xlab = "Duration", ylab = "")
 axis(1, at = c(0, 1, 4, 6))
 axis(2, at = c(0, 1))
@@ -1016,9 +1017,9 @@ from the package `survival`, creates a "survival object", which is
 used in many places. It is for instance *the response* in all
 functions that perform regression analysis on survival data.
 
-Note that the "Duration" in Figure\@ref(fig:pshazsur) is duration (in
+Note that the "Duration" in Figure \@ref(fig:pshazsur) is duration (in
 years) since the day each man became twenty years of age. They are followed until
-death or age forty, whichever comes first.  The right hand figure shows
+death or age forty, whichever comes first.  The right hand panel shows
 that approximately 25 per cent of the men alive at age twenty died before they
 became forty. Data come from a 19th century Swedish sawmill area.
 
