@@ -40,8 +40,9 @@ library(eha)
 datum <- Sys.Date()
 ```
 
-The first edition of this book was published 1i 2012, nine years ago. Since then
-the field has grown and developed rapidly, both in terms of available scientific data and
+The first edition of this book was published in 2012, nine years ago. Since then
+the field of event history and survival analysis has grown and developed rapidly, 
+both in terms of available scientific data and
 of software development for analyzing data, not the least in the **R** environment.
 We have also seen public need of analyzing what is going on around the world, and the 
 present (2021) state of the COVID-19 pandemic is a striking example of that.
@@ -50,9 +51,9 @@ So the time for a second edition of the book is now. The basic chapters on Cox r
 and proportional hazards modeling are much the same as in the first edition, but they 
 have been updated. There are two new chapters, Chapter 4, *Explanatory Variables and Regression*,
 and Chapter 7, *Register-Based Survival Data Models*. Compared to the first edition, 
-chapters have been reordered so that the logical flow is clearer.
-
-*[some more to be added here...]*
+chapters have been reordered so that the logical flow is clearer. On the other hand, 
+the appendices C and D are somewhat shorter now because there are a lot of excellent sources 
+on-line today covering their topic, which anyway is a little bit off here.  
 
 The writing of this book has been done in parallel with the development of the **R** package
 `eha` [@eha]. All the data sets used in the examples in this book are available in `eha`, 
@@ -78,6 +79,9 @@ sessionInfo = function() {
 xfun::session_info()
 ```
 
+Göran Broström
+
+Umeå, Sweden
 
 # Preface to the First Edition {-}
 
