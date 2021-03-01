@@ -165,12 +165,12 @@ visible in the earlier figures. A possible explanation is that the age interval
 20-50 approximately coincides with women's fertility period, that is, during
 this period, the mortality advantage decreases more than pure age motivates. 
 
-This pattern may change over the time period 1968--2019. We split the 
+This pattern may change over the time period 1969--2020. We split the 
 data by year into quarters in order to check this.
 
 ```{r quarters7, fig.cap = "Baseline hazard functions, men and women by time period.", echo = FALSE}
 oldpar <- par(mfrow = c(2, 2))
-start <- 1968
+start <- 1969
 for (i in 1:4){
     slut <- start + 12
     swx <- sw[sw$year %in% start:slut, ]
@@ -195,22 +195,22 @@ Finally, we investigate the development of expected life ($e_0$) over time, see 
 fem <- numeric(52)
 mal <- numeric(52)
 i <- 0
-for (year in 1968:2019){
+for (year in 1969:2020){
     i <- i + 1
     fit <- tpchreg(oe(deaths, pop) ~ strata(sex), 
-                   data = sw[sw$year == year, ], 
+                   data = sw[sw$year == year, ],
                    time = age, last = 101)
     x <- summary(fit)
     fem[i] <- x$rmean[1]
     mal[i] <- x$rmean[2]
 }
-att <- c(1968, 1981, 1994, 2007, 2019)
-plot(1968:2019, fem, type = "b", col = "red", ylim = c(70, 85), 
+att <- c(1969, 1981, 1994, 2007, 2020)
+plot(1969:2020, fem, type = "b", col = "red", ylim = c(70, 85), 
      ylab = "Age", xlab = "Year", axes = FALSE)
 axis(1, at = att)
 axis(2, las = 1)
 box()
-lines(1968:2019, mal, type = "b", col = "blue", pch = "+")
+lines(1969:2020, mal, type = "b", col = "blue", pch = "+")
 text(1990, 82, "Women", col = "red")
 text(1990, 73, "Men", col = "blue")
 abline(h = c(75, 80, 85), lty = 3)
@@ -218,7 +218,10 @@ abline(v = att, lty = 3)
 ```
 
 The difference in longevity between women and men is slowly decreasing over the 
-time period.
+time period. Also note the values in the last two years: Mortality in Sweden was
+unusually low in the year 2019, resulting in high values of expected life, but in 
+2020, the pandemic virus *covid-19* struck, and the expected life dropped by
+around five months for women and almost nine months for men, compared to 2019.
 
 ## Individual data
 

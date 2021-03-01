@@ -1,4 +1,4 @@
-# Parametric Models
+# Parametric Models {#parametric}
 
 ```{r settings8, echo = FALSE, include = FALSE}
 knitr::opts_chunk$set(comment = "", message = FALSE, echo = FALSE, cache = FALSE)
