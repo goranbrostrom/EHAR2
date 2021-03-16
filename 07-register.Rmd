@@ -1,12 +1,12 @@
-# Register-Based Survival Data Models
-
+# Register-Based Survival Data Model
+\index{register data}
 ```{r settings7, echo = FALSE, include = FALSE}
 knitr::opts_chunk$set(comment = "", message = FALSE, echo = TRUE, cache = FALSE)
 options(width = 70, digits = 7)
 ```
 
 During the last couple of decades, huge data bases with poulation data have 
-popped up almost everywhere. They are great sources of information in demographic 
+popped up around the world. They are great sources of information in demographic 
 and statistical research, but their sizes creates challenges for the statistical 
 tools we traditionally use in the demographic analyses.
 
@@ -15,7 +15,7 @@ tabular data. In both cases, however, we will end up analyzing tables, so we
 start by describing methods for analyzing tables.
 
 ## Tabular data
-
+\index{tabular data}
 National statistical agencies produce statistics describing the population year 
 by year, in terms of population size by age and sex, number of births by mother's
 age and sex of the newborn, number of deaths by age and sex, and so on. In the
@@ -64,7 +64,7 @@ kbl(head(sw, 5), booktabs = TRUE, caption = "First rows of combined data frame."
 
 The response variable in our analysis is two-dimensional: `(deaths, pop)`, 
 which is on an "occurrence/exposure" form, suitable for an analysis with the 
-function `tpchreg`. The result is a *proportional hazards* analysis with 
+function `tpchreg`.\index{Functions!\fun{tpchreg}} The result is a *proportional hazards* analysis with 
 the assumption of a piecewise constant baseline hazard function:
 
 ```{r tpchtab7}
@@ -84,7 +84,8 @@ reading, writing and organizing the user operation). The interesting value for u
 is that the total elapsed time was around six tenth of a second.
 
 
-2.   The response is `oe(deaths, pop)` where `oe`is short for "occurrence/exposure".
+2.   The response is `oe(deaths, pop)` where `oe` \index{Functions!\fun{oe}} 
+is short for "occurrence/exposure".
 
 3.   All covariates have a *reference value*. For factors with the default coding,
 the reference category is given, but for continuous covariates we need to specify
@@ -220,7 +221,7 @@ abline(v = att, lty = 3)
 The difference in longevity between women and men is slowly decreasing over the 
 time period. Also note the values in the last two years: Mortality in Sweden was
 unusually low in the year 2019, resulting in high values of expected life, but in 
-2020, the pandemic virus *covid-19* struck, and the expected life dropped by
+2020, the pandemic virus *covid-19*\index{covid-19} struck, and the expected life dropped by
 around five months for women and almost nine months for men, compared to 2019.
 
 ## Individual data
@@ -248,8 +249,8 @@ The variables are
 
 *   **id** A unique id number, which allows us to link information from different
 sources (and years) to one individual.
-*   **year** The present year, 2001, ..., 2013.
-*   **sex**  Female or male.^
+*   **year** The present year, 2001, $\ldots$, 2013.
+*   **sex**  Female or male.
 *   **birthdate** A constructed variable. Due to integrity reasons, birth time information
 is only given in the form of year and quarter of the year. So the *birthdate* is created
 by year and the first quarter is represented by the decimal places ".125" (equal roughly
@@ -347,13 +348,18 @@ A summary of the result gives
 Now this data set is conveniently analyzed with the aid of the function `tpchreg` 
 in `eha`. An example:
 
-```{r runtable7, comment = "",results = "asis", echo = FALSE}
+```{r runtab7, comment = "", echo = TRUE}
 listab$year <- listab$year - 2000 # Enumerate (center)!
 list2 <- aggregate(cbind(event, exposure) ~ sex + civst + ses + 
                        year + age, FUN = sum, data = listab)
 fit <- tpchreg(oe(event, exposure) ~ strata(sex) + civst + ses + 
                    year, data = list2, time = age, last = 105)
 xx <- summary(fit)
+emen <- round(xx$rmean[1], 2)
+ewomen <- round(xx$rmean[2], 2)
+```
+
+```{r runtable77, results = "asis", echo = FALSE}
 if (knitr::is_latex_output()){
     fit.ltx <- tpchreg(oe(event, exposure) ~ strata(sex) + civst + ses + 
                    year, data = list2, time = age, last = 105)
@@ -364,9 +370,11 @@ if (knitr::is_latex_output()){
 }
 ```
 
-```{r runtable7html, echo = FALSE}
+```{r runtable7, echo = FALSE}
 if (knitr::is_html_output()) print(xx)
 ```
+
+The result is shown in Table 7.7.
 
 We note a couple of things here:
 
@@ -386,12 +394,12 @@ It is also reasonable to claim that this constitutes a *total investigation*, an
 therefore *p*-values are meaningless.
 
 3. The restricted mean survival 
-*at age 30* for a *married worker* in the *year 2002* is `r round(xx$rmean, 2)` 
-years for men and women,
-that is, the expected age of death is `r round(30 + xx$rmean, 2)` years for 
-men and women alive at 30, respectively.
+*at age 30* for a *married worker* in the *year 2002* is `r emen` 
+years for men and `r ewomen` years for women,
+that is, the expected age of death is `r 30 + emen` years for 
+men and `r 30 + ewomen` years for women alive at 30.
 
-A graph of the survival functions is shown in Figure \@ref(fig:wbhaz7).
+A graph of the conditional survival functions is shown in Figure \@ref(fig:wbhaz7).
 
 ```{r wbhaz7, fig.cap = "Survival above 30, males and females, married worker, Sweden 2002.", echo = FALSE, fig.height = 3.5}
 par(las = 1)

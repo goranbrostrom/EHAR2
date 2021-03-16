@@ -1010,9 +1010,9 @@ par(oldpar)
 ```
 
  Note the use of the
-function `with`\index{Functions!`with`}; it tells the `plot`
+function `with`\index{Functions!\fun{with}}; it tells the `plot`
 function that it should get its data `(enter, exit, event)` from the
-data frame `mort`. The function `Surv`\index{Functions!`Surv`}, imported
+data frame `mort`. The function `Surv`\index{Functions!\fun{Surv}}, imported
 from the package `survival`, creates a "survival object", which is
 used in many places. It is for instance *the response* in all
 functions that perform regression analysis on survival data.
@@ -1067,9 +1067,9 @@ of Figure \@ref(fig:pshazsur).
 ### Parametric estimation
 
 It is also possible to fit a parametric model to data with the aid of the
-function `phreg`\index{Functions!phreg|(} 
+function `phreg`\index{Functions!\fun{phreg}|(} 
 (it also works with the
-function `aftreg`\index{Functions!aftreg}). Just 
+function `aftreg`\index{Functions!\fun{aftreg}}). Just 
 fit a "parametric proportional hazards model with no covariates".
 <!--
 %% Must fix plot.phreg!!

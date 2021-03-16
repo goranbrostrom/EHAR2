@@ -440,7 +440,7 @@ par(oldpar)
 ```
 See Figure \@ref(fig:aafig9), where 95\% confidence limits are added around
 the fitted time-varying coefficients. Also note the use of the function
-`par`\index{Functions!`par`}; the first call sets the plotting area
+`par`\index{Functions!\fun{par}}; the first call sets the plotting area
 to "one row and two columns" and saves the old `par` setting in
 `oldpar`. Then the plotting area is restored to what it was earlier. It is a 
 good habit to always clean up for the next plotting enterprise.
@@ -543,7 +543,7 @@ and the *total treatment effect* is $\bigl(\beta_1(t) +
 \end{equation*}
 Some book-keeping is necessary in order to write an **R** function for this
 dynamic model. Of great help is the function
-`risksets`\index{Functions!`risksets`}  in `eha`;
+`risksets`\index{Functions!\fun{risksets}}  in `eha`;
 it keeps track of the composition of the riskset over time, which is
 exactly what is needed for implementing the dynamic path analysis.
 
@@ -692,7 +692,7 @@ by first calculating an interaction term (`mage`):
 ```{r mage9, echo = TRUE}
 infants$mage <- ifelse(infants$mother == "dead", infants$age, 0)
 ```
-\index{Functions!`ifelse`} Note the use of the function `ifelse`:
+\index{Functions!\fun{ifelse}} Note the use of the function `ifelse`:
 It takes three arguments, the first is a logical expression (resulting in
 a *logical* vector, with values `TRUE` and `FALSE`. Note that
 in this example, the length is the same as the length of `mother` (in

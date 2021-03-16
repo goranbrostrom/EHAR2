@@ -87,9 +87,9 @@ produced in **R** by
 barplot(dpois(0:5, lambda = 0.5), axes = FALSE, 
         main = expression(paste(lambda, " = ", 0.5)))
 ```
-\index{Functions!barplot}
+\index{Functions!\fun{barplot}}
 Note that the function 
-`dpois`\index{Functions!dpois} is *vectorizing*:
+`dpois`\index{Functions!\fun{dpois}} is *vectorizing*:
 ```{r poisvec}
 dpois(0:5, lambda = 0.5)
 ```
@@ -155,7 +155,7 @@ dat
 
 We have generated a very simple data set, `dat`. It consists of four
 life lengths with a covariate $x$. A Cox regression, where the covariate
-$x$ is related to survival is given by\index{Functions!coxreg}
+$x$ is related to survival is given by\index{Functions!\fun{coxreg}}
 
 ```{r coxbb}
 library(eha)
@@ -360,8 +360,8 @@ abline(h = 0)
 
 Note the parameter `ylim`. It sets the scale on the $y$ axis, and some
 trial and error may be necessary to get a good choice.
-The function `line`\index{Functions!line} adds a curve to an already
-existing plot, and the function `abline`\index{Functions!abline}
+The function `line`\index{Functions!\fun{line}} adds a curve to an already
+existing plot, and the function `abline`\index{Functions!\fun{abline}}
 adds a straight line; the argument `h = 0` results in a
 *horizontal* line. See the help pages for these functions for further
 information. 

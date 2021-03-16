@@ -741,7 +741,7 @@ corresponding help page when more detail is wanted.
   cut" in the Lexis diagram\index{Lexis disgram}, that is, it selects a
   subset of a data set based on age. The data frame must contain three
   variables that can be input to the
-  `Surv`\index{Functions!Surv} function. The default names are
+  `Surv`\index{Functions!\fun{Surv}} function. The default names are
   `enter`, `exit`, and `event`. As an example, 
 ```{r age.windowC}
 library(eha)
@@ -753,8 +753,8 @@ limits the study of old age mortality to the (exact) ages between 60 and
 For *rectangular* cuts in the Lexiz diagram, use both `age.window`
 and `cal.window` in succession. The order is unimportant.
 
-*   **cal.window**\index{Functions!\fun{cal.window}} Makes a ``vertical
-  cut'' in the Lexis diagram\index{Lexis disgram}, that is, it selects a
+*   **cal.window** \index{Functions!\fun{cal.window}} Makes a "vertical
+  cut" in the Lexis diagram\index{Lexis disgram}, that is, it selects a
   subset of a data set based on *calendar time*. As an example,
 ```{r cal.windowC}
 library(eha)
@@ -769,17 +769,17 @@ and `cal.window` in succession. The order is unimportant.
 *   **cox.zph**\index{Functions!\fun{cox.zph}} Tests the proportionality assumption on fits from
   `coxreg` and `coxph`.
 
-*   **coxreg**\index{Functions!coxreg} Fits Cox proportional hazards
+*   **coxreg**\index{Functions!\fun{coxreg}} Fits Cox proportional hazards
   model. It is a wrapper for `coxph` in case of simpler Cox regression
   models.  
   
-*   **glmmML**\index{Functions!glmmML} Fits clustered binary and count
+*   **glmmML**\index{Functions!\fun{glmmML}} Fits clustered binary and count
   data regression models.
 
-*   **phreg**\index{Functions!phreg} Fits parametric proportional
+*   **phreg**\index{Functions!\fun{phreg}} Fits parametric proportional
   hazards models.
  
-*   **risksets**\index{Functions!risksets} Finds the members of each
+*   **risksets**\index{Functions!\fun{risksets}} Finds the members of each
   riskset at all event times.
 
 

@@ -119,8 +119,9 @@ abline(h = 0)
 ```
 
 The idea behind this choice of transformation is to focus on deviations
-from the "normal" as a proxy for *short-term variation in economic
-  stress*. We illustrate the idea with a subset of the built-in data set `scania`, and we show the information for individual No. 1.
+from the "normal" as a proxy for *short-term variation in economic stress*. 
+We illustrate the idea with a subset of the built-in data set `scania`, 
+and we show the information for individual No. 1.
 
 ```{r scand,echo=FALSE}
 library(eha)
@@ -130,7 +131,7 @@ scand[scand$id == 1, ]
 ```
 
 Now, to put on the food prices as a time-varying covariate, use the function
-```make.communal```. We show what happens to individual No. 1.
+`make.communal`. We show what happens to individual No. 1.
 
 ```{r communal}
 scand <- make.communal(scand, logrye[, 2, drop = FALSE], 
@@ -147,7 +148,6 @@ fit <- coxreg(Surv(enter, exit, event) ~ ses + sex + foodprices,
                 data = scand)
 print(summary(fit), short = FALSE)
 ```
-
 
 Socio-economic status and sex do not matter much, but food prices do; the
 effect is almost significant at the 5 per cent level. $\Box$

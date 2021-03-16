@@ -368,7 +368,7 @@ For more detail about the underlying theory, see Appendix A.
 
 <!--
 In **R**, the log-rank test is performed by the 
-`coxph`\index{Functions!`coxph`} function in the
+`coxph`\index{Functions!\fun{coxph}} function in the
 package survival (there are other options). 
 -->
 
@@ -731,7 +731,7 @@ and are be estimated simultaneously with the regression parameters.
 
 
 ## Doing it in **R**
-\index{Functions!coxreg|(}
+\index{Functions!\fun{coxreg}|(}
 
 We utilize the *child mortality* data, Skellefteå 1850--1884, to
 illustrate some aspects of an ordinary Cox regression. Newborn in the parish

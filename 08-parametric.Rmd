@@ -142,7 +142,7 @@ if we pick two members from the family \eqref{eq:6weibdist} with
 To summarize, the *Weibull* family of distributions is not *one* family
 of proportional hazards distributions, but a *collection* of families
 of proportional hazards. The collection is indexed by $p > 0$. It is true,
-though, that all the families are closed under the *Weibull* distribution. 
+though, that all the families are closed under the Weibull distribution. 
 
 The proportional hazards regression model with a *Weibull* baseline
 distribution as obtained by multiplying \@ref(eq:6weibull) by $\exp(\beta x)$:
@@ -160,7 +160,7 @@ The function **phreg** in package **eha** fits models like
 
 The Gompertz families of distributions are defined in essentially two ways in the 
 **R** package `eha`: The *rate* and the *canonical* representations. The reason 
-for this is that the families need to be differently represented depending on 
+for this duality is that the families need to be differently represented depending on 
 whether proportional hazards or accelerated failure time models are under consideration.
 
 In the *proportional hazards* case, the *rate* formulation is used, and it is
@@ -307,8 +307,8 @@ fit.out(fit.g, caption = cap, label = lab)
 out <- cbind(fit.g$coefficients[1:n.co], out)
 colnames(out) <- c("Gompertz", "Cox", "Weibull")
 out <- round(out, 3)
-source("R/tbl.R")
-tbl(out, caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale duration since age 60.")
+source("R/tbl_html.R")
+tbl_html(out, caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale duration since age 60.")
 ##kableExtra::kbl(out, booktabs = TRUE, 
   ##           caption = "Coefficients with Gompertz, Cox and Weibull regressions, time scale duration since age 60.")
 ```
@@ -414,7 +414,8 @@ interval 60--100 is increasing almost exponentially, suggesting more cut points 
 Against that is the fact that in very high ages, say 90--100, not many observations are still around, most
 of them have already died.
 
-We may start with eight intervals of equal length, 60--65, 65--70, ..., 95--100, and fit a pch model. The 
+We may start with eight intervals of equal length, 60--65, 65--70, ..., 95--100, and fit a pch model
+with the aid of the function `pchreg`\index{Functions!\fun{pchreg}} in `eha`. The 
 result is shown in Table \@ref(tab:pchold8).
 
 ```{r pchold8, results='asis', echo = FALSE}
@@ -700,7 +701,7 @@ S(t; z) = S_0\biggl(\int_0^t \exp\bigl(\beta z(s)\bigr)ds\biggr),
 
 and it is required that $z(s)$ is known for all $s, 0 \le s \le t$. With a left 
 truncated observation at $t_0$, say, $z(s)$ is unknown for $0 \le s < t_0$. In `eha`,
-this is solved by assuming that $z(s) = z(t_0), 0 \le s < t_0$.
+this is solved by *assuming* that $z(s) = z(t_0), 0 \le s < t_0$.
 
 A detailed description of the implementation  of the AFT models in `eha` is 
 found in Appendix \@ref(app:B).
@@ -802,7 +803,7 @@ fit.lognorm <- aftreg(Surv(next.ivl, event) ~ age + I(year - 1860) + ses,
 ```
 
 Note that the argument `id` is *not* used here, that is because there are no 
-timevarying covariates for `next.ivl'. The `id` variable in the data set refers to 
+timevarying covariates for `next.ivl`. The `id` variable in the data set refers to 
 *mother's id* and not to specific birth intervals. The data set `f12` is a subset 
 of `fert`, it only includes intervals starting with the first birth.
 
@@ -812,7 +813,7 @@ cap <- "Length of birth intervals, Lognormal AFT model."
 fit.out(fit.lognorm, caption = cap, label = lab)
 ``` 
 
-The interpretation of the regression coefficients are different from the PH case:
+The interpretation of the regression coefficients is different from the PH case:
 Exponentiated (*lifeAcc*) they measure how much time to event is *accelerated*. 
 For instance, if mother's age is increased by one year, the waiting time to the 
 next birth is accelerated by the factor `r round(exp(fit.lognorm$coefficient[1]), 4)`,
@@ -917,7 +918,7 @@ h_r(t; (\alpha, \beta)) = \alpha \exp(\beta t), \quad t > 0; \; \alpha > 0, -\in
 \end{equation*}
 
 and it is called the *rate* parametrization in `eha`
-As noted earlier, in order for $h_G$ to determine a proper survival distribution, it 
+As noted earlier, in order for $h_r$ to determine a proper survival distribution, it 
 must be required that $\beta \ge 0$. It was also noted that when $\beta = 0$, the
 resulting distribution is *exponential*.
 
@@ -936,7 +937,8 @@ very large and numerical problems in the estimation process is likely to occur.
 The conclusion of all this is that the AFT Gompertz model is suitable in situations where
 the intensity of an event is clearly increasing with time. A good example is adult mortality.
 
-We repeat the PH analysis in Table \@ref(tab:gocofph8), but with the AFT model.
+We repeat the PH analysis in Table \@ref(tab:gocofph8), but with the AFT model, see 
+Table \@ref(tab:gocofaft8).
 
 ```{r gocofaft8, results='asis'}
 fit.gaft <- aftreg(Surv(enter - 60, exit - 60, event) ~ sex + region, 
@@ -976,7 +978,7 @@ proportional hazards model
   fit is better. Note however that we cannot formally test the proportional
   hazards hypothesis; the two models are not nested.
 
-A graphical method to compare PH and AFT fits is to plot two cumulative  
+A graphical method to compare PH and AFT fits is to plot two cumulative
 hazards on a *log-log* scale: A vertical shift implies a PH model, while a 
 horizontal shift indicates an AFT model. This is so, because in the AFT case,
 
@@ -996,6 +998,8 @@ scale with infinite precision, but from a practical point of view it is
 reasonable to say that data is discrete when tied events occur
 embarrassingly often. 
 
+### Data formats: wide and long
+
 When working with register data, time is often measured in years which
 makes it necessary and convenient to work with discrete models. A typical
 data format is the so-called *wide* format, where there is one record
@@ -1003,7 +1007,8 @@ data format is the so-called *wide* format, where there is one record
 worked with the *long* format. The data sets created by `survSplit`
 are in long format; there is one record per individual and age category. 
 The R work horse in switching back and forth between the long and wide
-formats is the function `reshape`. It may look confusing at first, but
+formats is the function `reshape`. \index{Functions!\fun{reshape}} 
+It may look confusing at first, but
 if data follow some simple rules, it is quite easy to use `reshape`.
 
 The function `reshape` is typically used with *longitudinal data*,
@@ -1023,7 +1028,8 @@ simplifies coding somewhat.
 We start by creating an example data set as an illustration. This is
 accomplished by starting off with the data set `oldmort` in `eha`
 and "trimming" it.
-```{r trimort6}
+
+```{r trimort6, echo = TRUE}
 data(oldmort)
 om <- oldmort[oldmort$enter == 60, ]
 om <- age.window(om, c(60, 70))
@@ -1033,14 +1039,11 @@ om1 <- survival::survSplit(om, cut = 61:69, start = "enter", end = "exit",
                  event = "event", episode = "agegrp")
 om1$agegrp <- factor(om1$agegrp, labels = 60:69)
 om1 <- om1[order(om1$id, om1$enter), ]
-head(om1)
-```
-We may change the row numbers and recode the `id` so they are easier to read.
-```{r recode6}
 rownames(om1) <- 1:NROW(om1)
 om1$id <- as.numeric(as.factor(om1$id))
 head(om1)
-``` 
+```
+
 This is the long format, each individual has as many records as "presence
 ages". For instance, person No. 1 has four records, for the ages 60--63.
 The maximum possible No. of records for one individual is 10. We can check
@@ -1051,7 +1054,7 @@ recs <- tapply(om1$id, om1$id, length)
 table(recs)
 ``` 
 It is easier to get to grips with the distribution with a graph, in this
-case a *barplot*\index{Functions!\fun{barplot}},see Figure~\ref{fig:barp6}.
+case a *barplot*\index{Functions!\fun{barplot}}, see Figure \@ref(fig:barp6).
 
 ```{r barp6, fig.cap = "Barplot of the number of records per person."}
 barplot(table(recs))
@@ -1060,7 +1063,7 @@ barplot(table(recs))
 Now, let us turn `om1` into a data frame in *wide* format. This is
 done with the function `reshape`. First we remove the redundant
 variables `enter` and `exit`. 
-```{r wideform6}
+```{r wideform6, echo = TRUE}
 om1$exit <- om1$enter <- NULL
 om2 <- reshape(om1, v.names = c("event", "civ", "region"), 
                idvar = "id", direction = "wide", 
@@ -1076,17 +1079,19 @@ This is how data in wide format usually show up; the suffix may start with
 something else than `.`, but it must be a single character, or nothing. 
 The real problem is how to switch from wide format to long, because our
 survival analysis tools want it that way. The solution is to use
-`reshape` again, but other specifications.
+`reshape` again, but with other specifications.
 
-```{r reshap26}
+```{r reshap26, echo = TRUE}
 om3 <- reshape(om2, direction = "long", idvar = "id", 
                varying = 3:32)
 head(om3)
 ``` 
+
 There is a new variable `time` created, which goes from 60 to 69, one
 step for each of the ages. We would
 like to have the file sorted primarily by `id` and secondary by time.
-```{r sortin6}
+
+```{r sortin6, echo = TRUE}
 om3 <- om3[order(om3$id, om3$time), ]
 om3[1:11, ]
 ``` 
@@ -1102,18 +1107,26 @@ NROW(om3)
 ``` 
 The data frame shrunk to almost half of what it was originally. First, let
 us summarize data.
-```{r summm6}
+```{r summm6, echo = TRUE}
 summary(om3)
 ``` 
 The key variables in the discrete time analysis are `event` and 
   `time`. For the baseline hazard we need one parameter per value of 
   `time`, so it is practical to transform the continuous variable `time`
 to a factor.
+
 ```{r turn6, echo = TRUE}
 om3$time <- as.factor(om3$time)
 summary(om3)
 ```
 The summary now produces a frequency table for `time`.
+
+*Note* that we always want our data to be in *long* format before we start
+the analysis, so the important lesson here was how to go from wide to long.
+You may find the **tidyr** package [@tidyr] useful if you encounter "untidy" 
+data and want to tidy up. 
+
+### Binomial regression with glm
 
 For a given time point and a given individual, the response is whether an
 event has occurred or not, that is, it is modeled as a 
@@ -1121,17 +1134,20 @@ event has occurred or not, that is, it is modeled as a
 case of the \emph{binomial} distribution\index{Distributions!binomial}.
 The discrete time analysis may now be performed in several ways. Most
 straightforward is to run a 
-logistic regression\index{logistic regression} with `event` as
+*logistic regression*\index{logistic regression} with `event` as
 response through the basic `glm` function with 
 `family = binomial(link=cloglog)`. The so-called 
 \emph{cloglog} link\index{cloglog link} is
-used in order to preserve the proportional hazards property.
-```{r glmreg6}
+used in order to preserve the proportional hazards property in the underlying, 
+real world, continuous time model.
+
+```{r glmreg6, echo = TRUE}
 fit.glm <- glm(event ~ sex + civ + region + time, 
                family = binomial(link = cloglog), data = om3)
 summary(fit.glm)
 ``` 
-This output is not so pleasant, but we can anyway see that females (as
+This output is not so pleasant (we do not want the `time` estimates printed), 
+but we can anyway see that females (as
 usual) have lower mortality than males, that married are better off than
 unmarried, and that regional differences maybe are not so large. To get a
 better understanding of the statistical significance of the findings we run
@@ -1144,6 +1160,7 @@ significant, but `region` (and the other variables) is. The strong
 significance of the time variable is of course expected; mortality is
 expected to increase with increasing age.
 
+<!--
 An equivalent way, with a nicer printed output, is to use the function
 \fun{glmmboot}\index{Functions!\fun{glmmboot}} in the package `glmmML`. 
 ```{r glmmboot6}
@@ -1155,25 +1172,28 @@ fit.boot
 The parameter estimates corresponding to `time` are contained in the
 variable $fit\$frail$. They need to be transformed to get the "baseline
 hazards". 
-```{r calchaz6}
+```{r calchaz6, echo = TRUE}
 haz <- plogis(fit.boot$frail)
 haz
 ``` 
 A plot of the hazard function is shown in Figure \@ref(fig:plothaz6).
 
 ```{r plothaz6, fig.cap = "Baseline hazards, old age mortality."}
-barplot(haz)
+barplot(haz, names.arg = levels(om3$time))
 ``` 
+-->
 
+### Survival analysis with coxreg
 
-By some data manipulation we can also use `eha` for the analysis. For
+By some data manipulation we can also use the function `coxreg` in the package 
+`eha` for the analysis. For
 that to succeed we need intervals as responses, and the way of doing that
-is to add two variables, `exit` and `enter`. The latter must be
+is to add two "fake" variables, `exit` and `enter`. The latter must be
 *slightly* smaller than the former: 
 
 ```{r mlreg8, echo = TRUE, results = "asis"}
 om3$exit <- as.numeric(as.character(om3$time))
-om3$enter <- om3$exit - 0.5
+om3$enter <- om3$exit - 0.1
 cap = "Old age mortality, discrete time analysis."
 fit.ML <- coxreg(Surv(enter, exit, event) ~ sex + civ + region, 
                  method = "ml", data = om3, coxph = FALSE)
@@ -1194,11 +1214,13 @@ plot(fit.ML, fn = "surv", xlim = c(60, 70))
 
 Finally, the proportional hazards assumption can be tested in the discrete
 time framework by creating an interaction between `time` and the
-covariates in question. It is only possible by using `glm`.
+covariates in question. It is possible by using `glm`.
+
 ```{r testph6, echo = TRUE}
 fit2.glm <- glm(event ~ (sex + civ + region) * time, 
                 family = binomial(link = cloglog), 
                 data = om3)
 drop1(fit2.glm, test = "Chisq")
 ``` 
-There is no sign of non-proportionality.
+
+There is no sign of non-proportionality, that is, no interaction with `time`.

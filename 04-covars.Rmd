@@ -76,8 +76,8 @@ indicator is one, and the rest are zero.
 
 In **R**, there is no need to explicitly create dummy variables, it is done
 behind the scenes by the functions 
-`factor`\index{Functions!factor} and 
-`as.factor`\index{Functions!as.factor}.
+`factor`\index{Functions!\fun{factor}} and 
+`as.factor`\index{Functions!\fun{as.factor}}.
 
 Note that a factor with *two* levels, i.e., an indicator
 variable\index{indicator variable}, can always be treated as a continuous
@@ -107,7 +107,7 @@ In this layout, there will be two parameters measuring the deviation from
 the reference category, which will be the first category by default.
 
 In **R**, this is easily achieved with the aid of the 
-`cut`\index{Functions!cut} function. It
+`cut`\index{Functions!\fun{cut}} function. It
 works like this, illustrating it with the data set `child`:
 
 ```{r cut4}

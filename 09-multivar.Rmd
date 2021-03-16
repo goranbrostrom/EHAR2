@@ -112,7 +112,7 @@ these two concepts coincide.
 
 ## Frailty models
 
-Frailty models in survival analysis corresponds to *hierarchical*
+Frailty models in survival analysis correspond to *hierarchical*
 models in linear or generalized linear models. They are also called
 *mixed effects models*. A general theory, with emphasis on using **R**,
 of mixed effects models can be found in  @pinbat00.
@@ -190,7 +190,7 @@ get the estimate of the frailty variance, $\sigma^2 = 0.565$, but no $p$-value
 for the test of the null hypothesis $H_0: \sigma = 0$. One explanation to
 this is that ordinary asymptotic theory\index{asymptotic theory} does not
 hold for parameter values 
-at the boundary of the parameter space.
+at the boundary of the parameter space, the value $\sigma = 0$ is on that boundary.
 
 One way to get a feeling for the impact of the frailty effect is to fit the
 same model but without frailty, i.e., the term `(1 | id)`, see Table \@ref(tab:nofrail9).
@@ -415,7 +415,7 @@ fe13$offs <- log(fe13$next.ivl - fe13$start) # 3
 fit1 <- glmmML(event ~ parity + ses + years + offset(offs), 
                cluster = id, family = poisson, method = "ghq", 
                data = fe13, n.points = 9)
-summary(fit)
+summary(fit1)
 ``` 
 
 The conclusion is very much the same as with the nonparametric
@@ -433,8 +433,8 @@ are only compared to other birth intervals from the same mother. The
 drawback with a stratified analysis is that it is not possible to estimate
 the effect of covariates that are constant within clusters. In the birth
 intervals case, it is probable that `ses`, socio-economic status, would
-vary little within families. On the other hand, the effet of `birth
-  order` or `mother's age` would be suitable to analyze in a stratified
+vary little within families. On the other hand, the effect of 
+*birth order* or *mother's age* would be suitable to analyze in a stratified
 setting, see Table \@ref(tab:strat9). 
 ```{r strat9, results = 'asis'} 
 
@@ -462,4 +462,4 @@ interval is enlarged. Try to explain why this result is expected!
 Under certain circumstances it is actually possible to estimate an
 effect of a covariate that is constant within strata, but only if it is
 interacted with a covariate that is not constant within strata. 
-See Example \@ref(exm:matchex10) in Chapter 10.
+See the example about maternal end infant mortality in Chapter 10.

@@ -20,7 +20,7 @@ in the "pre **R**" era. When I was aware of the existence of the **R**
 environment in the mid-nineties, it was an easy decision to convert it
 into an **R**  package. 
 
-Today the function `coxreg`\index{Functions!coxreg} 
+Today the function `coxreg`\index{Functions!\fun{coxreg}} 
 in `eha`
 rests to a large part on the 
 function `coxph` in the `survival` package, but it
@@ -32,7 +32,7 @@ has some features of its own, notably
   at each observed event time. This is equivalent to a logistic regression
   with the *cloglog* link.
 *   **Sampling of risk sets** The *weird bootstrap* [@abgk93] is implemented in
-`coxreg`.\index{Functions!coxreg} It is activated by setting the
+`coxreg`.\index{Functions!\fun{coxreg}} It is activated by setting the
 argument `boot` equal to 
 the desired number of bootstrap replicates.
 *   **Time-dependent case weights** 
@@ -43,13 +43,13 @@ Other features of the **eha** package are listed below.
 
 *   **Parametric proportional hazards models** The common parametric models
   in other packages are of the *AFT* type. While there is a function in
-  `eha` for these models (`aftreg`\index{Functions!aftreg}),
-  the function `phreg`\index{Functions!phreg} fits 
+  `eha` for these models (`aftreg`\index{Functions!\fun{aftreg}}),
+  the function `phreg`\index{Functions!\fun{phreg}} fits 
   proportional hazards parametric models. Especially worth mentioning is the
   implementation of the *piecewise constant hazard*\index{model!parametric!pch} (pch) model. 
 *   **Lexis diagram cuts** With the aid of the two functions
-  `age.window`\index{Functions!age.window} and `cal.window` 
-\index{Functions!cal.window}    
+  `age.window`\index{Functions!\fun{age.window}} and `cal.window` 
+\index{Functions!\fun{cal.window}}
     it is easy to make vertical and
   horizontal cuts in the Lexis diagram.
 *   **Tools for communal covariates** The main tool is the function
@@ -69,13 +69,13 @@ survival analysis should have, and more. The main important functions are
 listed here:
 
 
-*   **coxph**\index{Functions!coxph|(} 
+*   **coxph**\index{Functions!\fun{coxph}|(} 
   This is the main function for Cox 
   regression\index{Cox regression}. It has a number 
   of features, time dependent variables and strata, multiple events per
   subject, jackknife type variance estimators for clustered data, and
   frailty models. Allows left truncated data. Fast and reliable numerical
-  algorithms.\index{Functions!coxph|)}  
+  algorithms.\index{Functions!\fun{coxph}|)}
 *   **survfit** Takes care of the presentation and "afterwork" of a fit to
   a proportional hazards model or a accelerated failure time model,
   including plotting and printing. 
