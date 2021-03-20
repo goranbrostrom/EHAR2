@@ -419,9 +419,8 @@ abline(h = 0)
 
 ## Communal covariates and tabulation
 
-We got temperature data from [SMHI](https://www.smhi.se/data/meteorologi/ladda-ner-meteorologiska-observationer#pa
-ram=airt
-emperatureInstant,stations=all,stationid=140500) for central Umeå, daily measurements starting at 1 
+We got temperature data from
+[SMHI](https://www.smhi.se/data/meteorologi/ladda-ner-meteorologiska-observationer#param=airtemperatureInstant,stations=all,stationid=140500) for central Umeå, daily measurements starting at 1 
 November, 1858 and ending at 30 September, 1979 (this particular weather station was replaced at this last date).
 
 Since we attempt to match these data to population data for the time period 1 January 1901 -- 31 December 1950, we
@@ -452,11 +451,11 @@ temp$quarter <- as.factor(temp$quarter)
 ```{r plottemp}
 library(kableExtra)
 source("~/Documents/EHAR2/R/tbl.R")
-tbl(head(temp, 10), fs = 12) # fs stands for 'font size'
+tbl(head(temp, 10), fs = 10) # fs stands for 'font size'
 ```
 
-Obviously, there are three measurements each day, and the temperature range is `r range(temp$temp)` degrees Celsiu
-s. 
+Obviously, there are three measurements each day, and the temperature range is
+`r range(temp$temp)` degrees Celsius. 
 The variables *year*, *month*, and *quarter* were extracted from the *date*. 
 
 ### Reading individual data
@@ -464,24 +463,24 @@ The variables *year*, *month*, and *quarter* were extracted from the *date*.
 We extract population data for Umeå, 1 Jan 1901 to 31 Dec 1950, and include all 
 ages between 15 and 100:
 
-```{r popdata}
+```{r popdata, echo = FALSE}
 library(skum)
 ume <- obs[obs$region == "ume", ]
 ume$event <- (ume$sluttyp == 2)
 ume <- cal.window(ume, c(1901, 1951))
 ume <- age.window(ume, c(15, 101))
-ume <- ume[, c("id", "sex", "birthdate", "enter", "exit", 
-               "event", "civst", "socStatus", "ortnmn")]
+ume <- ume[, c("id", "sex", "birthdate", "enter", "exit", "event", "ortnmn")]
 ume$urban <- ume$ortnmn == "UMEÅ"
 ume$ortnmn <- NULL
 noll <- ume$enter >= ume$exit
 ume$enter[noll] <- ume$enter[noll] - 0.001 # Fix zero length spells
 show <- head(ume, 10)
 show$birthdate <- toDate(show$birthdate)
-tbl(show, fs = 12)
+tbl(show, fs = 10)
 ```
 
 There are `r NROW(ume)` records about `r length(unique(ume$id))` individuals in this selection.
+In order to simplify the presentation, only two covariates, `sex` and `urban`, are included.
 
 ### First analysis
 
@@ -501,7 +500,7 @@ temp$maxtemp <- maxtemp[idx]
 mtemp <- temp[!duplicated(temp$date), 
               c("date", "maxtemp", "month", "quarter", "year")]
 rownames(mtemp) <- 1:NROW(mtemp)
-tbl(head(mtemp, 12), fs = 12)
+tbl(head(mtemp, 12), fs = 10)
 ```
 
 The next step is to take minimum over year and month:
@@ -510,7 +509,7 @@ The next step is to take minimum over year and month:
 atmp <- aggregate(list(temp = mtemp$maxtemp), 
                   by = mtemp[, c("month", "year")], 
                   FUN = min)
-tbl(head(atmp, 12), fs = 12)
+tbl(head(atmp, 12), fs = 10)
 ```
 
 Now we can try to apply `make.communal` to our data, to split spells *by year and month*:
@@ -526,7 +525,7 @@ oj <- nt$enter >= nt$exit - 0.0001 # Too short interval!
 nt$enter[oj] <- nt$exit[oj] - 0.001  # Break accidental ties
 saveRDS(nt, file = "mytables/nt.rds")
 ##nt <- readRDS("mytables/nt73.rds")
-tbl(head(nt, 12), fs = 12)
+tbl(head(nt, 12), fs = 10)
 ```
 
 Total time for *making communal*: 25 seconds.
@@ -539,7 +538,7 @@ indx <- match(nt$yearmonth, atmp$yearmonth)
 nt$temp <- atmp$temp[indx]
 nt$year <- nt$yearmonth %/% 100 # Restore 'year'.
 nt$month <- nt$yearmonth %% 100
-tbl(head(nt, 10), fs = 12)
+tbl(head(nt, 10), fs = 10)
 ```
 
 This data frame contains `r NROW(nt)` records, maybe too much for a comfortable 
@@ -625,7 +624,7 @@ indx <- match(told$yearmonth, atmp$yearmonth)
 told$temp <- atmp$temp[indx]
 saveRDS(told, file = "mytables/told73.rds")
 ##told <- readRDS("mytables/told73.rds")
-tbl(head(told, 6), fs = 12)
+tbl(head(told, 6), fs = 10)
 ```
 
 The tabulation reduces the data set from 2.5 million records to 19 thousands. And
