@@ -5,7 +5,11 @@ comp <- function(enter, exit, event, start.age = 0){
     ##
     ## First, assume that causes are numbered 1, 2, ..., n.
     ##
-    require(eha)
+    par(las = 1)
+    library(eha)
+    if (is.factor(event)){
+        event <- as.numeric(event) - 1 # codes - 1 (0, 1, ...)
+    }
     n <- max(event)
 
     ## First, S(), "total" survival:
@@ -34,10 +38,10 @@ comp <- function(enter, exit, event, start.age = 0){
     for (i in 1:n)
         lines(c(start.age, rs.tot$risktimes), P[i, ], lty = i+1, ##col = i+1,
               type = "s")
-    abline(h = 0)
-    legend(35, 0.95, lty = 1:(n+1), ##col = 1:(n+1),
+    ##abline(h = 0)
+    legend("topright", lty = 1:(n+1), ##col = 1:(n+1),
            legend = c("Survival", "Dead", "Other parish",
-           "Scandinavia", "Outside Scandinavia"), cex = 0.8)
+           "Scandinavia", "Off Scandinavia"), cex = 0.8)
     invisible(list(P = P, S = S))
 }
 

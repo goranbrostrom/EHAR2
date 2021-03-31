@@ -7,10 +7,18 @@ fit.out <- function(fit, caption, label){
         dr <- drop1(fit, test = "Chisq")
         ltx(fit, dr = dr, caption = caption, label = label)
     }else{ # HTML
-        xx <- regtable(summary(fit), digits = 4)
+        sf <- summary(fit)
+        xx <- regtable(sf, digits = 4, short = TRUE)
         nn <- ncol(xx)
         rr <- c("Max Log", "Likelihood", "", round(fit$loglik[2], 1), rep("", nn - 4))
         xx <- rbind(xx, rr)
+        if (!is.null(rme <- sf$rmean)){
+            rr <- rep("", nn)
+            rr[1:2] <- c("Restricted", "mean")
+            m <- length(rme)
+            rr[3:(2 + m)] <- round(rme, 3)
+            xx <- rbind(xx, rr)
+        }
         kbl(xx, booktabs = TRUE, caption = caption) %>%
             kable_styling(##font_size = 12, 
                 full_width = FALSE)
