@@ -175,13 +175,15 @@ variable. Also notice that the first interval for each woman is measured
 from marriage (only married women are included in this data set) to first
 birth, so we will start by removing them. They are characterized by 
 `parity` being 0.
-```{r idcoxme7,message=FALSE} 
+
+```{r idcoxme7,message=FALSE, echo = TRUE} 
 fe <- fert[fert$parity != 0, ]
 library(coxme)
 fit <- coxme(Surv(next.ivl, event) ~ age + ses + parity + 
              (1 | id), data = fe)
 summary(fit, digits = 3)
 ``` 
+
 The estimates of the fixed effects have the same interpretation as in
 ordinary Cox regression\index{Cox regression}. The question is if the
 results point to the 
@@ -279,7 +281,7 @@ is no frailty effect whatsoever.
 One lesson to learn from this example is that you have to be very cautious
 when a data set contains missing values. Some functions, like `drop1`,
 give a warning when a situation like this is detected, but especially when
-comparisons are made in more than on step, it is too easy to forget the
+comparisons are made in more than one step, it is too easy to forget the
 dangers. 
 
 Also note the warning that is printed in the results of 
@@ -397,7 +399,8 @@ cap <- "Fertility analysis, fixed effects."
 lab <- "stanal9"
 fit.out(fit0, caption = cap, label = lab)
 ``` 
-Note the use of the function `survSplit` (from the `survival` package) (\# 1), the transformation to
+Note the use of the function `survival::survSplit` (comment \# 1 in the code), 
+the transformation to
 `factor` for the slices of time (`years`) created by
 `survSplit`, and the creation of an offset (\# 3). This is described in
 detail in Chapter 8.
@@ -409,7 +412,7 @@ with the same name.
 library(glmmML)
 fe13 <- survSplit(fe, end = "next.ivl", event = "event", 
                   cut = 1:13, episode = "years", 
-                  start = "start") #1
+                  start = "start") # 1
 fe13$years <- as.factor(fe13$years) # 2
 fe13$offs <- log(fe13$next.ivl - fe13$start) # 3
 fit1 <- glmmML(event ~ parity + ses + years + offset(offs), 
@@ -462,4 +465,4 @@ interval is enlarged. Try to explain why this result is expected!
 Under certain circumstances it is actually possible to estimate an
 effect of a covariate that is constant within strata, but only if it is
 interacted with a covariate that is not constant within strata. 
-See the example about maternal end infant mortality in Chapter 10.
+See the example about maternal and infant mortality in Chapter 10.

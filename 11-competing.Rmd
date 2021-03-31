@@ -5,6 +5,7 @@
 ```{r settings11, echo = FALSE, include = FALSE}
 knitr::opts_chunk$set(comment = "", message = FALSE, echo = FALSE, cache = FALSE)
 options(width = 70, digits = 7)
+library(eha)
 source("R/fit.out.R")
 ```
 
@@ -13,7 +14,7 @@ well as their modern interpretations. The basic problem is that we want to
 consider more than one type of event, but where exactly one will occur. For
 instance, consider death in different causes. 
 
-```{r compet10, fig.cap = "Competing risks: Causes of death.", echo = FALSE, fig.align = "center", out.width = "80%"}
+```{r compet11, fig.cap = "Competing risks: Causes of death.", echo = FALSE, fig.align = "center", out.width = "80%"}
 knitr::include_graphics("images/compet.png", auto_pdf = TRUE)
 ```
 
@@ -102,29 +103,30 @@ People born in Skellefteå
   years of age
   to out-migration or death. Right censoring occurs for those who are still
   present on January 1, 1870. At exit the cause is noted, see
-  Figure \@ref(fig:mortmig10).  
+  Figure \@ref(fig:mortmig11).  
 
-```{r mortmig10, fig.cap = "Mortality and emigration, Skellefteå, 1800--1870.", echo = FALSE}
+```{r mortmig11, fig.cap = "Mortality and emigration, Skellefteå, 1800--1870.", echo = FALSE}
+mcex <- 0.9
 plot(1, 1, xlim = c(0, 30), ylim = c(0, 20), type = "n", axes = FALSE,
      xlab = "", ylab = "")
 ##rect(5, 8, 10, 12)
 symbols(x = 5, y = 10, rectangles = matrix(c(8, 2), ncol = 2), inches = FALSE,
         add = TRUE)
-text(5, 10, "Alive and present")
+text(5, 10, "Alive and present", cex = mcex)
 #rect(15, 8, 20, 12)
 symbols(x = 22, y = 15, rectangles = matrix(c(10, 2), ncol = 2), inches = FALSE,
         add = TRUE)
-text(22, 15, "Other parish in Sweden")
+text(22, 15, "Other parish in Sweden", cex = mcex)
 
 symbols(x = 22, y = 10, rectangles = matrix(c(10, 2), ncol = 2), inches = FALSE,
         add = TRUE)
-text(22, 10, "Within Scandinavia")
+text(22, 10, "Within Scandinavia", cex = mcex)
 symbols(x = 22, y = 5, rectangles = matrix(c(10, 2), ncol = 2), inches = FALSE,
         add = TRUE)
-text(22, 5, "Outside Scandinavia")
+text(22, 5, "Outside Scandinavia", cex = mcex)
 symbols(x = 8, y = 3, rectangles = matrix(c(6, 2), ncol = 2), inches = FALSE,
         add = TRUE)
-text(8, 3, "Dead")
+text(8, 3, "Dead", cex = mcex)
 ############# Arrows: ###################
 arrows(x0 = 7, y0 = 11, x1 = 16.5, y1 = 15, code = 2, length = 0.1)
 arrows(x0 = 9, y0 = 10, x1 = 16.5, y1 = 10, code = 2, length = 0.1)
@@ -154,28 +156,33 @@ arrows(x0 = 6, y0 = 9, x1 = 8, y1 = 4.5, code = 2, length = 0.1)
 \label{fig:8mortmig}
 \end{figure}
 -->
-The data at hand looks like Table \@ref(tab:datah11).
+The first rows of the data are shown in Table \@ref(tab:datah11).
+
 ```{r datah11, echo = FALSE}
 source("R/tbl.R")
-load("zz.RData")
-tbl(head(zz[, -(2:3)], 5), caption = "Emigration and mortality data, Skellefteå 1800-1870.")
+zz <- readRDS("Data/zz.rds")
+zz$birthdate <- toTime(zz$birthdate)
+zz$event <- as.numeric(as.character(zz$event))
+zz <- age.window(zz, c(15, 50))
+zz <- cal.window(zz, c(1830, 1935))
+##zz$parity <- cut(zz$parity, breaks = c(0.5, 2.5, 21), labels = c("1-2", "3+"))
+out11 <- zz ##[, -(1:3)]
+zz$event <- factor(zz$event, labels = c("Censored", "Dead", "Sweden", "Scandinavia", "World"))
+##out11$out <- factor(out11$event, labels = c("censored", "dead", "Sweden", "Scandinavia", "World"))
+##out11$birthdate <- eha::toDate(out11$birthdate)
+tbl(head(out11, 5), caption = "Emigration and mortality data, Skellefteå 1816-1935.")
 ```
 
-A summary:
 
-```{r tabzz10, echo = FALSE}
-summary(zz[, -(1:3)])
-table(zz$event)
-```
+The variable `event` is coded as shown in Table \@ref(tab:comp11).
 
-The variable `event` is coded as shown in Table \@ref(tab:comp10).
-
-```{r comp10, echo = FALSE}
-x <- data.frame(Code = c(0, 1, 3, 4, 5), Meaning = c("Censored", "Dead", "Moved to other parish in Sweden",
+```{r comp11, echo = FALSE, eval = TRUE}
+x <- data.frame(Code = 0:4, Meaning = c("Censored", "Dead", "Moved to other parish in Sweden",
                                         "Moved to other Scandinavian country",
-                                        "Moved outside tha Scandinavian countries"),
+                                        "Moved outside the Scandinavian countries"),
                 Frequency = c(10543, 2102, 4097, 59, 464))
-knitr::kable(x, booktabs = TRUE, caption = "Competing risks in Skellefteå", label = "comp10")
+##knitr::kable(x, booktabs = TRUE, caption = "Competing risks in Skellefteå", label = "comp11")
+tbl(x, caption = "Competing risks in Skellefteå", fs = 11)
 ```
 
 
@@ -195,67 +202,126 @@ knitr::kable(x, booktabs = TRUE, caption = "Competing risks in Skellefteå", lab
 \end{table}
 
 Without covariates we get the picture shown in Figure \@ref(fig:causespec10).
-```{r nocomp9,fig=FALSE,echo=TRUE, message = FALSE}
+```{r nocomp9,fig=FALSE,echo=TRUE, message = FALSE, eval = FALSE}
 source("R/comp.R")
 comp(zz$enter, zz$exit, zz$event, start.age = 15)
 ```
 -->
+
 The code for the function `comp` is displayed at the end of this
 chapter. It is not necessary to understand before reading on. It may be
-useful as a template for those who wants to analyze competing risks.
+useful as a template if you want to analyze competing risks.
 
-```{r causespec10,fig=TRUE,height=6,echo=FALSE, fig.cap = "Cause-specific exit probabilities; mortality and migration from Skellefteå.", message = FALSE}
+
+
+```{r causespec11,fig=TRUE,height=6,echo=FALSE, fig.cap = "Cause-specific exit probabilities; mortality and migration from Skellefteå.", message = FALSE, cache = FALSE}
 source("R/comp.R")
 comp(zz$enter, zz$exit, zz$event, start.age = 15)
 ```
 
-And with covariates and `cmprsk`; the syntax to get it done is a little
-bit nonstandard. Here *moving to other parish in Sweden* is analysed
-(`failcode = 3`).\index{Functions!\fun{crr}}
-```{r withcmprsk10}
-library(cmprsk)
-xx <- model.matrix(~ -1 + parity, zz)
-fit <- crr(zz$exit, zz$event, xx, failcode = 3)
-fit
+However, a simpler alternative is to use the function `survfit` in the `survival` package, see Figure \@ref(fig:survfit11), where the analysis is performed separately for men and women.
+
+```{r survfit11, fig.cap = "Mortality and migration, Skellefteå 1820-1935."}
+oldpar = par(mfrow = c(1, 2), las = 1)
+library(survival)
+
+fit <- survfit(Surv(exit, event) ~ 1, data = zz[zz$sex == "male", ], start.time = 15)
+plot(fit, xlim = c(15, 50), col = 1:4, lty = 1:4, xlab = "Age",
+     ylab = "Probability in state", lwd = 1.5, main = "Men", ylim = c(0, 0.25))
+legend("topleft", legend = c("Dead", "Sweden", "Scandinavia", "Off Scandinavia"), 
+       col = 1:4, lty = 1:4, bty = "n", lwd = 1.5, cex = 0.8)
+abline(h = 0)
+abline(h = 0.2, lty = 3)
+fit <- survfit(Surv(exit, event) ~ 1, data = zz[zz$sex == "female", ])
+plot(fit, xlim = c(15, 50), col = 1:4, lty = 1:4, xlab = "Age", 
+     ylab = "Probability in state", lwd = 1.5, main = "Women", ylim = c(0, 0.25))
+legend("topleft", legend = c("Dead", "Sweden", "Scandinavia", "Off Scandinavia"), 
+       col = 1:4, lty = 1:4, bty = "n", lwd = 1.5, cex = 0.8)
+abline(h = 0)
+abline(h = 0.2, lty = 3)
+par(oldpar)
 ```
 
-<!--
-% \begin{Schunk}
-% \begin{Sinput}
-% > library(cmprsk)
-% > xx <- model.matrix(~-1 + parity, zz)
-% > fit <- crr(zz$exit, zz$event, xx, failcode = 2)
-% > fit
-% \end{Sinput}
-% \begin{Soutput}
-% convergence:  TRUE
-% coefficients:
-%  parity
-% 0.02063
-% standard errors:
-% [1] 0.005998
-% two-sided p-values:
-%  parity
-% 0.00058
-% \end{Soutput}
-% \end{Schunk}
--->
+Note that the survival is not explicitly shown in Figure \@ref(fig:survfit11), and the 
+reason is that it is *redundant*, the sum of all probabilities at any fixed age in 
+Figure \@ref(fig:causespec11) is equal to one (an individual must be in one and only one state 
+at each age; note that "survival" really means "survived and still present in Skellefteå",
+the state all start in at age 15).
+
+And with covariates and `cmprsk`; the syntax to get it done is a little
+bit nonstandard. Here *moving to other parish in Sweden* is analyzed
+(`failcode = 2`).\index{Functions!\fun{crr}} See Table \@ref(tab:fakecrrout11).
+
+```{r withcmprsk11, cache = TRUE, eval = FALSE, echo = TRUE}
+library(cmprsk)
+xx <- model.matrix(~ sex + soc + illeg, zz)[, -1]
+systim <- system.time(fit <- crr(zz$exit, zz$event, xx, failcode = 2))
+summary(fit)
+```
+
+```{r fakecrrout11, echo = FALSE}
+crrtab <- matrix(0, nrow = 5, ncol = 5)
+crrtab[1, ] <- c(0.463, 1.59, 0.0223, 20.79, 0.0000)
+crrtab[2, ] <- c(1.158, 3.18, 0.0596, 22.87, 0.0000)
+crrtab[3, ] <- c(0.947, 2.58, 0.0679, 13.94, 0.0000)
+crrtab[4, ] <- c(0.566, 1.76, 0.0229, 24.68, 0.0000)
+crrtab[5, ] <- c(0.222, 1.25, 0.0487, 4.56, 0.0000)
+rownames(crrtab) <- c("sex:female", "soc:official", "soc:business", "soc:worker", "Illegitimate")
+colnames(crrtab) <- c("coef", "exp(coef)", "se(coef)", "z", "p-value")
+tbl(crrtab, rownames = TRUE, caption = "Output from the function 'crr'.")
+```
+
+The *system time* for this call is one hour and 15 minutes.
+The function `crr` is *very slow* with large data sets. Therefore I have refrained 
+from calculating likelihood ratio *p*-values, so the ones in Table \@ref(tab:fakecrrout11)
+are the *Wald* ones. However, it seems as if all covariates have a high explanatory value,
+and we note that females move within Sweden more than men, and so do white collar people
+compared to to the rest. Farmers are the most stationary ones, not surprisingly.
+Maybe more surprising is the fact that people born outside marriage are more prone to migrate, 
+at least within Sweden.
+
+
 Note that this is *not* Cox regression\index{Cox regression} (but
 close!). The corresponding Cox regression result is shown in 
 Table \@ref(tab:withcox11).
 
-```{r withcox11, comment = "", results = 'asis'}
-fit <- coxreg(Surv(enter, exit, event == 3) ~ parity, data = zz)
+```{r withcox11, comment = "", results = 'asis', echo = TRUE}
+fit <- coxreg(Surv(enter, exit, event == "Sweden") ~ sex + soc + illeg, data = zz)
 cap <- "Competing risks by Cox regression and moved to other parish in Sweden."
 lab <- "withcox11"
 fit.out(fit, caption = cap, label = lab)
 ```
 \index{Functions!\fun{coxreg}}
+
+As can be seen from Table \@ref(tab:withcox11), the same conclusions can be drawn 
+with an ordinary Cox regression as with the competing risks approach, *in this case*, that is.
+
+
+What about migrating to countries outside Scandinavia? The same covariates, but
+stratified on `sex`, see Table \@ref(tab:withworldcox11) and Figure \@ref(fig:world11).
+
+```{r withworldcox11, comment = "", results = 'asis'}
+fit <- coxreg(Surv(enter, exit, event == "World") ~ strata(sex) + soc + illeg, data = zz)
+cap <- "Competing risks by Cox regression and moved outside Scandinavia."
+lab <- "withworldcox11"
+fit.out(fit, caption = cap, label = lab)
+```
+
+Here illegitimacy does not mean much, but it is the *workers* that dominate migration 
+in this case.
+
+```{r world11, fig.cap = "Cumulative hazard functions for males and females, migration outside Scandinavia."}
+plot(fit, xlab = "Age")
+abline(h = 0)
+```
+
+Males end up with a double intensity of migrating, but the females start earlier.
+
 \eex
 
 ## R code for competing risks
 
-The code that produced Figure \@ref(fig:causespec10) is shown here.
+The code that produced Figure \@ref(fig:causespec11) is shown here.
 ```{r showcode9, comment = "", echo = FALSE}
 comp
 ```

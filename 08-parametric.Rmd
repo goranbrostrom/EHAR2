@@ -15,7 +15,7 @@ book by \cite{jl03} is a good source for the study of parametric survival
 models. 
 More technical detail about parametric distributions is found in Appendix B .
 
-Three kinds of parametric models are considered: the
+Three kinds of parametric models are considered here: the
 *proportional hazards*\index{model!parametric!PH} and the 
 *accelerated failure  time*\index{model!parametric!AFT} in continuous time, 
 and the *discrete time proportional hazards*\index{model!parametric!discrete} 
@@ -120,13 +120,13 @@ $$
 for a *fixed* $p$, and generate a proportional hazards family from there,
 
 \begin{equation*}
-h_c = c h_1(t), \quad c, t > 0,
+h_c(t) = c h_1(t), \quad c, t > 0,
 \end{equation*}
 
 we get
 
 \begin{equation}\label{eq:6weibdist}
-h_c = c t^{p-1} = \frac{p}{\lambda} \biggl(\frac{t}{\lambda}\biggr)^{p-1}
+h_c(t) = c t^{p-1} = \frac{p}{\lambda} \biggl(\frac{t}{\lambda}\biggr)^{p-1}
 \end{equation}
 
 by setting
@@ -144,8 +144,8 @@ of proportional hazards distributions, but a *collection* of families
 of proportional hazards. The collection is indexed by $p > 0$. It is true,
 though, that all the families are closed under the Weibull distribution. 
 
-The proportional hazards regression model with a *Weibull* baseline
-distribution as obtained by multiplying \@ref(eq:6weibull) by $\exp(\beta x)$:
+The proportional hazards regression model with a Weibull baseline
+distribution is obtained by multiplying \@ref(eq:6weibull) by $\exp(\beta x)$:
 
 \begin{equation}
   h(t; x, \lambda, p, \beta) = \frac{p}{\lambda}
@@ -917,7 +917,7 @@ The standard definition of the Gompertz hazard function is
 h_r(t; (\alpha, \beta)) = \alpha \exp(\beta t), \quad t > 0; \; \alpha > 0, -\infty < \sigma < \infty.
 \end{equation*}
 
-and it is called the *rate* parametrization in `eha`
+and it is called the *rate* parametrization in `eha`.
 As noted earlier, in order for $h_r$ to determine a proper survival distribution, it 
 must be required that $\beta \ge 0$. It was also noted that when $\beta = 0$, the
 resulting distribution is *exponential*.
@@ -944,10 +944,13 @@ Table \@ref(tab:gocofaft8).
 fit.gaft <- aftreg(Surv(enter - 60, exit - 60, event) ~ sex + region, 
                    id = id, param = "lifeExp", dist = "gompertz", 
                    data = oldmort)
-cap = "Old age mortality, Gompertz AFT model."
+cap = "Old age mortality (60-100), Gompertz AFT model."
 lab = "gocofaft8"
 fit.out(fit.gaft, caption = cap, label = lab)
 ```
+
+The expected remaining life at 60 for a man living in the town is *16 years*, 
+and for a woman living in the town the expected remaining life is $1.067 \times 16 = 17$ years.
 
 ## Proportional hazards or AFT model?
 
@@ -978,6 +981,7 @@ proportional hazards model
   fit is better. Note however that we cannot formally test the proportional
   hazards hypothesis; the two models are not nested.
 
+<!--
 A graphical method to compare PH and AFT fits is to plot two cumulative
 hazards on a *log-log* scale: A vertical shift implies a PH model, while a 
 horizontal shift indicates an AFT model. This is so, because in the AFT case,
@@ -986,7 +990,7 @@ horizontal shift indicates an AFT model. This is so, because in the AFT case,
 \log\bigl\{H\bigl(\log(ct)\bigr)\bigr\} = 
 \log\bigl\{H\bigl(\log(c) + log(t)\bigr)\bigr\}.
 \end{equation*}
-
+-->
 
 ## Discrete time models
 

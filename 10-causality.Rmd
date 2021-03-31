@@ -209,8 +209,8 @@ $Y = Y_1$. The individual treatment effect is $Y_1 - Y_0$, but this quantity is
 not possible to observe, so how to proceed?
 
 The Rubin school fixes balance in the data by *matching*\index{matching}, 
-while the Robins school advocates *inverse probability weighting*
-\index{inverse probability weighting}. Both these 
+while the Robins school advocates *inverse probability weighting*.
+\index{inverse probability weighting} Both these 
 methods are possible to apply to event history research problems 
 [@hbr02; @hcmcr05], but
 unfortunately there is few, if any, publicly available **R** packages for performing these
@@ -768,7 +768,7 @@ unmeasured confounders present. However, with this in mind, note that
     +  Joint modeling is the alternative.
 *   Creation of *pseudo-populations*\index{pseudo-population}
     through weighting and matching may limit the understanding of 
-    how things work.
+    how things really work.
     +   Analyze the process as it presents itself, so that it is easier to
         generalize findings.
 
