@@ -31,7 +31,7 @@ added for some distributions. For instance, for the *Weibull*
 distribution there are `hweibull` and `Hweibull`, where the first
 is the hazard function and the second is the cumulative hazards function.
 
-In the subsection *The Exponential distribution*, we show
+We show
 exactly what these functions are and how to use them. It should be noted
 that in base **R**, there are no survival functions, hazard functions, or
 cumulative hazards functions. Some are available in the package **eha**
@@ -41,7 +41,7 @@ and others. However, they can easily be derived from the given `p-` and
 ### The Exponential distribution {#Bexp}
 \index{Distributions!exponential|(}
 The exponential distribution is characterized by having a constant hazard
-rate $lambda$. It has density function
+rate $\lambda$. It has density function
 $$
 f(t; \lambda) = \lambda e^{-\lambda x}, \quad \lambda > 0, \; t > 0,
 $$
@@ -49,9 +49,9 @@ and survival function
 $$
 S(t; \lambda) = e^{-\lambda x}, \quad \lambda > 0, \; t > 0.
 $$
-The mean is $1/\lambda$ (which, unfortunately, also is the \emph{scale}
+The mean is $1/\lambda$ (which also is the \emph{scale}
 parameter\index{scale parameter}), and the variance is $1/\lambda^2$. The exponential 
-distribution is representated in **R** by the functions `pexp`,
+distribution is represented in **R** by the functions `pexp`,
 `dexp`,  `qexp`,  and `rexp`, in order the cumulative distribution
 function, the density function, the quantile function (which is the inverse
 to the cumulative distribution function), and the random number generator function.
@@ -83,7 +83,7 @@ exponential distribution is special case of the Weibull distribution
 ```{r expB,fig=TRUE,echo=FALSE,height=6,fig.cap="The exponential distribution with scale parameter 1."}
 require(eha)
 x <- seq(0, 4, length = 1000)
-par(mfrow = c(2, 2))
+par(mfrow = c(2, 2), las = 1)
 plot(x, dexp(x), type = "l", main = "Density", ylab = "")
 plot(x, pexp(x, lower.tail = FALSE), type = "l", main = "Survival", ylab = "")
 plot(x, hweibull(x, shape = 1), type = "l", main = "Hazard", ylab = "", ylim = c(0, 1.2))
@@ -134,7 +134,7 @@ Figure \@ref(fig:pchBout), created as follows:
 cuts <- c(1, 2, 3)
 n <- length(cuts)
 levels <- c(3, 2, 1, 2)
-oldpar <- par(mfrow = c(2, 2))
+oldpar <- par(mfrow = c(2, 2), las = 1)
 plot(x, dpch(x, cuts = cuts, levels = levels), 
      type = "l", main = "Density", ylab = "", xlab = "t")
 plot(x, ppch(x, cuts = cuts, levels = levels, lower.tail = FALSE), 
@@ -229,7 +229,7 @@ round(pr, 3)
 ```
 The estimate of the shape parameter is 
 `r round(exp(fit$coef[2]), digits = 3)`, and it is significantly
-different from 1 ($p = 0.000$),
+different from 1 ($p = 0$),
  so we can firmly reject the hypothesis that
 data come from an exponential distribution.
 \index{Distributions!Weibull|)}
@@ -343,7 +343,7 @@ $\alpha$ is allowed to vary freely, if the parametrization `param = "rate"` is c
 Note that it is *not* the default value (it may be in a near future).
 
 Extended, three-parameter, versions of the Lognormal and Loglogistic are fit into 
-the proportional hazards framework in the function `phreg. It is simply done by 
+the proportional hazards framework in the function `phreg`. It is simply done by 
 adding a multiplicative positive constant to the hazard function as the third parameter.
 It is, at the time of this writing, experimental, so use with care.
 

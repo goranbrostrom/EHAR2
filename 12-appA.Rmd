@@ -27,7 +27,7 @@ are almost always *probability statements*.
 
 The crucial concept is that of a *model*, despite the fact that the
 present trend in statistical inference is towards nonparametric
-statistics. It is often stated that with today's huge data taster's,
+statistics. It is often stated that with today's huge data sets,
 statistical models are unnecessary, but nothing could be more wrong. 
 
 The important idea in a statistical model is the concept of a
@@ -46,27 +46,27 @@ best single value that is closest to the true, but unknown, value of the
 population parameter.
 
 Of course, a point estimator is useless if it is not connected to some
-measure of its uncertainty. That takes us to the concept of *interval
-  estimation. 
+measure of its uncertainty. That takes us to the concept of 
+*interval estimation*. 
   
 ### Interval estimation
 \index{confidence interval|(}\index{interval estimation|(}
 The philosophy behind *interval estimation* is that a guess on  a
 single value of the unknown population parameter is useless without an
 accompanying measure of the uncertainty of that guess. A 
-*confidence interval* is an interval, in which we say that the true value of the
-population parameter lies with a certain probability (often 95 per cent).
+*confidence interval* is an interval, which we say covers the true value of the
+population parameter with a certain probability (often 95 per cent).
 \index{confidence interval|)}\index{interval estimation|)}
 
 ### Hypothesis testing
 
 We are often interested in a specific value of a parameter, and in
 regression problems this value is almost always *zero* (0). The reason
-is that regression parameters measure *effects*, and to test for an
+is that regression parameters measure *effects*, and to test for no
 effect is then equivalent to testing that the corresponding parameter has
 value zero.
 
-There is a link between interval estimation and hypothesis testing: To test
+There is a connection between interval estimation and hypothesis testing: To test
 the hypothesis that a parameter value is zero can be done through
 constructing a confidence interval for the parameter. The test rule is
 then: If the interval does not cover *zero*, reject the hypothesis,
@@ -75,13 +75,13 @@ otherwise do not.
 #### The log-rank test {#logrank_A}
 
 The general hypothesis testing theory behind the log-rank test builds on
-the *hyper-geometric distribution*. The calculations under the null
+the *hypergeometric distribution*.\index{Distributions!hypergeometric} The calculations under the null
 hypothesis of no difference in survival chances between the two groups are
 performed 
 *conditional on both margins*\index{conditional probability}. In
-Table \@ref(tab:lrgen), if  
-the margins are fixed there is only one degree of freedom left; for a given
-value of (say) $d_1$, the three values $d_2$, $(n_1 - d_1)$, and $(n_2 - d_2)$ are determined.
+Table \@ref(tab:lrgen), if the margins are fixed there is only one degree of 
+freedom left; for a given value of (say) $d_1$, the three values $d_2$, 
+$(n_1 - d_1)$, and $(n_2 - d_2)$ are determined.
 
 ```{r lrgen, echo=FALSE}
 tt <- data.frame(Group = c("I", "II", "Total"), 
@@ -135,15 +135,15 @@ Properties of the log rank test;
 The presentation of the results of fitting a regression model to given data is usually
 done both graphically and in tabular form. Some general guidelines that must be 
 followed are given here. In order to make the presentation easier to understand,
-a real data, but fictive, research project is followed.
+a real data, but fictive research project is followed.
 
 ### The project
 
 In a mortality study of the small town of Umeå in twentieth century northern Sweden we
-are especially interested in investigating the mortality among persons aged 50 and above.
-We are especially interested in whether there were any differences mortality
-between social branches. For this purpose, the data set `ume` (available in
-the package **eha**), with selected variables, is used. A summary of the data is shown
+are investigating the mortality among persons aged 50 and above.
+We are especially interested in whether there were any differences in mortality
+between social branches. For this purpose, the data set `ume`, with selected 
+variables, is used. A summary of the data is shown
 in Table \@ref(tab:creA).
 
 ```{r creA, echo = FALSE, message = FALSE}
@@ -170,7 +170,7 @@ called for.
 
 ### Tabular presentation
 
-We fit a simple model with only one ccovariate, but select only 
+We fit a simple model with only one covariate, but select only 
 *married men*.  This can be done with the help of *Poisson regression* and the 
 `glm` function:
 
@@ -204,7 +204,7 @@ First, we got rid of the printing of the numerous baseline hazards estimates, an
 *factor* `socBranch` is presented in full, with all four levels. And finally, 
 the *relevant p-value*. Because, first,  the truth is that *Wald* p-values are 
 notoriously unreliably in nonlinear regression, and second, we want *p*-values for
-*covariates* and *not* for *levels* ov covariates.
+*covariates* and *not* for *levels* of covariates.
 
 However, note that the essential findings with the two approaches are identical.
 
@@ -305,7 +305,7 @@ available in the **R** package **eha**.
 Here a warning is in order: Tests based on standard errors (*Wald*)
 tests\index{Tests!Wald})
 may be *highly unreliable*, as in all *non-linear* regression
-\cite{hd77}. A better alternative is the *likelihood ratio
+[@hd77]. A better alternative is the *likelihood ratio
 test*\index{Tests!likelihood ratio}.
 \index{asymptotic theory|)}
 
@@ -314,8 +314,7 @@ test*\index{Tests!likelihood ratio}.
 In regression models, there is often several competing models for
 describing data. In general, there are no strict rules for ``correct
 selection''. However, for *nested* models\index{model!nested}, there
-are some formal guidelines. For a precise definition of this concept, see
-Appendix A. 
+are some formal guidelines.
 
 ### Comparing nested models
 
@@ -380,8 +379,8 @@ This is a *large sample approximation*, with the advantage that it is
 automatically available in all software. In comparison to the LRT, one
 model less has to be fitted. This saves time and efforts, unfortunately on
 the expense of accuracy, because it may occasionally give 
-*nonsensic  results*. This phenomenon is known as the *Hauck-Donner effect*
-[@hd77].\index{Hauck-Donner effect}  $\Box$
+*nonsensic  results*. This phenomenon, as already mentioned, is known as 
+the *Hauck-Donner effect* [@hd77].\index{Hauck-Donner effect}  $\Box$
 
 ### Comparing non-nested models
 

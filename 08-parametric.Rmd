@@ -538,7 +538,7 @@ cumhaz <- hazards(fit.swr, cum = TRUE) # Cumulative hazards
 haz <- hazards(fit.swr, cum = FALSE) # NOT Cumulative hazards
 ```
 
-```{r plotstrasw8, fig.cap = "Mortality ratio for men vs. women, Sweden 1968-2019."}
+```{r plotstrasw8, fig.cap = "Mortality ratio for men vs. women, Sweden 1968-2019.", echo = TRUE}
 op <- par(mfrow = c(1, 2))
 plot(haz$x, haz$y[2, ] / haz$y[1, ], type = "l", ylim = c(1, 3), 
      xlab = "Age", ylab = "Hazard Ratio")
@@ -647,7 +647,7 @@ In Figure \@ref(fig:aftph8) the difference between the accelerated failure
 time  and the 
 proportional hazards models concerning the hazard functions is illustrated.
 
-```{r aftph8,fig.cap="Proportional hazards (left) and accelerated failure time model (right). The baseline distribution is Loglogistic with shape 5 (dashed).",echo=FALSE}
+```{r aftph8,fig.cap="Proportional hazards (left) and accelerated failure time model (right). The baseline distribution is Loglogistic with shape 5 (dashed).",fig.scap="PH and AFT models, Loglogistic distribution",echo=FALSE}
 x <- seq(0.001, 3.001, length = 1000)
 par(mfrow = c(1, 2))
 plot(x, 2 * hllogis(x, shape = 5), type = "l", ylab = "", main = "PH", xlab = "Time")
@@ -760,7 +760,8 @@ data(fert)
 f12 <- fert[fert$parity == 1, ]
 f12$enter <- 0
 f12 <- age.window(f12, c(0, 8), surv = c("enter", "next.ivl", "event"))
-tbl(head(f12), caption = "The fertility data set, first few rows.")
+f12$enter <- NULL
+tbl(head(f12), caption = "The fertility data set, first few rows.", fs = 11)
 ```
 
 Some women never got a second child, for instance the first woman (**id  = 1**) above. 

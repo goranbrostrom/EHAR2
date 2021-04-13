@@ -248,21 +248,28 @@ regression, the most useful application of Poisson regression in survival
 analysis is with tabular data. We have already seen an example of this in 
 Chapter 2, the life and its connection to the survival function.
 
-```{example, name = "Mortality in ages 61--80, Sweden 2007."}
+```{example, name = "Mortality in ages 61--90, Sweden 2019-20."}
 ```
 \label{ex:sw07}
-We create a data set `swe07` (a subset and combination of `swepop` 
+We create a data set `swe` (a subset and combination of `swepop` 
 and `swedeaths` in `eha`), which contains population size and number of deaths by age 
-and sex in Sweden 2007. The age span is restricted to ages 61--80.
+and sex in Sweden 2019 and 2020. The age span is restricted to ages 61--80. 
+One reason for these choices is to get a grip on the effect of the covid-19 
+pandemic on the mortality increase in 2020 compared to 2019, pre-corona. Normally,
+mortality is lowered in all age groups from one year to the next, but this is different.
 
 ```{r swe07, echo = FALSE}
-swe07 <- swepop[swepop$year == 2007, ]
-swe07$deaths <- swedeaths$deaths[swedeaths$year == 2007]
-swe07 <- swe07[swe07$age >= 61 & swe07$age <= 80, c("age", "sex", "deaths", "pop")]
-pout <- rbind(head(swe07, 5), tail(swe07, 5))
-knitr::kable(pout, booktabs = TRUE, row.names = FALSE, label = "swe076180",
-             caption = "Swedish population data 2007, ages 61-80.")
-
+source("R/tbl.R")
+years <- 2019:2020
+ages <- 61:90
+swe <- swepop[swepop$year %in% years, ]
+swe$deaths <- swedeaths$deaths[swedeaths$year %in% years]
+swe <- swe[swe$age %in% ages, c("year", "age", "sex", "deaths", "pop")]
+swe$year <- as.factor(swe$year)
+pout <- rbind(head(swe, 5), tail(swe, 5))
+##knitr::kable(pout, booktabs = TRUE, row.names = FALSE, label = "swe19206180",
+##             caption = "Swedish population data 2019-2020, ages 61-80.")
+tbl(pout, caption = "Swedish population data 2019-2020, ages 61-80.", fs = 12)
 ```
 
 The Poisson model is, where $D_{ij}$ is number of deaths and $P_{ij}$
@@ -301,15 +308,15 @@ then the **R** function `glm` ("generalized linear model") is used to
 fit a Poisson regression model. 
 
 ```{r poisreg3}
-swe07$age <- factor(swe07$age)
-fit <- glm(deaths ~ offset(log(pop)) + sex + age, family = poisson, 
-           data = swe07)
+swe$age <- factor(swe$age)
+fit <- glm(deaths ~ offset(log(pop)) + year + sex + age, family = poisson, 
+           data = swe)
 drop1(fit, test = "Chisq")
 ```
 
-The function `drop1` is used above to perform two LR tests. The results
-are that both variables are highly statistically significant, meaning that
-both are very important in describing the variation in mortality over sex
+The function `drop1` is used above to perform two likelihood ratio tests. The results
+are that the three variables are all highly statistically significant, meaning that
+they are very important in describing the variation in mortality over year, sex,
 and age. To know *how*, we present (some of) the parameter estimates.
 
 ```{r parest}
@@ -317,19 +324,21 @@ round(summary(fit)$coefficients[c(1:3), ], 3) # First 3 rows.
 round(summary(fit)$coefficients[c(19:21), ], 3) # Last three rows.
 ```
 
-The results so tell us that males have a distinctly higher mortality than
-females, and that mortality steadily increases with age (no
-surprises!). The parameter estimates for `age` also opens up the
+The results so far tell us that males have a distinctly higher mortality than
+females, and that mortality steadily increases with age, no
+surprises so far. More interesting is to see that the covid-19\index{covid-19} year 2020 has
+a significantly higher mortality than the year 2019. 
+The parameter estimates for `age` also opens up the
 possibility to simplify the model by assuming a linear or quadratic effect
 of age on mortality. We leave that possibility for later. 
 
-One question remains: Is the female advantage relatively the
+One question remains: Is the 2019 advantage relatively the
 same over ages? 
 To answer that question, we introduce an interaction:
 
 ```{r point}
-fit1 <- glm(deaths ~ offset(log(pop)) + sex * age, 
-            family = poisson, data = swe07)
+fit1 <- glm(deaths ~ offset(log(pop)) + sex + year * age, 
+            family = poisson, data = swe)
 drop1(fit1, test = "Chisq")
 ```
 
@@ -342,20 +351,22 @@ have *proportional hazards*! This is most easily seen in
 without interaction. Some calculations are first needed.
 
 ```{r modgrcalc}
-beta <- coefficients(fit)[2]
-alpha <- coefficients(fit)[-2] # Remove sex
+beta <- coefficients(fit)[2:3]
+alpha <- coefficients(fit)[-(2:3)] # Remove sex and year
 alpha[2:length(alpha)] <- alpha[2:length(alpha)] + alpha[1]
-lambda.females <- exp(alpha)
-lambda.males <- exp(alpha + beta)
+lambda.2019 <- exp(alpha)
+lambda.2020 <- exp(alpha + beta[1])
 ```
 
 Then the plot of the hazard functions by
 
-```{r modfig,fig=FALSE}
-plot(61:80, lambda.males, ylim = c(0, 0.06), xlab = "Age", 
-     type = "s")
-lines(61:80, lambda.females, type = "s", lty = 2)
+```r
+par(las = 1)
+plot(ages, lambda.2019, ylim = c(0, 0.15), xlab = "Age", ylab = "Mortality",
+     type = "S")
+lines(ages, lambda.2020, type = "S", lty = 2)
 abline(h = 0)
+legend("topleft", legend = c(2019, 2020), lty = 1:2)
 ```
 
 Note the parameter `ylim`. It sets the scale on the $y$ axis, and some
@@ -368,46 +379,62 @@ information.
  
 The result is shown in Figure \@ref(fig:poishaz).
 
-```{r poishaz,fig=TRUE,echo=FALSE,fig.cap = "Model based hazard functions for males (upper) and females (lower).", fig.scap = "Hazard functions for males and females, model based."}
-plot(61:80, lambda.males, ylim = c(0, 0.06), xlab = "Age", 
-     type = "s")
-lines(61:80, lambda.females, type = "s", lty = 2)
+```{r poishaz,fig=TRUE,echo=FALSE,fig.cap = "Model based hazard functions for 2019 and 2020.", fig.scap = "Hazard functions for 2019 and 2020, model based."}
+par(las = 1)
+plot(ages, lambda.2019, ylim = c(0, 0.18), xlab = "Age", 
+     type = "S", ylab = "Mortality")
+lines(ages, lambda.2020, type = "S", lty = 2)
 abline(h = 0)
+legend("topleft", legend = c(2019, 2020), lty = 1:2)
 ```
 
 We can also make a plot based only on raw data. For that it is only
-necessary to calculate the *occurrence-exposure
-  rates*\index{occurrence-exposure rate}. An occurrence-exposure rate is
+necessary to calculate the *occurrence-exposure rates*\index{occurrence-exposure rate}. 
+An occurrence-exposure rate is
 simply the ratio between the number of occurrences (of some event) divided
 by total exposure (waiting) time. In the present example, mean population
 size during one year is a very good approximation of the exact total
 exposure time (in years).
 
 ```{r rawcal}
-femal <- swe07[swe07$sex == "women", ]
-mal <- swe07[swe07$sex == "men", ]
-f.rate <- femal$deaths / femal$pop
-m.rate <- mal$deaths / mal$pop
+y2019 <- swe[swe$year == 2019, ]
+y2019 <- aggregate(y2019[, c("deaths", "pop")], by = y2019["age"], FUN = sum)
+y2020 <- swe[swe$year == 2020, ]
+y2020 <- aggregate(y2020[, c("deaths", "pop")], by = y2020["age"], FUN = sum)
+rate19 <- y2019$deaths / y2019$pop
+rate20 <- y2020$deaths / y2020$pop
 ```
 
 And finally the plot of the raw death rates is created as follows,
 
 ```{r eval=FALSE, echo=TRUE}
-plot(61:80, m.rate, ylim = c(0, 0.06), xlab = "Age", 
-     ylab = "Mortality", type = "s")
-lines(61:80, f.rate, lty = 2, type = "s")
+par(las = 1)
+plot(ages, rate19, ylim = c(0, 0.045), xlab = "Age", 
+     ylab = "Mortality", type = "S")
+lines(ages, rate20, lty = 2, type = "S")
 abline(h = 0)
 ```
 
 with the result as shown in Figure \@ref(fig:rawplot).
 
-```{r rawplot,fig=TRUE,echo=FALSE, fig.cap = "Hazard functions for males (upper) and females (lower) based on raw data.", fig.scap = "Hazard functions for males and females, raw data"}
-plot(61:80, m.rate, ylim = c(0, 0.06), xlab = "Age", 
-     ylab = "Mortality", type = "s")
-lines(61:80, f.rate, type = "s", lty = 2)
+```{r rawplot,fig=TRUE,echo=FALSE, fig.cap = "Hazard functions for 2019 and 2020 based on raw data.", fig.scap = "Hazard functions for 2019 and 2020, raw data."}
+par(las = 1)
+plot(ages, rate19, ylim = c(0, 0.18), xlab = "Age", 
+     ylab = "Mortality", type = "S")
+lines(ages, rate20, type = "S", lty = 2)
+legend("topleft", legend = c(2019, 2020), lty = 1:2)
 abline(h = 0)
 ```
 
+The differences between Figure \@ref(fig:poishaz) and
+Figure \@ref(fig:rawplot) are (i) the model-based hazard curves are higher than the 
+raw ones, which depends on the fact that the model has *females* as reference category,
+and thus this figure depicts conditions for females, and (ii) we see small deviations 
+from proportionality; the relative difference seems to increase with age. However, as the 
+likelihood ratio implied, this finding is not statistically significant on the 5 percent
+level.
+
+<!--
 The differences between Figure \@ref(fig:poishaz) and
 Figure \@ref(fig:rawplot) are very small, showing that the Poisson model
 without interaction fits the Swedish old age mortality data very well, at least
@@ -418,5 +445,11 @@ was *not* appropriate to assume proportional hazards. The reason for this appare
 contradiction is that here we are looking at a very short piece of human life span,
 from 60 to 80 years of age, and the proportionality assumption fits quite well in 
 that short perspective.
+-->
+
+A final remark: It was quite tedious, although straightforward, to apply raw Poisson 
+regression to this problem. In Chapter 7 it will be shown how to use the function `tpchreg`
+in the **eha** package for a smooth and simple way of analysing tabular data.
+
 $\Box$
 \index{Distributions!Poisson|)}

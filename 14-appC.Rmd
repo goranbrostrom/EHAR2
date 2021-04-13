@@ -8,10 +8,12 @@ source("R/tbl.R")
 ```
 
 There are already many excellent sources of information available for those
-who want to learn more about **R**. A visit to the **R** home page,
-[http://www.r-project.org](http://www.r-project.org), is highly recommendable. 
-When there, look under
-*Documentation*. When **R** is installed on a  computer, it is easy to
+who want to learn more about **R**. A visit to the 
+[**R** home page](https://www.r-project.org), is highly recommendable. 
+When there, look under *Documentation*. The *Task Views* on the home page of 
+[CRAN](https://cran.r-project.org) contains a section *Survival* worth examining.
+
+When **R** is installed on a  computer, it is easy to
 access the the documentation that comes with the distribution; start
 **R** and read the help page `?help.start`. A good start for a
 beginner is also the book *Introductory Statistics with R* by
@@ -234,7 +236,7 @@ lowest, are:
 13.  `<-`: Assignment.
 
 It is, however, highly recommended to use parentheses often rather than
-relying (and remembering) those rules. Compare, for instance
+relying on (and remembering) those rules. Compare, for instance
 ```{r seqC}
 1:3 + 1
 1:(3 + 1)
@@ -256,16 +258,16 @@ ceiling(2.5)
 5 %% 2
 ```
 3.   Mathematical functions: `abs`, `sign`, `log`, `exp`, etc.
-4.   `sum`, `prod`, `cumsum`, `cumprod`for sums and products.
-5.   `min`, `max`, `cummin`, `cummax`for extreme values.
-6.   `pmin`, `pmax`parallel min and max.
+4.   `sum`, `prod`, `cumsum`, `cumprod` for sums and products.
+5.   `min`, `max`, `cummin`, `cummax` for extreme values.
+6.   `pmin`, `pmax` parallel min and max.
 ```{r maxC}
 x <- c(1, 2, 3)
 y <- c(2, 1, 4)
 max(x, y)
 pmax(x, y)
 ```
-7.   `sort`, `order`for sorting and ordering. Especially useful
+7.   `sort`, `order` for sorting and ordering. Especially useful
   is `order` for rearranging a data frame according to a specific
   ordering of one variable:
 ```{r orderC}
@@ -279,7 +281,7 @@ after `enter` (notice the minus sign in the formula!). Then all rows
 with duplicated `id` are removed, only the *first* appearance is
 kept. In this way we get a data frame with exactly one row per individual,
 the row that corresponds to the individual's last (in age or calendar time).
-See the next item!
+See also the next item!
 
 8.   `duplicated` and `unique` for marking duplicated elements in
   a vector and removing duplicates, respectively.
@@ -340,9 +342,9 @@ x[, 1, drop = FALSE]
 ``` 
 
 Note that a dimension is lost when one row /column is selected. This can be
-overridden by the argument `drop = FALSE` (*don't drop dimension(s)*}).
+overridden by the argument `drop = FALSE` (*don't drop dimension(s)*).
 
-^### Vectors and matrices
+### Vectors and matrices
 
 A *matrix* is a vector with a `dim` attribute.
 ```{r dim}
@@ -457,9 +459,9 @@ In serious function writing, it is very unconvenient to define the function
 at the command prompt. It is much better to write it in a good editor and
 then `source` it into the **R** session as needed. If it will be used
 extensively in the future, the way to go is to write a `package`. This
-is covered later in these notes. Our favourite editor, and the one used in
-examples in these notes, is `emacs`, which is free and available on all
-platforms. 
+is covered later in these notes. Our favorite editor, and the one used in
+writing the examples in these notes, is `emacs`, which is free and available on all
+platforms. Another option is to use RStudio [@rstudio].
 
 Functions can be defined inside the body of another function. In this way
 it is hidden for other functions, which is important when considering
@@ -478,9 +480,9 @@ in the function body.
 ### Calling conventions
 
 The arguments to a function are either *specified* or
-*unspecified* (or both). Unspecified arguments are shown as "..."
+*unspecified* (or both). Unspecified arguments are shown as "$\ldots$"
 in the function definition. See for instance the functions `c` and `min`.
-The "..." may be replaced by any number of arguments in a call to the
+The "$\ldots$" may be replaced by any number of arguments in a call to the
 function.
 
 The *formal* arguments are those specified in the function definition
@@ -499,7 +501,7 @@ function. The rules by which formal and actual are *matched* are
 \end{enumerate}
   
 
-### The argument "..."
+### The argument "$\ldots$"
 
 The purpose of the `...` argument is to pass arguments to a
 function call inside the actual function. Read *An Introduction to R* (available 
@@ -507,7 +509,7 @@ in the **R** help system) for further detail.
 
 ### Writing functions \label{sec:fun}
 
-Below is a function tha^t calculates the maximum likelihood estimate of the
+Below is a function that calculates the maximum likelihood estimate of the
 parameter in the exponential distribution, given a censored sample.
 ```
 mlexp <- function(x, d){
@@ -731,7 +733,7 @@ If you only need to see the syntax and input arguments, use the function \fun{ar
 
 ## Functions for survival analysis 
 
-Here some useful functions in `eha`` are listed. In most cases the
+Here some useful functions in `eha` and `survival` are listed. In most cases the
 description is very sparse, and the reader is recommended to consult the
 corresponding help page when more detail is wanted. 
 
@@ -767,18 +769,24 @@ For *rectangular* cuts in the Lexiz diagram, use both `age.window`
 and `cal.window` in succession. The order is unimportant.
 
 *   **cox.zph**\index{Functions!\fun{cox.zph}} Tests the proportionality assumption on fits from
-  `coxreg` and `coxph`.
+  `coxreg` and `coxph`. This function is part of the survival package.
 
 *   **coxreg**\index{Functions!\fun{coxreg}} Fits Cox proportional hazards
   model. It is a wrapper for `coxph` in case of simpler Cox regression
   models.  
-  
-*   **glmmML**\index{Functions!\fun{glmmML}} Fits clustered binary and count
-  data regression models.
 
 *   **phreg**\index{Functions!\fun{phreg}} Fits parametric proportional
   hazards models.
  
+*   **pchreg**\index{Functions!\fun{pchreg}} Piecewise constant proportional hazards 
+regression
+
+*   **tpchreg**\index{Functions!\fun{tpchreg}} Piecewise constant proportional hazards 
+regression for *tabular data*.
+
+*   **toTpch**\index{Functions!\fun{toTpch}} Tabulating individual survival data. 
+
+
 *   **risksets**\index{Functions!\fun{risksets}} Finds the members of each
   riskset at all event times.
 
@@ -787,15 +795,15 @@ and `cal.window` in succession. The order is unimportant.
 ### Checking the the integrity of survival data
 
 In data sources collected through reading and coding old printed
-handwritten sources, many opportunities for making errors occur. Therefore,
+handwritten sources, many opportunities for making and propagating errors occur. Therefore,
 it is important to have tools for detecting logical errors like people
 dying before they got married, of living at two places at the same time. In
 the sources used in this book, such errors occur in almost all data
 retrievals. It is important to say that this fact is not a sign of a bad
-job in the transfer of data from old churchbooks to digital data files. The
+job in the transfer of data from old sources to digital data files. The
 case is almost always that the errors are present in the original source,
 and in the registration process no corrections of "obvious" mistakes by
-the priests are allowed; the digital files are supposed to be as close as
+the registrators are allowed; the digital files are supposed to be as close as
 possible to the original sources. These are the rules at the Demographic
 Database (DDB), Umeå University.
 
@@ -806,7 +814,7 @@ errors varies between 1 and 5 per cent. In most cases it would not do much
 harm to simply delete erroneous records, but often the errors are
 "trivial", and it seems easy to guess what the truth should be.
 
-#### Old age mortality {# old-age-mortality13}
+#### Old age mortality
 
 As an example of the kind of errors discussed above, we take a look at the
 original version of `oldmort` in `eha`. For survival data in
@@ -918,7 +926,8 @@ The first thing you have to do in a statistical analysis (in **R**) is to get
 data into the computing environment. Data may come from different kind of
 sources, and **R** has the capacity to read from many kinds of sources, like
 data files from other statistical programs, spreadsheet type (think 
-*Excel*) data. This is done with the aid of the package `foreign`.
+*Excel*) data. This is normally done with the aid of the recommended package 
+`foreign` [@foreign], but the newer package `haven` [@haven] is also useful.  
 
 If anything else fails, it is almost always possible to get data written in
 ASCII format (e.g., *.csv* files). These can be read into **R** with the

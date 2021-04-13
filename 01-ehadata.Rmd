@@ -124,7 +124,8 @@ fit.out <- function(fit, caption, label){
     }else{ # HTML
         xx <- regtable(summary(fit), digits = 4)
         nn <- ncol(xx)
-        rr <- c("Max Log", "Likelihood", "", round(fit$loglik[2], 1), rep("", nn - 4))
+        rr <- c("Max Log", "Likelihood", "", 
+            round(fit$loglik[2], 1), rep("", nn - 4))
         xx <- rbind(xx, rr)
         kbl(xx, booktabs = TRUE, caption = caption) %>%
             kable_styling(font_size = 12, 
@@ -133,7 +134,7 @@ fit.out <- function(fit, caption, label){
 }    
 ```
 
-Essentially, if output is a *pdf* document (this printed book), the function
+Essentially, if output is a *pdf* document (the printed book), the function
 `ltx` (from the package **eha**) is used, and if output is in HTML format, the
 functionality of the packages **knitr** and **kableExtra** is used.
 

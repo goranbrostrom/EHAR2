@@ -132,7 +132,7 @@ Thus, the problem may be less pronounced in AFT than in PH regression.
 However, as indicated in the introductory example, with individual frailty
 the identification problems are large, and such models are best avoided.
 
-## The shared frailty model
+### The shared frailty model
 
 Frailty models work best when there is a natural grouping of the data, so
 that observations from the same group are dependent, while two individual
@@ -229,7 +229,7 @@ by *missing data*\index{missing data}.
 Take a look at the variables in `oldmort`:
 ```{r oldmortf7} 
 cap = "The old age mortality data."
-tbl(tail(oldmort[, 2:9], 5), caption = cap)
+tbl(tail(oldmort[, c(2:6, 8:9)], 5), caption = cap)
 ``` 
 The variable `m.id` is *mother's id*. Siblings
 will have the same value on that variable, and we can check whether we find
@@ -337,7 +337,7 @@ $\Box$
 % ```
 -->
 
-## Parametric frailty models
+### Parametric frailty models
 
 <!--
 % In \R\ there is a package called {\tt lme4}\index{lme4} \citep{lme411},
@@ -385,7 +385,7 @@ $\Box$
 It is possible utilize the connection between Poisson\index{Distributions!Poisson}
 regression and  the piecewise constant proportional hazards model
 \index{Distributions!piecewise constant hazard}
-discussed in Chapter 6 to fit parametric frailty models. We look at the
+discussed in Chapters 7 and 8 to fit parametric frailty models. We look at the
 fertility data again.  The standard analysis without frailty effects is shown in 
 Table \@ref(tab:stanal9).
 
@@ -418,10 +418,13 @@ fe13$offs <- log(fe13$next.ivl - fe13$start) # 3
 fit1 <- glmmML(event ~ parity + ses + years + offset(offs), 
                cluster = id, family = poisson, method = "ghq", 
                data = fe13, n.points = 9)
-summary(fit1)
+out <- with(fit1, cbind(coefficients, coef.sd))
+colnames(out) <- c("Coef", "se(Coef)")
+round(out[1:5, ], 3)
 ``` 
 
-The conclusion is very much the same as with the nonparametric
+The estimated scale parameter in the mixing distribution is 0.851 with standard error 0.024,
+so the conclusion is very much the same as with the nonparametric
 (`coxme`) approach: The clustering effect of *mother* is very
 strong and must be taken into account in the analysis of birth intervals.
 The nonparametric approach is easier to use and recommended, but see the next session. 

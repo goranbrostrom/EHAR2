@@ -996,7 +996,7 @@ with(mort, plot(Surv(enter, exit, event),
 and the result is seen in Figure \@ref(fig:pshazsur).
 
 
-```{r pshazsur,fig=TRUE,echo=FALSE,fig.cap="Nelson-Aalen plot (left panel) and Kaplan-Meier plot (right panel), male mortality data. The dashed lines in the Survival function plot are pointwise 95 percent confidence limits.", scap = "Male mortality, Nelson-Aalen and Kaplan-Meier plots.", fig.height = 3}
+```{r pshazsur,fig=TRUE,echo=FALSE,fig.cap="Nelson-Aalen plot (left panel) and Kaplan-Meier plot (right panel), male mortality data. The dashed lines in the Survival function plot are pointwise 95 percent confidence limits.", fig.scap = "Male mortality, Nelson-Aalen and Kaplan-Meier plots.", fig.height = 3}
 library(eha)
 oldpar <- par(mfrow = c(1, 2), las = 1, cex.main = 0.9) 
 ##par(las = 1, cex.main = 0.9)

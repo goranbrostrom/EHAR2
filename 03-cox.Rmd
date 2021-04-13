@@ -304,7 +304,8 @@ from the viewpoint of the `numbers`.
 The *expected* number is calculated under $H_0$, i.e., as if there is
 no difference between `letters` and `numbers` regarding mortality. It is further
 assumed that the two margins (Total) are given (fixed) and that the number of 
-deaths follows a hypergeometric distribution, which gives the variance. 
+deaths follows a hypergeometric distribution\index{Distributions!hypergeometric}, 
+which gives the variance. 
 
 Then, given two deaths in
 total and five out of ten observations are from the group `numbers`,
@@ -439,7 +440,7 @@ minus one. Figure \@ref(fig:grbp3) shows the cumulative hazards for each group.
 
 ```{r grbp3, fig.cap = "Old age male mortality by civil status, cumulative hazards.", echo=FALSE, fig.height = 4}
 par(las = 1)
-plot(fit)
+plot(fit, xlab = "Age")
 ```
 
 <!--
@@ -700,7 +701,7 @@ to definition \@ref(eq:dischaz), is nothing else than a
 *logistic regression*\index{logistic regression}
 model with the *cloglog link*\index{cloglog link function} (cloglog is
 short for "complementary log-log" or $\boldsymbol{\beta}\mathbf{x} =\log(-\log(p))$). In order
-to see that, let 
+to see this, let 
 
 \begin{equation}
   (1 - h_j) = \exp(-\exp(\alpha_j)), \; j = 1, \ldots, k,

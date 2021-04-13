@@ -2,7 +2,7 @@
 \index{register data}
 ```{r settings7, echo = FALSE, include = FALSE}
 knitr::opts_chunk$set(comment = "", message = FALSE, echo = TRUE, cache = FALSE)
-options(width = 70, digits = 7)
+options(width = 70, digits = 7, warn = -1) ## NOTE: No warnings!
 ```
 
 During the last couple of decades, huge data bases with poulation data have 
@@ -18,7 +18,7 @@ Finally, in this chapter, we show how to combine the technique with
 communal covariates\index{communal covariates} 
 with tabulating data. The problem we solve is that the creation of an individual-based
 data set with communal covariates usually leads to uncomfortably large data sets.
-Tabulation is often a good solution.  
+Tabulation is often a good solution to this problem.  
 
 ## Tabular data
 \index{tabular data}
@@ -47,7 +47,7 @@ is grouped into one-year classes, but the highest age class, labelled 100, is in
 "ages 100 and above". The original table gives the population sizes at the end of each year,
 but here we have calculated an average size over the year in question by taking the mean
 of the actual value and the corresponding value from the previous year. The population size 
-can in this way be used as "total time at risk" or *exposure*. 
+can in this way be used as a proxy for, prediction of,  "total time at risk" or *exposure*. 
 
 The content of `swedeaths` (first five rows) is shown in Table \@ref(tab:swedeaths7).
 
@@ -61,7 +61,7 @@ kbl(head(deaths, 5), booktabs = TRUE, caption ="First rows of 'swedeaths'.")
 The `(age, sex, year)` columns in the two data frames are identical, so we can 
 create a suitable data frame for analysis simply by putting `swedeaths$deaths`
 into the data frame `swepop` and rename it to `sw`. The first rows of `sw` are
-(Table \@ref(tab:sw7)).
+shown Table \@ref(tab:sw7).
 
 ```{r sw7, echo = FALSE}
 sw$deaths <- deaths$deaths
@@ -81,11 +81,11 @@ system.time(fit <- tpchreg(oe(deaths, pop) ~ sex + I(year - 1995),
 Note several things here:
 
 1.   The fitting procedure is wrapped in a call to the function `system.time`. 
-This results in the first report headed "user  system  elapsed", gives the time
+This results in the first report headed "user  system  elapsed", giving the time
 in seconds for the whole operation ("elapsed"), split up by "user" (the time spent
 with our call) and "system" (time spent by the operating system, for instance 
 reading, writing and organizing the user operation). The interesting value for us 
-is that the total elapsed time was around six tenth of a second. Quite OK for a
+is that the total elapsed time was around half a second. Quite OK for a
 proportional hazards analysis involving `r sum(sw$deaths)` events.
 
 
@@ -98,7 +98,7 @@ it, if we are not satisfied with the default value *zero*. In the case with the
 covariate `year`, we are certainly *not* satisfied with zero as reference point, 
 so we choose a suitable value in the range of the observed values. This is done in
 practice by *subtracting* the reference value from the corresponding variable, 
-forming `year - 1995` in our case. In the output above, this will only affect the value
+forming `year - 1995` in our case. In the output below, this will only affect the value
 of *Restricted mean survival*, which is calculated for a "reference individual",
 in this case *a woman living her life during the year 1995*. There are not many such 
 women, of course, what we are doing here is comparing periods, not cohorts.
@@ -110,9 +110,10 @@ The choice of the value for `last` do not affect parameter estimates and general
 conclusions, it only affects plots in the extreme of the right tail (slightly). 
 
 
-```{r tpchtab7, results = 'asis'}
+```{r tpchtab7, results = 'asis', echo = FALSE}
 source("R/fit.out.R")
-fit.out(fit, caption = "Swedish mortality, 1968-2020", label = "tpchtab7")
+fit.out(fit, caption = "Swedish mortality, 1968-2020", 
+        label = "tpchtab7")
 ```
 
 Note the "Restricted mean survival": It gives the expected remaining life 
@@ -126,7 +127,7 @@ par(las = 1)
 plot(fit, fn = "haz", main = "", xlab = "Age", ylab = "Mortality", col = "red")
 abline(h = 0)
 abline(v = summary(fit)$rmean, lty = 3)
-text(78, 0.4, "Expected life at birth (81.1)", srt = 90, cex = 0.8)
+text(78, 0.3, "Expected life at birth (81.1)", srt = 90, cex = 0.8)
 ```
 
 Apart from the first year of life, mortality seems to be practically zero the first
@@ -155,7 +156,7 @@ Due to the extremely low mortality in early ages, Figure \@ref(fig:base27) is
 quite non-informative. We try the same plot on a log scale, see Figure \@ref(fig:base37).
 
 ```{r base37, fig.cap = "Baseline hazard functions, women and men 1995. Log scale.", echo = FALSE}
-par(las = 1)
+par(las = 1, cex = 0.9)
 plot(fit2, fn = "haz", main = "", xlab = "Age", ylab = "Log mortality", 
      col = c("red", "blue"), log = "y")
 ```
@@ -165,6 +166,7 @@ An even clearier picture is shown in Figure \@ref(fig:base47), where the ratio o
 male vs. female mortality is plotted.
 
 ```{r base47, fig.cap = "Hazard ratio by age, men vs. women 1995.", echo = FALSE}
+par(las = 1)
 x <- seq(0, 100)
 y <- fit2$hazards[2, ] / fit2$hazards[1, ]
 plot(x, y, main = "", xlab = "Age", ylab = "Hazard ratio", 
@@ -173,11 +175,11 @@ abline(h = 1)
 ```
 
 This graph gives the clearest picture of the relative differences in mortality 
-over the life span. Here we see, somewhat unexpectedly, that the drop in the ratio 
-is broken around  age 50, and the continues after age 70. This is not clearly 
+over the life span. We see, somewhat unexpectedly, that the drop in the ratio 
+is broken around  age 50, and then continues after age 70. This is not clearly 
 visible in the earlier figures. A possible explanation is that the age interval
-20-50 approximately coincides with women's fertility period, that is, during
-this period, the mortality advantage decreases more than pure age motivates. 
+20--50 approximately coincides with women's fertility period, that is, during
+this period, the female mortality advantage decreases more than pure age motivates. 
 
 This pattern may change over the time period 1969--2020. We split the 
 data by year into quarters in order to check this.
@@ -192,7 +194,7 @@ for (i in 1:4){
     fit2 <- tpchreg(oe(deaths, pop) ~ strata(sex) + I(year - start + 7), 
                time = age, last = 101, data = swx)
     y <- fit2$hazards[2, ] / fit2$hazards[1, ]
-    plot(x, y, main = "", xlab = "Age", ylab = "Hazard ratio", 
+    plot(x, y, main = "", xlab = paste(start, "-", slut, sep = ""), ylab = "Hazard ratio", 
          col = "blue", type = "l", ylim = c(1, 3))
     abline(h = 1)
     start <- slut + 1
@@ -200,8 +202,7 @@ for (i in 1:4){
 par(oldpar)
 ```
 
-The rise after age 50 seems to vanish with time, according to Figure \@ref(fig:quarters7), 
-the period 2007--2019.
+The rise after age 50 seems to vanish with time, according to Figure \@ref(fig:quarters7).
 
 Finally, we investigate the development of expected life ($e_0$) over time, see Figure
 \@ref(fig:e07).
@@ -234,19 +235,19 @@ abline(v = att, lty = 3)
 
 The difference in longevity between women and men is slowly decreasing over the 
 time period. Also note the values in the last two years: Mortality in Sweden was
-unusually low in the year 2019, resulting in high values of expected life, but in 
+unexpectedly low in the year 2019, resulting in high values of expected life, but in 
 2020, the pandemic virus *covid-19*\index{covid-19} struck, and the expected life dropped by
 around five months for women and almost nine months for men, compared to 2019.
 
 ## Individual data
 
 The analysis of individual survival data is what the rest of this book is all 
-about, so what is new here? The answer lies in the *size* of the data files, 
+about, so what is new here? The answer lies in the *size* of the data sets, 
 that is, the number of individuals is *huge*. 
 
 As an example, we have mortality data consisting of all Swedish citizens aged
 30 and above for the years 2001--2013. It may be described as yearly censuses, where 
-all Swedish persons alive at December 31 the specific year, are registered together 
+all Swedish persons alive at December 31 the specific year are registered together 
 with vital information. It starts with register data of the form shown in 
 Table \@ref(tab:vitalform7).
 
@@ -276,7 +277,8 @@ quarter is represented by ".875"). The birthdate will be off by plus or minus on
 month and a half, which is deemed to be a good enough precision concerning our 
 analysis of adult mortality.
 *   **deathdate** Is given by day in the sources. The missing value symbol (*NA*) 
-is given to those who are not registered as dead before January 1, 2014.
+is given to those who are not registered as dead before January 1, 2014. Each date 
+is converted to decimal form.
 *   **civst, ses, region** Information about *civil status*, 
 *socioeconomic status*, and *geographic area*, respectively.
 
@@ -287,7 +289,8 @@ with a deathdate less than or equal to `enter + 1 = year + 2`, the variable `exi
 calculated as `deathdate - birthdate` and the variable `event` is set equal to one, otherwise 
 `exit = enter + 1` and `event = 0`, a censored observation.
 
-The result of this is shown for the same individuals as above in Table \@ref(tab:workedform7).
+The result of this is shown for the same individuals as above in 
+Table \@ref(tab:workedform7), with three covariates omitted in order to save space.
 
 ```{r workedform7, echo = FALSE}
 wl <- readRDS("worklis.rds")
@@ -297,19 +300,28 @@ rownames(wl) <- 1:4
 ##kbl(wl[, c("id", "year", "enter", "exit", "event")], booktabs = TRUE,
 ##caption = "Constructed data, Sweden December 31, 2001.") %>%
 ##     kable_styling(font_size = 10)
-tbl(wl, caption = "Constructed data, Sweden December 31, 2001.")
+tbl(wl[, -(6:8)], caption = "Constructed data, Sweden December 31, 2001.")
 ```
 
 This file from the year 2001 (covering the year 2002!) contains *5.8 million* individuals
 and 92 thousand deaths. To perform a Cox regression on such massive data sets 
 (and there are thirteen of them) is time, software, 
-and hardware consuming, but there is a simple remedy: Make tables and fit piecewise 
-constant proportional hazards models.
+and hardware consuming, but there is a simple remedy: Make tables and fit 
+*piecewise constant proportional hazards* (pch) models.
 
-This is done with the aid of the `eha` function `toTpch` as follows:
+This is done with the aid of the `eha` function `toTpch`. We decide to choose the pch
+model as constant over five-year intervals 30-35, 35-40, $\ldots$, 100-105, 
+and we replace birthdate
+by birth year (more suitable as a covariate) and call it `cohort`. It is done 
+with the aid of the R function `floor`:
 
 ```
-lisa2001$cohort <- floor(lisa2001$birthdate) 
+lisa2001$cohort <- floor(lisa2001$birthdate)
+```
+The function `floor` simply removes the decimals from a positive number.
+Then we apply the function `toTpch`:
+
+```
 listab2001 <- toTpch(Surv(enter, exit, event) ~ sex + cohort + year + 
                                                 civst + region + ses,
                      data = lisa2001, 
@@ -328,13 +340,13 @@ lhead <- head(lisa2001, 5)
 tbl(lhead, caption = "Mortality in ages above 30, Sweden 2002 ('year' = 2001).", fs = 10)
 ```
 
-Note the creation of the variable `cohort`: The function `floor` simply removes 
-the decimals from a positive number. The result is shown in 
+The result is shown in 
 Table \@ref(tab:maketableread7) (four first rows) 
 which is a table with  `r nrow(lisa2001)` rows. That is, one row for each unique 
-combination of the six covariates, empty combinations excluded. Note the two created
+combination of the six covariates for each interval, empty combinations excluded. Note the three created
 variables, `event` which is the total number of events for each combination of covariates, 
-and `exposure`, which is total time at risk for each corresponding combination.
+`exposure`, which is the total time at risk for each corresponding combination, and `age`,
+which is the age intervals with constant hazard.
 
 
 In the survival analysis, the pair `(event, exposure)` is the *response*, and 
@@ -370,7 +382,7 @@ Now this data set is conveniently analyzed with the aid of the function `tpchreg
 in `eha`. An example:
 
 ```{r runtab7, comment = "", echo = TRUE}
-listab$year <- listab$year - 2000 # Enumerate (center)!
+listab$year <- listab$year - 2000 # Center!
 list2 <- aggregate(cbind(event, exposure) ~ sex + civst + ses + 
                        year + age, FUN = sum, data = listab)
 fit <- tpchreg(oe(event, exposure) ~ strata(sex) + civst + ses + 
@@ -381,21 +393,24 @@ ewomen <- round(xx$rmean[2], 2)
 ```
 
 ```{r runtable77, results = "asis", echo = FALSE}
-if (knitr::is_latex_output()){
-    fit.ltx <- tpchreg(oe(event, exposure) ~ strata(sex) + civst + ses + 
-                   year, data = list2, time = age, last = 105)
-    dr = drop1(fit.ltx, test = "Chisq")[-2, ] # A hack!!
-    ltx(summary(fit.ltx), dr = dr, 
+##if (knitr::is_latex_output()){
+##    fit.ltx <- tpchreg(oe(event, exposure) ~ strata(sex) + civst + ses + 
+##                   year, data = list2, time = age, last = 105)
+##    dr = drop1(fit.ltx, test = "Chisq")[-2, ] # A hack!!
+##    ltx(summary(fit.ltx), dr = dr, 
+##        caption = "Mortality in Sweden 2002-2014, ages 30 and above.", 
+##        label = "runtable7")
+##}
+fit.out(fit, 
         caption = "Mortality in Sweden 2002-2014, ages 30 and above.", 
-        label = "runtable7")
-}
+        label = "runtable77")
 ```
 
-```{r runtable7, echo = FALSE}
+```{r runtable7, echo = FALSE, eval = FALSE}
 if (knitr::is_html_output()) print(xx)
 ```
 
-The result is shown in Table 7.7.
+The result is shown in Table \@ref(tab:runtable77).
 
 We note a couple of things here:
 
@@ -425,7 +440,7 @@ A graph of the conditional survival functions is shown in Figure \@ref(fig:wbhaz
 ```{r wbhaz7, fig.cap = "Survival above 30, males and females, married worker, Sweden 2002.", echo = FALSE, fig.height = 3.5}
 par(las = 1)
 plot(fit, fn = "sur", col = c("blue", "red"), lty = c(1, 2), xlab = "Age", 
-     main = "", printLegend = "center")
+     main = "", printLegend = "left")
 axis(1, at = seq(30, 100, by = 10))
 ##axis(2, las = 1)
 ##box()
@@ -438,11 +453,20 @@ The application of the function `make.communal` (see previous chapter)
 \index{Functions!\fun{make.communal}} will often result in impractically 
 large data sets, and it is recommended to combine it with the tabulation technique
 suggested in this chapter. We illustrate it with an investigation of the influence of
-weather conditions on mortality. Daily temperature data from
-[SMHI](https://www.smhi.se/data/meteorologi/ladda-ner-meteorologiska-observationer#param=airtemperatureInstant,stations=all,stationid=140500) for central Umeå, starting at 1 
-November, 1858 and ending at 30 September, 1979 (this particular weather station was replaced at this last date).
-are used together with population data from Umeå, a town geographically located at the 63rd latitude in Sweden.
-Since we attempt to match these data to population data for the time period 1 January 1901 -- 31 December 1950, we
+weather conditions on mortality for two time periods, 1901--1950 and 1990--2014.
+In the first case focus is on the effect of low temperature on mortality, and the
+second case has the opposite focus, is an extremely hot summer bad for survival.
+The geographical area under study is the Swedish town Umeå, situated at the Gulf 
+of Bothnia on the latitude 64 degrees north. 
+
+### Temperature and mortality, Umeå 1901--1950
+
+Daily temperature data from
+[SMHI](https://www.smhi.se/data/meteorologi/ladda-ner-meteorologiska-observationer#param=airtemperatureInstant,stations=all,stationid=140500) for central Umeå, starting at 1 November, 1858 and ending at 30 September, 
+1979 (this particular weather station was replaced at this last date)
+are used together with population data from Umeå.
+Since we attempt to match these data to population data for the time period 
+1 January 1901 -- 31 December 1950, we
  cut the temperature data to the same time period.
 
 
@@ -468,38 +492,38 @@ temp$quarter <- as.factor(temp$quarter)
 
 ```{r plottemp, echo = FALSE}
 source("~/Documents/EHAR2/R/tbl.R")
-tbl(head(temp, 10), fs = 11, caption = "Temperature in Umeå, 1901-1950") # fs stands for 'font size'
+tbl(head(temp, 10), fs = 11, caption = "Temperature in Umeå, 1901-1950.") # fs stands for 'font size'
 ```
 
 Apparently, there are three measurements each day, and the temperature range is
 `r range(temp$temp)` degrees Celsius. 
 The variables *year*, *month*, and *quarter* were extracted from the *date*. 
 
-### Reading individual data
-
 We extract population data for Umeå, 1 Jan 1901 to 31 Dec 1950, and include all 
-ages between 15 and 100:
+ages between 15 and 100, see Table \@ref(tab:popdata7) for the first few rows.
 
-```{r popdata, echo = FALSE}
+```{r popdata7, echo = FALSE}
 library(skum)
 ume <- obs[obs$region == "ume", ]
 ume$event <- (ume$sluttyp == 2)
 ume <- cal.window(ume, c(1901, 1951))
 ume <- age.window(ume, c(15, 101))
-ume <- ume[, c("id", "sex", "birthdate", "enter", "exit", "event", "ortnmn")]
-ume$urban <- ume$ortnmn == "UMEÅ"
-ume$ortnmn <- NULL
+ume$socStatus[is.na(ume$socStatus)] <- "low"
+ume <- ume[, c("id", "sex", "birthdate", "enter", "exit", "event", "socStatus")]
+##ume$urban <- ume$ortnmn == "UMEÅ"
+##ume$ortnmn <- NULL
 noll <- ume$enter >= ume$exit
 ume$enter[noll] <- ume$enter[noll] - 0.001 # Fix zero length spells
-show <- head(ume, 10)
+ume$enter <- round(ume$enter, 3)
+ume$exit <- round(ume$exit, 3)
+show <- head(ume, 3)
 show$birthdate <- toDate(show$birthdate)
-tbl(show, fs = 10)
+tbl(show, fs = 11, 
+    caption = "Umeå data, ages 15-100, time period 1901-1950.")
 ```
 
-There are `r NROW(ume)` records about `r length(unique(ume$id))` individuals in this selection.
+There are `r NROW(ume)` records describing `r length(unique(ume$id))` individuals in this selection.
 In order to simplify the presentation, only two covariates, `sex` and `urban`, are included.
-
-### First analysis
 
 The first question is what to do with the temperature measurements. They span 
 50 years, with mostly three measurements per day. In this first analysis we 
@@ -507,9 +531,9 @@ focus on the effect on mortlity of *low* temperatures, so we start by taking the
 maximum of daily temperatures, then minimum over month. We thus end
 up with one measurement per month and year, in total 600 measurements.
 
-Start by finding the maximum value each day:
+Start by finding the *maximum* value each day, result in Table \@ref(tab:maxtemp7).
 
-```{r maxtemp}
+```{r maxtemp7}
 idx <- with(temp, tapply(date, date))
 maxtemp <- with(temp, tapply(temp, date, max))
 temp$maxtemp <- maxtemp[idx]
@@ -517,83 +541,96 @@ temp$maxtemp <- maxtemp[idx]
 mtemp <- temp[!duplicated(temp$date), 
               c("date", "maxtemp", "month", "quarter", "year")]
 rownames(mtemp) <- 1:NROW(mtemp)
-tbl(head(mtemp, 12), fs = 10)
+tbl(head(mtemp, 3), fs = 11, 
+    caption = "Maximum daily temperature, Umeå 1901-1950.")
 ```
 
-The next step is to take minimum over year and month:
+The next step is to take *minimum* over year and month, see Table \@ref(tab:aver7).
 
-```{r aver}
+```{r aver7}
 atmp <- aggregate(list(temp = mtemp$maxtemp), 
                   by = mtemp[, c("month", "year")], 
                   FUN = min)
-tbl(head(atmp, 12), fs = 10)
+tbl(head(atmp, 3), fs = 10, 
+    caption = "Average daily maximum temperature by month, Umeå 1901-1950.")
 ```
 
-Now we can try to apply `make.communal` to our data, to split spells *by year and month*:
+Now we can apply `make.communal` to our data and split spells *by year and month*. 
+The result is shown in Table \@ref(tab:makecom7).
 
-```{r makecom, cache = TRUE}
+```{r makecom7, cache = TRUE}
 atmp$yearmonth <- atmp$year * 100 + atmp$month 
 ## A trick to get format 190101
 comtime <- system.time(
     nt <- make.communal(ume, atmp["yearmonth"], 
                         start = 1901, period = 1/12))
 
+nt$enter <- round(nt$enter, 3)
+nt$exit <- round(nt$exit, 3)
 oj <- nt$enter >= nt$exit - 0.0001 # Too short interval!
 nt$enter[oj] <- nt$exit[oj] - 0.001  # Break accidental ties
+nt$year <- nt$yearmonth %/% 100 # Restore 'year'.
+nt$month <- nt$yearmonth %% 100 # Restore 'month'.
 saveRDS(nt, file = "mytables/nt.rds")
-##nt <- readRDS("mytables/nt73.rds")
-tbl(head(nt, 12), fs = 10)
+nt <- nt[nt$month %in% c(12, 1, 2), ]
+tbl(head(nt, 3), fs = 11, 
+    caption = "Population data split by year and month, Umeå 1901-1950.")
 ```
 
 Total time for *making communal*: 25 seconds.
 
 
-The next step is to read temperature from `atmp` to `nt`:
+The next step is to read temperature from `atmp` to `nt`, see 
+Table \@ref(tab:readtmp7) (selected variables).
 
-```{r readtmp}
+```{r prepreadtmp7, echo = TRUE}
 indx <- match(nt$yearmonth, atmp$yearmonth)
 nt$temp <- atmp$temp[indx]
-nt$year <- nt$yearmonth %/% 100 # Restore 'year'.
-nt$month <- nt$yearmonth %% 100
-tbl(head(nt, 10), fs = 10)
+```
+
+```{r readtmp7, echo = FALSE}
+
+tbl(head(nt[, c("id", "sex", "enter", "exit", "event", "year", "month", "socStatus", "temp")], 3), 
+    fs = 11, caption = "Temperature added to Umeå data.")
 ```
 
 This data frame contains `r NROW(nt)` records, maybe too much for a comfortable 
-Cox regression. Let's see what happens:
+Cox regression. Let's see what happens (Table \@ref(tab:coxph7)):
 
-```{r coxph7, cache = TRUE}
-##library(survival)
+```{r coxph7, cache = TRUE, results = 'asis'}
 ptm <- proc.time()
 fit <- coxreg(Surv(enter, exit, event) ~ 
-                  sex + temp, data = nt)
-res <- summary(fit)
-saveRDS(res, file = "mytables/res73.rds")
-##res <- readRDS("mytables/res73.rds")
+                  sex + socStatus + temp, data = nt)
 ctime <- proc.time() - ptm
-tbl(regtable(res))
+fit.out(fit, label = "coxph7", 
+        caption = "Cox regression, mortality and temperature, Umeå 1901-1950.")
 ```
 
 This is quite bad (the computing time,  almost 2 minutes), 
 but we already have a substantial result: 
 Survival chances *increase* with temperature. But remember that Umeå 
-is a northern town, not much warm weather here. But it can also be the case that both
+is a northern town, not much warm weather here. And further, no signs of 
+interactions with sex or social status (not shown). 
+
+<!--
+But it can also be the case that both
 high and low temperatures are critical, which may motivate the categorization of 
 temperature. Let us look at its distribution over the year.
 
-```{r temphist, fig.cap = "Monthly minimum  temperatures, Umeå 1901-1950."}
+```{r temphist, fig.cap = "Monthly minimum  temperatures, Umeå 1901-1950.", eval = FALSE}
 hist(atmp$temp, xlab = "Temperature (centigrade)", main = "")
 ```
 
 And the winter distribution:
 
-```{r temphist1, fig.cap = "Monthly minimum  temperatures, Umeå 1901-1950. October-March."}
+```{r temphist1, fig.cap = "Monthly minimum  temperatures, Umeå 1901-1950. October-March.", eval = FALSE}
 hist(atmp[atmp$month %in% c(1:3, 10:12), ]$temp, 
      xlab = "Temperature (centigrade)", main = "")
 ```
 
 And in the summer:
 
-```{r temphist2, fig.cap = "Monthly minimum  temperatures, Umeå 1901-1950. April-September."}
+```{r temphist2, fig.cap = "Monthly minimum  temperatures, Umeå 1901-1950. April-September.", eval = FALSE}
 hist(atmp[atmp$month %in% c(4:9), ]$temp, 
      xlab = "Temperature (centigrade)", main = "")
 ```
@@ -601,7 +638,7 @@ hist(atmp[atmp$month %in% c(4:9), ]$temp,
 
 Winter survival analysis results, with cut points at -20, -5 degrees Celsius:
 
-```{r catetemp1, cache = TRUE}
+```{r catetemp1, cache = TRUE, eval = FALSE}
 nt$ctemp <- cut(nt$temp, breaks = c(-30, -20, -5, 5))
 fit <- coxreg(Surv(enter, exit, event) ~ sex + ctemp, 
               data = nt[nt$month %in% c(1:3, 10:12), ])
@@ -615,7 +652,7 @@ difference between the two coldest intervals: Clearly best is a temperature arou
 
 Summer results with cut points 0, 10 degrees Celsius:
 
-```{r catetemp2, cache = TRUE}
+```{r catetemp2, cache = TRUE, eval = FALSE}
 nt$ctemp <- cut(nt$temp, breaks = c(-20, 0, 10, 17))
 fit <- coxreg(Surv(enter, exit, event) ~ sex + ctemp, 
               data = nt[nt$month %in% c(4:9), ])
@@ -627,58 +664,52 @@ tbl(regtable(s2fit73))
 
 Also here is it clear that the months with the highest min temperature are the healthiest.
 
+
+
 ### Reducing the size of the data set
+
+-->
 
 The analyses so far are very rudimentary, including all ages in one and so on. 
 Here we show how extract small subsets of the full data set by some simple and 
 reasonable assumptions. It builds on *categorical covariates* and an assumption
-of *piecewise constant hazards*. We use the function `toTpch` in the `eha` package:
+of *piecewise constant hazards*. We use the function `toTpch` in the `eha` package,
+see Table \@ref(tab:tabulate7).
 
-```{r tabulate}
-told <- toTpch(Surv(enter, exit, event) ~ sex + urban + yearmonth, 
+```{r tabulate7}
+told <- toTpch(Surv(enter, exit, event) ~ sex + socStatus + yearmonth, 
                data = nt, cuts = seq(15, 100, by = 5))
 indx <- match(told$yearmonth, atmp$yearmonth)
 told$temp <- atmp$temp[indx]
 saveRDS(told, file = "mytables/told73.rds")
 ##told <- readRDS("mytables/told73.rds")
-tbl(head(told, 6), fs = 10)
+tbl(head(told, 6), fs = 11, caption = "Tabular Umeå 1901-1950 data.")
 ```
 
 The tabulation reduces the data set from 2.5 million records to 19 thousands. And
-computing time accordingly (reduced to a quarter of a second!), without jeopardizing the results. Let's see:
+computing time accordingly (reduced to a quarter of a second!), without jeopardizing the results, 
+see Table \@ref(tab:tabulateres7).
 
-```{r}
-fit <- tpchreg(oe(event, exposure) ~ sex + temp, 
+```{r tabulateres7, echo = FALSE, results = 'asis'}
+fit <- tpchreg(oe(event, exposure) ~ sex + socStatus + temp, 
                data = told, time = age)
-tbl(regtable(summary(fit)))
+fit.out(fit, label = "tabulateres7", 
+        caption = "Temperature and mortality, Umeå 1901-1950. PCH model.")
 ```
 
 Essentially the same conclusion as in the earlier attempts: Mortality decreases 
 with increasing temperature.
 
-### Conclusion
 
-This was a very superficial analysis of the effect of temperature on mortality. 
-The main purpose of the presentation was to show how to include *communal covariates*
-(here: temperature) in survival analysis, and how to reduce huge data sets by tabulation.
-Read more about it on [EHAR2](http://ehar.se/r/ehar2/), Chapters 6 and 7.
+### Hot summers in Umeå, 1990--2014
 
-**Final note:** The timings above are of course heavily dependent on both hardware
-and software. I used my laptop, a DELL M6800 with 32 Gb memory and running 
-Ubuntu 20.10, R 4.0.4 in RStudio 1.4.1103.
-
-## Hot summers in Umeå
-
-As an example of combining the use of the function `eha::make.communal` and 
-tabulation, as described in this chapter, the effect of hot summers on mortality 
+As the next example of combining the use of the function `eha::make.communal` and 
+tabulation, the effect of hot summers on mortality 
 is examined. Data at hand relate to Umeå during the time period 1990--2014.
-Umeå is a town in the northern part of Sweden.
-
-### Temperature data
 
 Temperature data for different places in Sweden can be downloaded from 
 [SMHI - The Swedish Meteorological and Hydrological Institute](https://www.smhi.se),
-data for Umeå is read and presented i Table \@ref(tab:readtemp7).
+data for Umeå is read and presented in Table \@ref(tab:readtemp7).
 
 ```{r readtemp7, cache = TRUE, echo = FALSE}
 temp <- read.table("Data/umeairport.csv", header = FALSE, 
@@ -692,13 +723,11 @@ temp$year <- as.numeric(format(temp$day, "%Y"))
 temp$month <- as.numeric(format(temp$day, "%m"))
 library(kableExtra)
 source("~/Documents/EHAR2/R/tbl.R")
-tbl(head(temp, 5), caption = "First rows of temperature data for Umeå.")
+tbl(head(temp, 5), caption = "First rows of temperature data for Umeå 1990-2014.")
 ```
 
 There are 24 measurements taken every day, with few exceptions, in total 
 `r NROW(temp)` values. 
-
-### Individual data
 
 Population data for Umeå are extracted from the [Longitudinal integrated database for health insurance and labour market studies (LISA)](https://www.scb.se). LISA contains information about all Swedes aged 16 and above on 31 December yearly, starting at 1990. See Table \@ref(tab:readpop7).
 
@@ -710,21 +739,22 @@ pop <- cal.window(pop, c(1990, 2015))
 tbl(head(pop[, -1]), caption = "First rows of individuals  from Umeå 1990-2014.")
 ```
 
-### Data manipulation
 
 ```{r avermax, echo = FALSE}
 temp$yearmonth <- temp$year + 100 * temp$month
 ```
 
-Then perform the aggregation:
+Then perform the aggregation, see Table \@ref(tab:aggrtemp7).
 
-```{r aggrtemp7, cache = TRUE}
+```{r aggrtemp7, cache = TRUE, echo = FALSE}
 aggrtemp <- aggregate(temp ~ month + year, data = temp, FUN = max) #day temp
 aggrtemp$yearmonth <- 100 * aggrtemp$year + aggrtemp$month
-head(aggrtemp[aggrtemp$month %in% 6:8,])
+hh <- head(aggrtemp[aggrtemp$month %in% 6:8,])
+hh$month <- factor(hh$month, labels = c("June", "July", "August"))
+tbl(hh, caption = "Aggregated summer temperature data, Umeå 1990-2014.")
 ```
 
-The next step is to aggregate the population data, but first must split it by 
+The next step is to aggregate the population data, but we must first split it by 
 month and year, using the function `make.communal`. We  want to keep track of 
 year and month, so the simplest way to do it is to use the variable `yearmonth`
 in `temp` as our communal covariate. And then read temperature from temp:
@@ -753,22 +783,27 @@ out$temp <- aggrtemp$temp[indx]
 ```{r splityearmonth7, echo = FALSE}
 out$month <- out$yearmonth %% 100
 out$year <- out$yearmonth %/% 100
-summary(out)
+##summary(out)
 saveRDS(out, file = "Data/out.rds")
 ```
 
 Then the analysis of female mortality in the ages 80 and above and its dependence 
-on high temperature (aove 29 degrees Celsius). The July maximum temperatures by year 
+on high temperature (above 29 degrees Celsius). The July maximum temperatures by year 
 are shown in Figure \@ref(fig:julmaxtemp7).
 
-```{r julmaxtemp7, fig.cap = "Maximum temperatures in July by year 1990-2014."}
+```{r julmaxtemp7, fig.cap = "Maximum temperatures in July by year 1990-2014.", echo = FALSE}
+par(las = 1)
 with(aggrtemp[aggrtemp$month == 7, ], 
-     plot(year, temp, type = "b", ylim = c(20, 32)))
-abline(h = 29, lty = 3)
+     plot(year, temp, type = "b", ylim = c(20, 32), axes = FALSE, 
+          ylab = "Degrees Celsius", xlab = "Year", lty = 3))
+axis(1, at = c(1990, 1994, 2003, 2014))
+axis(2, at = c(20, 25, 29, 32))
+box()
+abline(h = 29, lty = 2)
 ```
 
 
-```{r julydata7, cache = TRUE, results='asis'}
+```{r julydata7, cache = TRUE, results='asis', echo = FALSE}
 out <- readRDS("Data/out.rds")
 library(eha)
 source("R/fit.out.R")
