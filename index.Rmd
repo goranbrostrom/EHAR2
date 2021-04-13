@@ -55,10 +55,28 @@ chapters have been reordered so that the logical flow is clearer. On the other h
 the appendices C and D are somewhat shorter now because there are a lot of excellent sources 
 on-line today covering their topic, which anyway is a little bit off here.  
 
-The writing of this book has been done in parallel with the development of the **R** package
-`eha` [@eha]. All the data sets used in the examples in this book are available in `eha`, 
-so you can easily play around with them on your own.
+Since the publication of the first edition in 2012, focus has gradually shifted towards 
+the analysis of large and huge data sets, where Cox 
+regression favorably can be replaced by parametric proportional hazards models with
+piecewise constant baseline hazard hazard functions. With huge data sets with 
+excessively many events, this way of tabulating data leads to a significant reduction of
+necessary efforts in producing reliable results with the same precision and power a full
+analysis would have had. This result relies on reduction by the mathematical *sufficiency 
+principle*, all irrelevant (so defined by the model) noise is eliminated. A word of 
+warning is that this noise (*residuals*) may be relevant in *model evaluation*.
 
+A second point of importance is how to present results from a regression analysis,
+and especially how to present estimated *p*-values. Two important issues in this area
+are (i) present only *relevant* ones, and (ii) make sure they are of the right kind, 
+that is, *likelihood ratio based*.  This important topic is addressed in the book,
+and supported by new summary functions in the **R** package `eha` [@eha].
+
+The writing of this book has been done in parallel with the development of the **R** package
+`eha`. Almost all the data sets used in the examples in this book are available in `eha`, 
+so you can easily play around with them on your own. Some data sets will also be published 
+on the home page of the package, http://ehar.se/r/eha/.
+
+<!--
 The R session information when last compiling this book is shown below:
 
 ```{r include=FALSE}
@@ -75,13 +93,39 @@ sessionInfo = function() {
 }
 ```
 
-```{r}
-xfun::session_info()
+```{r echo=FALSE}
+if (knitr::is_html_output()){
+    xfun::session_info()
+}
+```
+-->
+I had, as usual, invaluable support from the publisher, CRC Press, Ltd. I
+especially want to thank Vaishali Singh and Rob Calver for their interest in my
+work and their encouragement in the project. 
+
+The first edition of the book was written in *LaTeX* with support of the **R** package 
+`Sweave`, but with the second edition we decided to do the writing in Rmarkdown 
+using the **R** packages `bookdown` and `knitr`. The reason was mainly that it allowed for
+the production of output in both *HTML* (for the website) and *PDF* (the printed book).
+I am indepted to Yihui Xie for his important work in this area, which made this 
+approach possible.
+
+Adding to the list of people who gave 
+valuable input to the First Edition of the book: Kristian Hindberg and Glenn Sandström
+have contributed with suggestions that have improved the text in this Second Edition.
+Many thanks goes to Elisabeth Engberg, director of the Centre for Demographic and 
+Ageing Research (CEDAR),
+Umeå University, for letting me use the facilities that made this work possible. 
+
+
+```{block2, type='flushright', html.tag='p'}
+Umeå, April 2021
+
+Göran Broström  
+professor emeritus  
+CEDAR, Umeå University
 ```
 
-Göran Broström
-
-Umeå, Sweden
 
 # Preface to the First Edition {-}
 
@@ -291,10 +335,8 @@ parametric models in the R package **eha**. The latter part
 is not necessary for the understanding of the rest of the book. For readers
 new to R, Appendix C is a good starting point, but it is recommended to
 complement it with one of many introductory text books on R or on-line
-sources. Consult the home of R,
-
-\url{http://www.r-project.org}
-and search under \emph{Documentation}. Appendix C also contains a separate
+sources. Consult the [home of R](https://www.r-project.org)
+and search under *Documentation*. Appendix C also contains a separate
 section
 with a selection of useful functions from the **eha** and the
 **survival** packages. This is of course recommended reading for
@@ -305,7 +347,7 @@ Finally, Appendix D contains a short description of the most important
 packages for event history analysis in R.
 
 As a general reading instruction, the following is recommended. Install the
-latest version of R from [CRAN](http://cran.r-project.org) and
+latest version of R from [CRAN](https://cran.r-project.org) and
 replicate the examples in the book by yourself. You need to install the
 package **eha** and load it. All the data in the examples are then
 available on line in R.
@@ -328,7 +370,7 @@ I want to thank Terry Therneau for his inspiring work on the
 **survival** package; the **eha** package depends strongly on it.
 Also, Friedrich Leisch, author of the **Sweave** package, deserves many
 thanks. This book was entirely written with the aid of the package
-**Sweave** and the typesetting system \LaTeX, wonderful companions.
+**Sweave** and the typesetting system *LaTeX*, wonderful companions.
 
 Finally, I want to thank Tommy Bengtsson, director of the \emph{Centre for
 Economic Demography}, Lund University, and Anders Brändström, director
