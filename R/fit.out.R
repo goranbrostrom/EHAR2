@@ -1,10 +1,12 @@
-fit.out <- function(fit, caption, label){
+fit.out <- function(fit, caption = "", label){
     ## Output of regression results
+    
     if (knitr::is_latex_output()){ # PDF
         if (!missing(label)){
             label <- paste0("tab:", label)
         }
         dr <- drop1(fit, test = "Chisq")
+        if (inherits(fit, "tpchreg")) fit <- summary(fit) ## Hideous hack!!
         ltx(fit, dr = dr, caption = caption, label = label)
     }else{ # HTML
         sf <- summary(fit)
