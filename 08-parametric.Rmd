@@ -738,8 +738,7 @@ maxml <- round(fit.w1$loglik[2])
 
 Note that the "Max. log. likelihood", `r maxml`, is not exactly the same, and 
 the reason is the presence of time-varying covariate `region`. With no time-varying
-covariates, the AFT and the PH models are equivalent.
-$\Box$
+covariates, the AFT and the PH models are equivalent. $\ \Box$
 \index{Functions!\fun{aftreg}|)}
 
 
@@ -780,10 +779,9 @@ abline(h = 0)
 ```
 
 There are two possible candidates for the baseline distribution that has the 
-right shape of the hazard function: The *Lognormal* and the *Loglogistic* distributions.
+right shape of the hazard function: The *Lognormal* and the
+*Loglogistic* distributions. $\ \Box$
 
-
-$\Box$
 
 ### The Lognormal model
 
@@ -850,13 +848,11 @@ plot(fit.lognorm, fn = "haz", main = "",
 ``` 
 
 It was created using
-```{r crepl1,echo=TRUE,eval=FALSE}
+```r
 plot(fit.lognorm, fn = "haz", main = "", 
      xlab = "Years", ylab = "Hazards")
 ``` 
-
-
-$\Box$
+$\ \Box$
 
 
 ### The Loglogistic model

@@ -287,8 +287,7 @@ dangers.
 Also note the warning that is printed in the results of 
   `coxme`\index{Functions!\fun{coxme}}: 
   *3163 observations deleted due to missingness*. This is a warning that
-should be taken seriously.
-$\Box$
+should be taken seriously. $\ \Box$
 
 <!--
 %\end{example}

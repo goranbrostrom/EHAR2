@@ -5,6 +5,7 @@ par(las = 1) # Doesn't work? Later?
 knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE)
 options(show.signif.stars = FALSE, warn = 1)
 library(eha)
+library(kableExtra)
 ```
 
 Vital concepts like
@@ -22,7 +23,7 @@ an example.
 
 ```{example name = "Civil status"}
 ```
-The covariate (factor) `civil status` (called  $civst$ in the **R** data
+The covariate (factor) `civil status` (called  `civst` in the **R** data
 frame) is an explanatory variable in a
 mortality study, which changes value from 0 to 1 at marriage. How should this be
 coded in the data file? The 
@@ -83,7 +84,7 @@ And note
 that this situation is formally equivalent to a situation with *two
   individuals*, one unmarried and one married. The first one is right
 censored at exactly the same time as the second one enters the study (left
-truncation).  $\Box$
+truncation).  $\ \Box$
 
 A word of caution: Marriage status may be interpreted as an
 *internal* covariate, i.e., the change of marriage status is
@@ -112,9 +113,8 @@ trend in annual rye prices, shown in Figure \@ref(fig:logrye).
 
 ```{r logrye,fig=TRUE,echo=FALSE,fig.cap = "Log rye price deviations from trend, 19th century southern Sweden.", fig.scap="Log rye price deviations from trend", fig.height=3}
 library(eha)
-data(logrye)
-plot(logrye$year, logrye$foodprices, xlab = "Year", ylab = "Log price",
-     type = "l")
+plot(logrye$year, logrye$foodprices, xlab = "Year", ylab = "Deviation",
+     type = "s")
 abline(h = 0)
 ```
 
@@ -141,16 +141,22 @@ scand[scand$id == 1, ]
 
 A new variable, `foodprices` is added, and each individual's duration
 is split up in one year long intervals (except the first and last). This is
-the way of treating `foodprices` as a time-varying covariate. 
+the way of treating `foodprices` as a time-varying covariate. The analysis is then 
+straightforward.
 
-```{r analcomm}
+```{r prepanalcomm6}
 fit <- coxreg(Surv(enter, exit, event) ~ ses + sex + foodprices, 
                 data = scand)
-print(summary(fit), short = FALSE)
+```
+
+```{r analcomm6, results='asis', echo = FALSE}
+source("R/fit.out.R")
+fit.out(fit, caption = "Foodprices and old age mortality, 19th century Scania.",
+        label = "analcomm6")
 ```
 
 Socio-economic status and sex do not matter much, but food prices do; the
-effect is almost significant at the 5 per cent level. $\Box$
+effect is almost significant at the 5 per cent level. See Table \@ref(tab:analcomm6). $\ \Box$
 
 
 ## Tied event times
@@ -177,7 +183,7 @@ L_i(\boldsymbol{\beta}) & = & \frac{\psi(1)}{\psi(1) + \psi(2) + \psi(3)} \times
  \left\{\frac{1}{\psi(2) + \psi(3)}
             + \frac{1}{\psi(1) + \psi(3)}\right\}
 \end{eqnarray*}
-$\Box$
+$\ \Box$
 
 The main drawback with the exact method is that it easily becomes
 unacceptably slow, because of the huge number of permutations that may be
@@ -228,18 +234,21 @@ fit.ml <- coxreg(Surv(next.ivl, event) ~ year + age, data = first,
 Then we compose a table of the four results, see Table \@ref(tab:5compt). 
 
 ```{r 5compt,echo=FALSE}
+source("R/tbl.R")
 out <- rbind(fit.e$coefficients, fit.b$coefficients, 
              fit.mp$coefficients, fit.ml$coefficients)
 rownames(out) <- c("Efron", "Breslow", "MPPL", "ML")
 colnames(out) <- c("year", "age")
-knitr::kable(out, booktabs = TRUE, digits = 4, 
-      caption = "Comparison of four methods of handling ties, estimated coefficients.")
+tbl(round(out, 4), fs = 11, rownames = TRUE,
+    caption = "Comparison of four methods of handling ties, estimated coefficients.")
+##knitr::kable(out, booktabs = TRUE, digits = 4, 
+  ##    caption = "Comparison of four methods of handling ties, estimated coefficients.")
 ```
 
 
 There are almost no difference in results between the four methods. For the
 `exact` method mentioned above, the number of permutations is 
-$\sim 7 \times 10^{192}$, which is impossible to handle.$\Box$
+$\sim 7 \times 10^{192}$, which is impossible to handle.$\ \Box$
 
 With the help of the function `risksets` in `eha`, it is easy to
 check the composition of risk sets in general and the frequency of ties in
@@ -261,10 +270,10 @@ the help page for `risksets`.
 
 It is easy to produce the *Nelson-Aalen plot*\index{Nelson-Aalen plot}
 with the output from `risksets`, see Figure \@ref(fig:nalplot6).
-```{r nalplot6, echo = TRUE, fig.cap = "Nelson-Aalen plot with risksets.", fig.height = 3}
+```{r nalplot6, echo = TRUE, fig.cap = "Nelson-Aalen plot with risksets.", fig.height = 4}
 par(las = 1)
 plot(rs$risktimes, cumsum(rs$n.event / rs$size), type = "s", 
-     xlab = "Duration (years)", ylab = "Cumulative hazards")
+     xlab = "Duration (years)", ylab = "Cum. hazards")
 abline(h = 0)
 ```
 
@@ -276,4 +285,384 @@ plot(rs$risktimes, sur, type = "s",
      xlab = "Duration (years)", ylab = "Surviving fraction")
 abline(h = 0)
 ```
+
+## Stratification {#strat_6}
+\index{stratification}\index{stratum}
+Stratification means that data is split up in groups  called
+*strata*, and a separate partial 
+likelihood function is created for each stratum, but with common values on
+the regression parameters corresponding to the common 
+explanatory variables. In the estimation, these partial likelihoods are
+multiplied together, and the product is treated as a likelihood
+function. Thus, there is one restriction on the parameters, they are the same
+across strata.
+
+There are typically two reasons for stratification. First, if the
+proportionality assumption does not hold for a
+factor covariate, a way out is to stratify along it. Second, a factor may
+have too many levels, so that it is inappropriate to treat is as an
+ordinary factor. This argument is similar to the one about using a frailty
+model (Chapter \@ref(causality-and-matching)). Stratification is also a useful tool with
+matched data, see Chapter \@ref(competing).
+
+When a *factor* does not produce proportional hazards between
+categories, *stratify* on the categories. For tests of the
+proportionality assumption, see later in this chapter. 
+
+```{example name = "Birth intervals"}
+```  
+  For the birth interval data, we stratify on `ses` in the Cox regression:
+
+```{r strafr6, results='asis'}
+library(eha)
+source("R/fit.out.R")
+fert1 <- fert[fert$parity == 1, ]
+levels(fert1$parish) <- c("Jörn", "Norsjö", "Skellefteå")
+fert1$parish <- relevel(fert1$parish, ref = "Skellefteå")
+fit <- coxreg(Surv(next.ivl, event) ~ strata(ses) + 
+              I(age - 25) + I(year-1860) + prev.ivl + parish, data = fert1)
+fit.out(fit,caption = "Birth intervals, 19th century Skellefteå.", 
+        label = "strafr6")
+```
+
+The results in Table \@ref(tab:strafr6) show that calender time is unimportant, 
+while mother's age and the length of the previous interval, from marriage to 
+first birth, both are important with birth intensity decreasing with both.
+Also, note that the continuous covariates are *centered* around a reasonable value 
+in the range of both. It will not affect the rest of the table in this case, but 
+with *interactions* involving either it would.
+
+Next plot the fit, see Figure \@ref(fig:bi25). The non-proportionality
+pattern is clearly visible. Note the line `par(lwd = 1.5)`: It magnifies the
+*line widths* by 50 percent in the plot, compared to default. And the values on 
+the $y$ axis refers to a 25-year-old mother giving birth in Skellefteå 1860.
+
+```{r bi25, fig.cap = "Cumulative hazards by socio-economic status, second birth interval."}
+par(lwd = 1.5, cex = 0.8)
+plot(fit, ylab = "Cumulative hazards", xlab = "Years")
+```
+
+
+## Sampling of risk sets
+
+Some of the work by @bl95 is implemented in **eha**. The idea
+behind sampling of risk sets is that with huge data sets, in each risk sets
+there will be a few (often only one) events, but many survivors. From an
+efficiency point of view, not much will be lost by using only a random
+fraction of the survivors in each risk set. The gain is of course
+computational speed and memory saving. How it is done in **eha** is shown
+by an example.
+
+```{example, name = "Sampling of risk sets, male mortality."}
+```
+
+For the  `male mortality` data set, we compare a full analysis with one where
+  only four survivors are sampled in each risk set.
+```{r 5sample}
+fit <- coxreg(Surv(enter, exit, event) ~ ses, 
+              data = mort)
+fit.4 <- coxreg(Surv(enter, exit, event) ~ ses, 
+                max.survs = 4, data = mort)
+f1 <- coefficients(summary(fit))[c(1, 3)]
+f4 <- coefficients(summary(fit.4))[c(1, 3)]
+out <- rbind(f1, f4)
+colnames(out) <- c("Coef", "se(Coef)")
+rownames(out) <- c("Original", "Sample")
+round(out, 4)
+```
+
+The results are comparable and a gain in execution time was noted. Of
+course, with the small data sets we work with here, the difference is of no
+practical importance.$\ \Box$
+
+It is worth noting that the function `risksets` has an argument
+`max.survs`, which, when it is set, sample survivors for each risk set
+in the data. The output can then be used as input to `coxreg`, see the
+relevant help pages for more information.
+
+## Residuals
+
+Residuals are generally the key to judgment of model fit to data. It is
+easy to show how it works with *linear regression*.
+
+```{example name = "Linear regression"}
+```
+
+Figure \@ref(fig:6lr) shows a scatter plot of bivariate data and a fitted
+straight line (left panel) and residuals versus fitted values (right panel). 
+
+```{r 6lr, fig.cap = "Residuals in linear regression.", echo=FALSE, fig.height = 3.5}
+oldpar <- par(mfrow = c(1, 2), las = 1)
+x <- rnorm(100, sd = 0.5)
+y <- rnorm(100, mean = x)
+fit <- lm(y ~ x)
+plot(x, y)
+abline(fit)
+plot(fit, 1)
+par(oldpar)
+```
+
+The residuals are the vertical distances between the line and the
+points.$\ \Box$
+
+Unfortunately, this kind of simple and intuitive graph does not exist for results
+from a Cox regression analysis. However, there are a few ideas how to
+accomplish something similar. The main idea goes as follows. If $T$ is a
+survival time, and $S(t)$ the corresponding survivor function (continuous
+time), then it is a mathematical fact that $U = S(T)$ is uniformly
+distributed on the interval $(0, 1)$. Continuing, this implies that
+$-\log(U)$ is exponentially distributed with rate (parameter) 1.
+
+It is thus shown that $H(T)$ ($H$ is the cumulative hazard function
+for $T$) is exponentially distributed with rate 1. This motivates the
+\emph{Cox-Snell} residuals, given a sample $T_1, \ldots, T_n$ of survival
+times,
+
+\begin{equation}
+r_{Ci} = \hat{H}(T_i; \mathbf{x}_i) = \exp(\boldsymbol{\beta} \mathbf{x}_i)\hat{H}_0(T_i),\quad i =
+1, \ldots, n,
+\end{equation}
+which should behave like a censored sample
+from an exponential distribution with parameter 1, if the model is
+good. If, for some $i$, $T_i$ is censored, so is the residual. 
+
+### Martingale residuals
+
+A drawback with the Cox-Snell residuals is that they contain censored
+values. An attempt to correct the censored residuals leads to the so-called
+*martingale* residuals. The idea is simple; it builds on the
+"lack-of-memory" property of the exponential distribution. The expected
+value is 1, and by adding 1 to the *censored* residuals, they become
+predictions (estimates) of the corresponding uncensored values. then
+finally a twist is added: Subtract 1 from *all* values and multiply by
+-1, leading to the definition of the martingale residuals.
+
+\begin{equation}
+r_{Mi} = \delta_i - r_{Ci}, i = 1, \ldots, n.
+\end{equation}
+where $\delta_i$ is the indicator of event for the $i$:th
+observation. These residuals may be 
+interpreted as the *Observed* minus the *Expected* number of
+events for each individual.
+Direct plots of the martingale residuals tend to be less informative,
+especially with large data sets. 
+
+```{example name = "Plot of martingale residuals"} 
+```
+The data set `kidney` from the **survival** package is used. For more
+information about it, read its help page in **R**. For each patient, two
+survival times are recorded, but only one will be used here. That is
+accomplished with the function `duplicated`.
+```{r 6kid, echo = TRUE}
+library(survival)
+head(kidney)
+k1 <- kidney[!duplicated(kidney$id), ]
+fit <- coxreg(Surv(time, status) ~ disease + age + sex, 
+              data = k1)
+```
+The *extractor function*\index{extractor function}
+`residuals`\index{Functions!\fun{residuals}} is used to extract the 
+martingale residuals from the fit.
+See Figure \@ref(fig:6mres).
+
+```{r 6mres, fig.cap = "Martingale residuals from a fit of the kidney data.",echo=FALSE}
+plot(residuals(fit), ylab = "Residuals")
+```
+
+With a large data set, the plot will be hard to interpret, see
+Figure \@ref(fig:6bigdata), which shows the martingale residuals from a fit
+of the *male mortality* (`mort`) data in the package **eha**.
+
+```{r 6bigdata,fig.cap = "Martingale residuals from a fit of the male mortality data.", echo=FALSE}
+data(mort)
+fit <- coxreg(Surv(enter, exit, event) ~ birthdate + ses, data = mort)
+plot(fit$residuals, ylab = "Residuals")
+```
+
+It is clear that the residuals are grouped in two clusters. The
+positive ones are connected to the observations with an event, while the
+negative ones are corresponding to the censored observations. It is hard to
+draw any conclusions from plots like this one. However, the residuals are
+used in functions that evaluate goodness-of-fit, for instance the function 
+`cox.zph` in the **survival** package. $\ \Box$
+
+
+## Checking model assumptions {#ass_6}
+
+### Proportionality
+
+The proportionality assumption\index{proportionality assumption} is
+extremely important to check in the proportional hazards models. We have
+already seen how violations of the assumption can be dealt with
+(stratification).
+
+We exemplify with the `births' data set in the **eha** package.
+
+```{example name = "Birth intervals, proportionality assumption"}
+```
+  
+  In order
+  to keep observations reasonably independent, we concentrate on one
+  specific birth interval per woman, the interval between the second and
+  third birth. That is, in our sample are all women with at least two
+  births, and we monitor each woman from the day of her second delivery
+  until the third, or if that never happens, throughout her observable
+  fertile period, i.e, to age 50 or to loss of follow-up. The latter will
+  result in a right-censored interval.
+```{r 6bir.prop}
+fert2 <- fert[fert$parity == 2, ]
+```
+Then we save the fit from a Cox regression performed by the function `coxph` in the
+**survival** package (important!),
+
+```{r birfull}
+fit <- survival::coxph(Surv(next.ivl, event) ~ ses + age + year + parish, 
+             data = fert2)
+```
+and check the proportionality assumption. It is done with the function
+`cox.zph`\index{Functions!`cox.zph`} in the **survival** package.
+```{r tabzph}
+prop.full <- survival::cox.zph(fit)
+prop.full
+```
+
+In the table above, look first at the last row, *GLOBAL*. It is the
+result of a test of the global null hypothesis that proportionality
+holds. The small $p$-value tells us that we have a big problem
+with the proportionality assumption. Looking further up, we see two possible
+problems, the variables `age` and `ses`. Unfortunately, `age`
+is a continuous variable. A categorical 
+variable\index{categorical variable} can be stratified upon, but now 
+we have to categorize first. 
+
+Let us first investigate the effect of stratifying on `ses`. 
+```{r 6crefit1, echo = TRUE}
+fit1 <- coxph(Surv(next.ivl, event) ~ strata(ses) + 
+               age + year + parish, data = fert2) 
+```
+and plot the result, see Figure \@ref(fig:6strses).
+
+```{r 6strses,fig.cap = "Stratification on socio-economic status, third birth interval data.",echo=FALSE}
+par(lwd = 1.5)
+plot(survival::survfit(fit1), fun = "cumhaz", lty = 1:4)
+legend("bottomright", legend = levels(fert2$ses), lty = 1:4)
+```
+
+```{r silent6, echo=FALSE}
+
+fit1 <- survival::coxph(Surv(next.ivl, event) ~ strata(ses) + 
+              age + year + parish, data = fert2) 
+
+```
+The non-proportionality is visible, some curves cross. The test of
+proportionality of the stratified model shows that we still have a problem
+with `age`.
+```{r proage}
+fit1.zph <- survival::cox.zph(fit1)
+print(fit1.zph)
+```
+Since `age` is continuous covariate, we may have to categorize
+it. First its distribution is checked with a histogram, see
+Figure \@ref(fig:6histage). 
+
+```{r 6histage,fig.cap = "The distribution of mother's age, third birth interval data."}
+hist(fert2$age, main = "", xlab = "age")
+```
+
+The range of `age` may reasonably be split into four equal-length
+intervals with the `cut` function.
+```{r cutfour, echo = TRUE}
+fert2$qage <- cut(fert2$age, 4)
+fit2 <- survival::coxph(Surv(next.ivl, event) ~ strata(ses) + 
+              qage + year + parish, data = fert2) 
+```
+and then the proportionality assumption is tested again.
+```{r propagain}
+fit2.zph <- survival::cox.zph(fit2)
+fit2.zph
+```
+
+The result is now reasonable, with the high age group deviating
+slightly. This is not so strange; fertility becomes essentially zero in the
+age range in the upper forties, and therefore it is natural that the
+proportionality assumption is violated. One way of dealing with the
+problem, apart from stratification, would be to analyze the age groups
+separately.  $\ \Box$
+
+
+### Log-linearity
+
+In the Cox regression model, the effect of a covariate on the hazard is
+*log-linear*, that is, it affects the *log hazard* linearly. Sometimes a
+covariate needs to be transformed to fit into the pattern. The first
+question is then: Should the covariate be transformed in the analysis? A
+graphical test can be done by
+plotting the martingale residuals from a *null fit* against the covariate,
+See Figure \@ref(fig:6loglin). 
+```{r 6loglincal,fig=TRUE,include=FALSE}
+x <- rnorm(100)
+tid <- rexp(100, exp(1.5 * x^2))
+event <- rep(1, 100)
+fit <- coxph(Surv(tid, event) ~ 1)
+plot(x, residuals(fit))
+lines(lowess(x, residuals(fit)))
+```
+
+```{r 6loglin, fig.cap = "Plot of residuals against the explanatory variable $x$.",echo=FALSE}
+plot(x, residuals(fit))
+lines(lowess(x, residuals(fit)))
+```
+
+The function `lowess`\index{Functions!`lowess`} fits a "smooth"
+curve to a scatterplot. 
+The curvature is clearly visible, let us see what happens if we make the
+plot with $x^2$ instead of $x$. (Note that we now are cheating!) See
+Figure \@ref(fig:6loglin2). 
+
+```{r 6loglin2,fig.cap = "Plot of residuals against the explanatory variable $x^2$."}
+plot(x^2, residuals(fit))
+lines(lowess(x^2, residuals(fit)))
+```
+
+This plot indicates more that an increasing $x$ is associated with an
+increasing risk for the event to occur.
+
+
+## Fixed study period survival
+
+Sometimes survival up to some fixed time is of interest. For instance, in
+medicine five-year survival may be used as a measure of the success of a
+treatment. The measure is then the probability for a patient to survive
+five years after treatment.
+
+This is simple to implement; it is a binary 
+experiment\index{binary experiment}, where for
+each patient survival or not survival is recorded (plus covariates, such as
+treatment). The only complicating factor is incomplete observations, i.e.,
+right censoring. In that case it is recommended to use ordinary Cox
+regression anyway. Otherwise, logistic regression with a suitable link
+function works well. Of course, as mentioned earlier, the *cloglog*
+link is what gets you closest to the proportional hazards model, but
+usually it makes very little difference. See @kp02, page 334 ff. for
+slightly more detail.
+
+
+## Left or right censored data.
+
+Sometimes the available data is either left or right censored, i.e.,
+for each individual $i$, we know survival of $t_i$ or not, i.e., data
+$$(t_i, \delta_i), \quad i = 1, \ldots n, $$
+$\delta_i = 1$ if survival (died after $t_i$) and $\delta_i = 0$ if not
+(died before $t_i$).
+It is still possible to estimate the survivor function $S$ nonparametrically.
+The likelihood function is
+\begin{equation*}
+L(S) = \prod_{i=1}^n \left\{S(t_i)\right\}^{\delta_i}
+                     \left\{ 1 - S(t_i)\right\}^{1 - \delta_i}
+\end{equation*}
+How to maximize this under the restrictions $t_i < t_j \Rightarrow S(t_i) \ge
+S(t_j)$ with the
+*EM algorithm* is shown by @gw92.
+\index{Functions!\fun{coxreg}|)}
+\index{Cox regression|)}
 

@@ -139,7 +139,7 @@ mean(kids)
 var(kids)
 ```
 
-They are not very close, which also is obvious from comparing the graphs. $\Box$
+They are not very close, which also is obvious from comparing the graphs. $\ \Box$
 
 ## The connection to Cox regression
 \index{Cox regression|(}
@@ -256,7 +256,7 @@ and `swedeaths` in `eha`), which contains population size and number of deaths b
 and sex in Sweden 2019 and 2020. The age span is restricted to ages 61--80. 
 One reason for these choices is to get a grip on the effect of the covid-19 
 pandemic on the mortality increase in 2020 compared to 2019, pre-corona. Normally,
-mortality is lowered in all age groups from one year to the next, but this is different.
+mortality is lowered in all age groups from one year to the next, but 2019 to 2020 is different.
 
 ```{r swe07, echo = FALSE}
 source("R/tbl.R")
@@ -449,7 +449,5 @@ that short perspective.
 
 A final remark: It was quite tedious, although straightforward, to apply raw Poisson 
 regression to this problem. In Chapter 7 it will be shown how to use the function `tpchreg`
-in the **eha** package for a smooth and simple way of analysing tabular data.
-
-$\Box$
+in the **eha** package for a smooth and simple way of analysing tabular data.$\ \Box$
 \index{Distributions!Poisson|)}

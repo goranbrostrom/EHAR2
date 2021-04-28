@@ -139,9 +139,7 @@ print(summary(fit), short = TRUE)
 ```
 
 Obviously, it is safest for the infants whose mothers' age lies in the span 25--35 
-years of age.
-
-$\Box$
+years of age.$\ \Box$
 
 
 ## Interactions
@@ -202,7 +200,7 @@ There are four possible explanatory variables behind survival after age 60 in th
 \end{eqnarray*}
 The two first are factors, and the last two are continuous covariates. We
 go through the three distinct combinations and illustrate the meaning of
-interaction in each. $\Box$
+interaction in each. $\ \Box$
 
 
 ### Two factors
@@ -312,7 +310,7 @@ This is more reasonable-looking: At the beginning of the year 1810, woman had a 
 To summarize: The effects can be illustrated by two curves, one for men and one for women. The coefficients for `sex`, 0 and `r int1`, are the respective intercepts, and `r sl0` and 
 `r sl1` are the slopes. See Figure \@ref(fig:figgraphill3) for a graphical illustration.
 
-```{r figgraphill3, fig.cap="The effect of birthdate on relative mortality for men and women. Reference: Men, birthdate = 1810.", echo=FALSE, fig.height = 4}
+```{r figgraphill3, fig.cap="The effect of birthdate on relative mortality for men and women. Reference: Men, birthdate = 1810.", fig.scap = "The effect of birthdate on relative mortality.", echo=FALSE, fig.height = 4}
 x <- seq(min(om$birthdate), max(om$birthdate), length = 1000)
 y0 <- exp(int0 + x * sl0)
 y1 <- exp(int1 + x * sl1)

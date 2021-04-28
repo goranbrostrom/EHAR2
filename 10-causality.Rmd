@@ -445,7 +445,7 @@ to "one row and two columns" and saves the old `par` setting in
 `oldpar`. Then the plotting area is restored to what it was earlier. It is a 
 good habit to always clean up for the next plotting enterprise.
 
-```{r aafig9,echo=FALSE,fig.cap="Cumulative intercept (left) and cumulative regression coefficient (right)."}
+```{r aafig9,echo=FALSE,fig.cap="Cumulative intercept (left) and cumulative regression coefficient (right).", fig.scap = "Cumulative intercept and regression coefficient."}
 oldpar <- par(mfrow = c(1, 2))
 plot(fit)
 par(oldpar)
@@ -640,14 +640,13 @@ used as controls and with correct matching characteristics. If a control
 changes status to case (its mother dies), it is immediately censored as a
 control and starts as a case with two controls linked to it. However, this
 situation never occurred in the study.
-
 Let us load the data into **R** and look at it, see Table \@ref(tab:matinfdat10).
 
 ```{r matinfdat10}
 source("R/tbl.R")
 library(eha)
 cap <- "Infant and maternal mortality data."
-tbl(head(infants, 5), caption = cap)
+tbl(head(infants[, -8], 6), caption = cap, fs = 9)
 ```
 Here we see the two first triplets in the data set, which consists of 35
 triplets, or 105 individuals. Infant No. 1 (the first row) is a case, his

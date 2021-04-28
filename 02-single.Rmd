@@ -178,13 +178,14 @@ plot(x, ppch(x, 1:100, females$risk, lower.tail = FALSE), type = "l",
 ##plot(females$age, females$alive / 100000, type = "s",
   ##   xlab = "Age", ylab = "Surviving fraction",
     ## axes = FALSE)
-axis(1, at = c(0, 50, 87.6, 100))
+med <- qpch(0.5, 1:100, females$risk)
+axis(1, at = c(0, 50, med, 100), labels = c(0, 50, round(med, 1), 100))
 axis(2, at = c(0, 0.5, 1), las = 1)
 box()
 abline(v = 0)
 abline(h = 0)
 abline(h = c(0.5, 1), lty = 3)
-abline(v = 87.6, lty = 3)
+abline(v = med, lty = 3)
 ```
 
 It makes sense to plot the life table, see Figure \@ref(fig:lifetablefig). 
@@ -192,7 +193,7 @@ Exactly how this is done with individual data will be shown later in the chapter
 simply plot `alive` (divided by 100000) against `age`. *Median life length* is
 `r round(eha::qpch(0.5, 1:100, females$risk), 1)`, see construction in the figure.
 By dividing all numbers by the original cohort size (in our case 100000), they
-may be interpreted as *probabilities*.\index{life table|)}$\Box$
+may be interpreted as *probabilities*.\index{life table|)}$\ \Box$
 
 The *survival function* $S(t), \; t > 0$, is defined as
   the probability of surviving past $t$, $t > 0$, or with a formula,
@@ -394,7 +395,7 @@ benchmark, and a useful tool for modelling mortality over short time
 intervals (*piecewise constant hazard*). 
 \index{cumulative hazard function|)} 
 The exponential distribution is described in detail in 
-Appendix \@ref(app:B).\index{model!continuous|)}$\Box$
+Appendix \@ref(app:B).\index{model!continuous|)}$\ \Box$
 
 ## Discrete time models {#disc_2}
 \index{model!discrete|(}
@@ -566,7 +567,7 @@ S(t) = (1-h)^{[t]}, \quad t > 0,
 \end{equation*}
 where $[t]$ denotes the largest integer smaller than or equal to $t$
 (rounding towards zero).<!--  In Figure \@ref(fig:geom2) the four functions for a
-geometric distribution with $h = 0.25$ are plotted. $\Box$
+geometric distribution with $h = 0.25$ are plotted. $\ \Box$
 \index{Distributions!geometric|)}
 
 

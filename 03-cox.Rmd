@@ -37,7 +37,7 @@ property holds for the corresponding
 H_1(t)  =  \psi H_0(t), \quad \text{for all } t \ge 0,
 (\#eq:propcumhaz)
 \end{equation}
-with the same proportionality constant $\psi$ as in \@ref(eq:prophaz).$\Box$
+with the same proportionality constant $\psi$ as in \@ref(eq:prophaz).$\ \Box$
 ```
 
 <!--
@@ -57,7 +57,7 @@ property holds for the corresponding
 \begin{equation}\label{eq:propcumhaz}
 H_1(t)  =  \psi H_0(t), \quad \text{for all } t \ge 0,
 \end{equation}
-with the same proportionality constant $\psi$ as in \ref{eq:prophaz}.$\Box$
+with the same proportionality constant $\psi$ as in \ref{eq:prophaz}.$\ \Box$
 -->
 
 
@@ -136,7 +136,7 @@ par(oldpar)
 The advantage of the log scale is twofold: (i) Small numbers are magnified so you 
 can see them, and (ii) on the log scale, proportional hazards implies a constant
 vertical distance between the curves, which is easier to see for the human eye.
-$\Box$
+$\ \Box$
 
 For an example of a perfect fit to the proportional hazards model, see
 Figure \@ref(fig:prophazfig3) (two *Weibull* hazard

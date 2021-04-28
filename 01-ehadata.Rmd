@@ -276,7 +276,7 @@ long life. Obvious questions are: (i) Do women live longer than men? (Yes),
 (ii) Is it advantageous for a long life to be married? (Yes), (iii) Does
 socio-economic status play any role for a long life? (Don't know), and (iv)
 Does place of birth have any impact on a long life, and if so, is it
-different for women and men?$\Box$
+different for women and men? $\ \Box$
 
 The answers to these, and other, questions will be given later. The methods
 in later chapters of the book are all illustrated on a few core
@@ -587,7 +587,7 @@ than 50 years of age. If there is no next birth, i.e., she reaches 50, or
 the marriage is dissolved (most often by death of one of the spouses), the
 interval is censored at the duration when she still was under
 observation. Censoring can also occur by emigration, and reaching the end
-of follow-up, in this case November 5, 1901.$\Box$
+of follow-up, in this case November 5, 1901.$\ \Box$
 
 ```{example, name = "The illness-death model", label = "illdeath"}
 ```
@@ -616,7 +616,7 @@ Individuals may move back and forth between the states *Healthy* and
 *Diseased*, and from each of these two states there is a pathway to
 *Dead*, which is an *absorbing state*\index{absorbing state},
 meaning that once in that state, you never leave
-it.\index{illness-death model|)}$\Box$
+it.\index{illness-death model|)}$\ \Box$
 
 ## More data sets
 
@@ -748,7 +748,7 @@ Not that the variable `enter` really is redundant here: It is always equal to ze
 since all children are followed from birth in Skellefteå.
 
 This data set will be discussed in more detail in a later chapter. It is part of a study of child mortality
-\index{Data sets!child mortality|)}$\Box$
+\index{Data sets!child mortality|)}$\ \Box$
 
 ```{example, name = "Infant mortality", label = "infmort1"}
 ```
@@ -798,7 +798,7 @@ controls.
 
 
 This data set is discussed and analyzed in Chapter 8.
-\index{Data sets!infant mortality|)}$\Box$
+\index{Data sets!infant mortality|)}$\ \Box$
 
 ```{example, name = "Mortality in Sweden 1969-2020, tabular data", label = "swedtab1"}
 ```
@@ -837,4 +837,4 @@ The variables have the following meanings.
 *   **age** Age in completed years.
 
 See Chapter 7 for how to analyze this data set.
-\index{Data sets!tabular!Swedish mortality|)}$\Box$
+\index{Data sets!tabular!Swedish mortality|)}$\ \Box$

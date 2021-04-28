@@ -86,11 +86,11 @@ in seconds for the whole operation ("elapsed"), split up by "user" (the time spe
 with our call) and "system" (time spent by the operating system, for instance 
 reading, writing and organizing the user operation). The interesting value for us 
 is that the total elapsed time was around half a second. Quite OK for a
-proportional hazards analysis involving `r sum(sw$deaths)` events.
+proportional hazards regression analysis involving `r sum(sw$deaths)` events.
 
 
-2.   The response is `oe(deaths, pop)` where `oe` \index{Functions!\fun{oe}} 
-is short for "occurrence/exposure".
+2.   The response is `oe(deaths, pop)` where the function name `oe` 
+\index{Functions!\fun{oe}} is short for "occurrence/exposure".
 
 3.   All covariates have a *reference value*. For factors with the default coding,
 the reference category is given, but for continuous covariates we need to specify
@@ -127,7 +127,7 @@ par(las = 1)
 plot(fit, fn = "haz", main = "", xlab = "Age", ylab = "Mortality", col = "red")
 abline(h = 0)
 abline(v = summary(fit)$rmean, lty = 3)
-text(78, 0.3, "Expected life at birth (81.1)", srt = 90, cex = 0.8)
+text(78, 0.3, "Expected life at birth", srt = 90, cex = 0.8)
 ```
 
 Apart from the first year of life, mortality seems to be practically zero the first
@@ -260,7 +260,7 @@ rl$birthdate <- toDate(rl$birthdate)
 rownames(rl) <- 1:4
 ##kbl(rl, booktabs = TRUE, caption = "Register data, Sweden December 31, 2001.") %>%
   ##   kable_styling(font_size = 10)
-tbl(rl, caption = "Register data, Sweden December 31, 2001.")
+tbl(rl, caption = "Register data, Sweden December 31, 2001.", fs = 10)
 ```
 
 The variables are
@@ -573,7 +573,7 @@ nt$year <- nt$yearmonth %/% 100 # Restore 'year'.
 nt$month <- nt$yearmonth %% 100 # Restore 'month'.
 saveRDS(nt, file = "mytables/nt.rds")
 nt <- nt[nt$month %in% c(12, 1, 2), ]
-tbl(head(nt, 3), fs = 11, 
+tbl(head(nt, 3), fs = 10, 
     caption = "Population data split by year and month, Umeå 1901-1950.")
 ```
 
