@@ -39,7 +39,7 @@ comp <- function(enter, exit, event, start.age = 0){
         lines(c(start.age, rs.tot$risktimes), P[i, ], lty = i+1, ##col = i+1,
               type = "s")
     ##abline(h = 0)
-    legend("topright", lty = 1:(n+1), ##col = 1:(n+1),
+    legend("left", lty = 1:(n+1), ##col = 1:(n+1),
            legend = c("Survival", "Dead", "Other parish",
            "Scandinavia", "Off Scandinavia"), cex = 0.8)
     invisible(list(P = P, S = S))
