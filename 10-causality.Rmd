@@ -545,7 +545,8 @@ Some book-keeping is necessary in order to write an **R** function for this
 dynamic model. Of great help is the function
 `risksets`\index{Functions!\fun{risksets}}  in `eha`;
 it keeps track of the composition of the riskset over time, which is
-exactly what is needed for implementing the dynamic path analysis.
+exactly what is needed for implementing the dynamic path analysis. For application
+where dynamic path analysis is used, see @gbtb11. 
 
 **Estimation:** Standard *least squares* at each $t, \; 0 < t < \infty$ (in
 principle).
