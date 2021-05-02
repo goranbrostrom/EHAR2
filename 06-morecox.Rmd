@@ -320,7 +320,8 @@ fert1 <- fert[fert$parity == 1, ]
 levels(fert1$parish) <- c("Jörn", "Norsjö", "Skellefteå")
 fert1$parish <- relevel(fert1$parish, ref = "Skellefteå")
 fit <- coxreg(Surv(next.ivl, event) ~ strata(ses) + 
-              I(age - 25) + I(year-1860) + prev.ivl + parish, data = fert1)
+              I(age - 25) + I(year-1860) + prev.ivl + parish, 
+              data = fert1)
 fit.out(fit,caption = "Birth intervals, 19th century Skellefteå.", 
         label = "strafr6")
 ```
@@ -516,7 +517,8 @@ Then we save the fit from a Cox regression performed by the function `coxph` in 
 **survival** package (important!),
 
 ```{r birfull}
-fit <- survival::coxph(Surv(next.ivl, event) ~ ses + age + year + parish, 
+fit <- survival::coxph(Surv(next.ivl, event) ~ ses + age + 
+                           year + parish, 
              data = fert2)
 ```
 and check the proportionality assumption. It is done with the function
@@ -690,7 +692,8 @@ As an example, child mortality in nineteenth century Sweden is analyzed with
 respect to the sex difference in mortality. 
 
 ```r
-fit <- coxreg(Surv(enter, exit, event) ~ sex, boot = 300, data = child)
+fit <- coxreg(Surv(enter, exit, event) ~ sex, boot = 300, 
+              data = child)
 b_hat <- fit$coefficents[1]
 b_se <- sqrt(fit$var[1, 1])
 b_sample <- fit$bootstrap[1, ]
@@ -717,7 +720,8 @@ For instance, a start could be to get a grip of the distribution of  the bootstr
 sample around the parameter estimate, see Figure \@ref(fig:bootdist6).
 
 ```{r bootdist6, fig.cap = "Bootstrap sample distribution around the estimate."}
-plot(density(b_sample - b_hat, bw = 0.005), xlab = "bootstrap - beta_hat", main = "")
+plot(density(b_sample - b_hat, bw = 0.005), 
+     xlab = "bootstrap - beta_hat", main = "")
 abline(h = 0, v = 0)
 ```
 
@@ -725,7 +729,7 @@ The mean of the bootstrap sample is `r round(mean(b_sample), 4)` and its sample
 standard deviation is `r round(sd(b_sample), 4)`. We can compare with the output 
 of the standard  Cox regression, see Table \@ref(tab:bootc6).
 
-```{r bootc6, echo = FALSE}
+```{r bootc6, echo = FALSE, results = 'asis'}
 source("R/fit.out.R")
 fit.out(fit, caption = "Child mortality", label = "bootc6")
 ```

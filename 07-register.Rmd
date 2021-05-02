@@ -552,7 +552,7 @@ atmp <- aggregate(list(temp = mtemp$maxtemp),
                   by = mtemp[, c("month", "year")], 
                   FUN = min)
 tbl(head(atmp, 3), fs = 10, 
-    caption = "Average daily maximum temperature by month, Umeå 1901-1950.")
+    caption = "Average daily max temperature by month, Umeå 1901-50.")
 ```
 
 Now we can apply `make.communal` to our data and split spells *by year and month*. 
@@ -573,8 +573,8 @@ nt$year <- nt$yearmonth %/% 100 # Restore 'year'.
 nt$month <- nt$yearmonth %% 100 # Restore 'month'.
 saveRDS(nt, file = "mytables/nt.rds")
 nt <- nt[nt$month %in% c(12, 1, 2), ]
-tbl(head(nt, 3), fs = 10, 
-    caption = "Population data split by year and month, Umeå 1901-1950.")
+tbl(head(nt[, -8], 3), fs = 10, 
+    caption = "Population data by year and month, Umeå 1901-50.")
 ```
 
 Total time for *making communal*: 25 seconds.
@@ -603,7 +603,7 @@ fit <- coxreg(Surv(enter, exit, event) ~
                   sex + socStatus + temp, data = nt)
 ctime <- proc.time() - ptm
 fit.out(fit, label = "coxph7", 
-        caption = "Cox regression, mortality and temperature, Umeå 1901-1950.")
+        caption = "Mortality and temperature, Umeå 1901-50.")
 ```
 
 This is quite bad (the computing time,  almost 2 minutes), 
@@ -677,13 +677,15 @@ of *piecewise constant hazards*. We use the function `toTpch` in the `eha` packa
 see Table \@ref(tab:tabulate7).
 
 ```{r tabulate7}
-told <- toTpch(Surv(enter, exit, event) ~ sex + socStatus + yearmonth, 
+told <- toTpch(Surv(enter, exit, event) ~ sex + socStatus + 
+                   yearmonth, 
                data = nt, cuts = seq(15, 100, by = 5))
 indx <- match(told$yearmonth, atmp$yearmonth)
 told$temp <- atmp$temp[indx]
 saveRDS(told, file = "mytables/told73.rds")
 ##told <- readRDS("mytables/told73.rds")
-tbl(head(told, 6), fs = 11, caption = "Tabular Umeå 1901-1950 data.")
+tbl(head(told, 6), fs = 11, 
+    caption = "Tabular Umeå 1901-1950 data.")
 ```
 
 The tabulation reduces the data set from 2.5 million records to 19 thousands. And
@@ -773,7 +775,8 @@ saveRDS(compop, file = "Data/compop.rds")
 ```
 
 ```{r gruppa7, cache = TRUE}
-out <- toTpch(Surv(enter, exit, event) ~ yearmonth + sex, data = compop, 
+out <- toTpch(Surv(enter, exit, event) ~ yearmonth + sex, 
+              data = compop, 
                    cuts = c(seq(15, 95, by = 5), 110))
 indx <- match(out$yearmonth, aggrtemp$yearmonth)
 out$temp <- aggrtemp$temp[indx]

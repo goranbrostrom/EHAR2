@@ -91,7 +91,7 @@ barplot(dpois(0:5, lambda = 0.5), axes = FALSE,
 Note that the function 
 `dpois`\index{Functions!\fun{dpois}} is *vectorizing*:
 ```{r poisvec}
-dpois(0:5, lambda = 0.5)
+round(dpois(0:5, lambda = 0.5), 5)
 ```
 
 ```{example, name = "Marital fertility",echo=TRUE}
@@ -193,7 +193,8 @@ and `orig.row`. In the Poisson regression to follow, the variable
 with the `glm` function:
 
 ```{r poisreg}
-fit2 <- glm(event ~ riskset + x, family = poisson, data = datB)
+fit2 <- glm(event ~ riskset + x, family = poisson, 
+            data = datB)
 (co <- coefficients(fit2))
 co[2:4] <- co[2:4] + co[1] # Calculate the hazard atoms.
 haz.glm <- exp(co[1:4])
@@ -309,8 +310,8 @@ fit a Poisson regression model.
 
 ```{r poisreg3}
 swe$age <- factor(swe$age)
-fit <- glm(deaths ~ offset(log(pop)) + year + sex + age, family = poisson, 
-           data = swe)
+fit <- glm(deaths ~ offset(log(pop)) + year + sex + age, 
+           family = poisson, data = swe)
 drop1(fit, test = "Chisq")
 ```
 
@@ -362,8 +363,8 @@ Then the plot of the hazard functions by
 
 ```r
 par(las = 1)
-plot(ages, lambda.2019, ylim = c(0, 0.15), xlab = "Age", ylab = "Mortality",
-     type = "S")
+plot(ages, lambda.2019, ylim = c(0, 0.15), type = "S",
+     xlab = "Age", ylab = "Mortality")
 lines(ages, lambda.2020, type = "S", lty = 2)
 abline(h = 0)
 legend("topleft", legend = c(2019, 2020), lty = 1:2)
@@ -398,9 +399,11 @@ exposure time (in years).
 
 ```{r rawcal}
 y2019 <- swe[swe$year == 2019, ]
-y2019 <- aggregate(y2019[, c("deaths", "pop")], by = y2019["age"], FUN = sum)
+y2019 <- aggregate(y2019[, c("deaths", "pop")], 
+                   by = y2019["age"], FUN = sum)
 y2020 <- swe[swe$year == 2020, ]
-y2020 <- aggregate(y2020[, c("deaths", "pop")], by = y2020["age"], FUN = sum)
+y2020 <- aggregate(y2020[, c("deaths", "pop")], 
+                   by = y2020["age"], FUN = sum)
 rate19 <- y2019$deaths / y2019$pop
 rate20 <- y2020$deaths / y2020$pop
 ```

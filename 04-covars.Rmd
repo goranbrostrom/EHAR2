@@ -209,7 +209,8 @@ Assume that we, in the oldmort example, only have the factors `sex` and `farmer`
 disposal as explanatory variables. We may fit a Cox regression model like this:
 
 ```{r coxtwofacfit, comment = NA}
-fit <- coxreg(Surv(enter, exit, event) ~ sex + farmer, data = om)
+fit <- coxreg(Surv(enter, exit, event) ~ sex + farmer, 
+              data = om)
 ```
 
 The output from `coxreg` (the *model fit*) is saved in the object `fit`, which is investigated,
@@ -268,7 +269,8 @@ In cases like this, it is often best to perform separate analyses for women and 
 Now the covariates `sex` (factor) and `birthdate` (continuous) are in focus. First the model without interaction is fitted.
 
 ```{r facconmul}
-fit5 <- coxreg(Surv(enter, exit, event) ~ sex + birthdate, data = om)
+fit5 <- coxreg(Surv(enter, exit, event) ~ sex + birthdate, 
+               data = om)
 print(summary(fit5), short = TRUE)
 ```
 
@@ -276,7 +278,8 @@ Obviously `sex` is statistically significant, while `birthdate` is not. We go
 directly to the estimated coefficients after adding an interaction term to the model:
 
 ```{r facconmulint}
-fit6 <- coxreg(Surv(enter, exit, event) ~ sex * birthdate, data = om)
+fit6 <- coxreg(Surv(enter, exit, event) ~ sex * birthdate, 
+               data = om)
 round(summary(fit6)$coefficients[, 1:2], 5)
 ```
 
@@ -294,7 +297,8 @@ compared to a man with `birthdate`= 0, the reference values! Obviously, it is ri
 
 ```{r centering, echo = FALSE}
 om$birthdate <- om$birthdate - 1810
-fit7 <- coxreg(Surv(enter, exit, event) ~ sex * birthdate, data = om)
+fit7 <- coxreg(Surv(enter, exit, event) ~ sex * birthdate, 
+               data = om)
 (res <- round(summary(fit7)$coefficients[, 1:2], 5))
 ```
 
@@ -333,7 +337,8 @@ text(-10, 0.89, "Women")
 In our example data, the covariates `birthdate` and `imr.birth` are continuous, and we get
 
 ```{r botcont}
-fit8 <- coxreg(Surv(enter, exit, event) ~ birthdate * imr.birth, data = om)
+fit8 <- coxreg(Surv(enter, exit, event) ~ birthdate * imr.birth, 
+               data = om)
 (res <- round(summary(fit8)$coefficients[, 1:2], 5))
 ```
 

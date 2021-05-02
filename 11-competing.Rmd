@@ -286,8 +286,8 @@ close!). The corresponding Cox regression result is shown in
 Table \@ref(tab:withcox11).
 
 ```{r withcox11, comment = "", results = 'asis', echo = TRUE}
-fit <- coxreg(Surv(enter, exit, event == "Sweden") ~ sex + soc + illeg, 
-              data = zz)
+fit <- coxreg(Surv(enter, exit, event == "Sweden") ~ sex + soc + 
+                  illeg, data = zz)
 cap <- "Cox regression, moved to other parish in Sweden."
 lab <- "withcox11"
 fit.out(fit, caption = cap, label = lab)

@@ -3,7 +3,8 @@
 ```{r setup3,include=FALSE}
 par(las = 1) # Doesn't work? Later?
 knitr::opts_chunk$set(comment = "", message = TRUE, echo = TRUE, cache = FALSE, fig.height = 4)
-options(show.signif.stars = FALSE, warn = 1)
+options(show.signif.stars = FALSE, warn = 1, width = 70)
+strOptions(strict.width = "cut")
 ```
 
 *Proportional hazards* is a property of survival models that is fundamental for the
@@ -749,7 +750,7 @@ of the *last* rows).
 ```{r head3}
 library(eha) #Loads also the data frame 'mort'.
 ch <- child[, c("birthdate", "sex", "socBranch", 
-                "enter", "exit", "event")] # Select interesting columns.
+                "enter", "exit", "event")] # Select columns.
 head(ch)
 ```
 
@@ -791,7 +792,8 @@ It can be accomplished by creating a new covariate, call it `cohort`, which is
 
 ```{r tocoh3}
 ch$cohort <- floor(toTime(ch$birthdate))
-fit <- coxreg(Surv(exit, event) ~ sex + socBranch + cohort, data = ch)
+fit <- coxreg(Surv(exit, event) ~ sex + socBranch + cohort, 
+              data = ch)
 print(summary(fit), digits = 4, short = TRUE)
 ```
 
@@ -825,7 +827,8 @@ So a reasonable value to subtract is 1860 (or any meaningful value in the range)
 
 ```{r bd3}
 ch$cohort <- ch$cohort - 1860
-res3 <- coxreg(Surv(exit, event) ~ sex + socBranch + cohort, data = ch)
+res3 <- coxreg(Surv(exit, event) ~ sex + socBranch + cohort, 
+               data = ch)
 print(summary(res3), digits = 4, short = TRUE)
 ```
 As you can see, nothing changes regarding the parameter estimates (because no 

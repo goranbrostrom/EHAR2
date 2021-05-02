@@ -143,10 +143,13 @@ plot(x, ppch(x, cuts = cuts, levels = levels, lower.tail = FALSE),
 plot(c(0, cuts[1]), c(levels[1], levels[1]),
      type = "l", main = "Hazard", ylab = "", xlab = "t",
      ylim = c(0, max(levels) + 0.2), xlim = c(0, max(x) + 0.2))
-for (i in 1:(n - 1)) lines(c(cuts[i], cuts[i+1]), c(levels[i+1], levels[i+1]))
+for (i in 1:(n - 1)){
+    lines(c(cuts[i], cuts[i+1]), c(levels[i+1], levels[i+1]))
+}
 lines(c(cuts[n], Inf, c(levels[n+1], levels[n+1])))
 plot(x, Hpch(x, cuts = cuts, levels = levels), 
-     type = "l", main = "Cumulative hazards", ylab = "", xlab = "t")
+     type = "l", main = "Cumulative hazards", 
+     ylab = "", xlab = "t")
 par(oldpar)
 ```
 

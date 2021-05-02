@@ -466,7 +466,8 @@ table has only `r NROW(olmtab)` rows. The latter is analyzed via the function
 `tpchreg`, see Table \@ref(tab:tpchold8), which is identical to Table \@ref(tab:pchold8).
 
 ```{r tpchold08pre, echo = TRUE}
-fit.tpch <- tpchreg(oe(event, exposure) ~ sex + region, data = olmtab, time = age)
+fit.tpch <- tpchreg(oe(event, exposure) ~ sex + region, 
+                    data = olmtab, time = age)
 ```
 
 ```{r tpchold8, echo = FALSE, results = 'asis'}
@@ -485,7 +486,8 @@ By omitting the `time` argument in the call to `tpchreg`, an exponential (consta
 hazards) model is fitted, and the variable `age` is free to be included as a covariate.
 
 ```{r prophaz8, echo = TRUE}
-fit.tpch <- tpchreg(oe(event, exposure) ~ age * (sex + region), data = olmtab)
+fit.tpch <- tpchreg(oe(event, exposure) ~ age * (sex + region), 
+                    data = olmtab)
 (dr <- drop1(fit.tpch, test = "Chisq"))
 ```
 The age interaction with `sex` is very non-significant, while the effect of region on mortality 
@@ -530,10 +532,12 @@ sp$deaths <- swedeaths$deaths
 Then 
 
 ```{r strasw8, echo = TRUE}
-fit.swr <- tpchreg(oe(deaths, pop) ~ strata(sex) + I(year - 2000), last = 101,
+fit.swr <- tpchreg(oe(deaths, pop) ~ strata(sex) + I(year - 2000), 
+                   last = 101,
                    time = age, data = sp)
-rr.sex <- exp(tpchreg(oe(deaths, pop) ~ sex + I(year - 2000), last = 101,
-                   time = age, data = sp)$coefficients[1])
+rr.sex <- exp(tpchreg(oe(deaths, pop) ~ sex + I(year - 2000), 
+                      last = 101,
+                      time = age, data = sp)$coefficients[1])
 cumhaz <- hazards(fit.swr, cum = TRUE) # Cumulative hazards
 haz <- hazards(fit.swr, cum = FALSE) # NOT Cumulative hazards
 ```
@@ -545,7 +549,8 @@ plot(haz$x, haz$y[2, ] / haz$y[1, ], type = "l", ylim = c(1, 3),
 abline(h = 1)
 abline(h = rr.sex, lty = 2)
 text(5, 1.65, "PH")
-plot(cumhaz$x, cumhaz$y[2, ] / cumhaz$y[1, ], type = "l", ylim = c(1, 3), 
+plot(cumhaz$x, cumhaz$y[2, ] / cumhaz$y[1, ], type = "l", 
+     ylim = c(1, 3), 
      xlab = "Age", ylab = "Cumulative Hazard Ratio")
 abline(h = 1)
 abline(h = rr.sex, lty = 2)
@@ -823,8 +828,10 @@ It may be more natural to use *expected life* as a comparison rather than
 possible to choose `param = lifeExp` for that puropse.
 
 ```{r phlognorm28pre, echo = TRUE}
-fit.lognorm2 <- aftreg(Surv(next.ivl, event) ~ age + I(year - 1860) + ses, 
-                      data = f12, dist = "lognormal", param = "lifeExp")
+fit.lognorm2 <- aftreg(Surv(next.ivl, event) ~ age + 
+                           I(year - 1860) + ses, 
+                      data = f12, dist = "lognormal", 
+                      param = "lifeExp")
 ```
 
 ```{r phlognorm28, results = 'asis'}
@@ -869,7 +876,8 @@ Lognormal case, both the hazard and the survivor functions have closed forms.
   Now, the accelerated failure time (AFT) *loglogistic* regression model is examined.
 
 ```{r phloglogist8pre, echo = TRUE}
-fit.loglogist <- aftreg(Surv(next.ivl, event) ~ age + I(year - 1860) + ses, 
+fit.loglogist <- aftreg(Surv(next.ivl, event) ~ age + 
+                            I(year - 1860) + ses, 
                       data = f12, dist = "loglogistic")
 ```
 
@@ -1036,8 +1044,9 @@ om <- oldmort[oldmort$enter == 60, ]
 om <- age.window(om, c(60, 70))
 om$m.id <- om$f.id <- om$imr.birth <- om$birthplace <- NULL
 om$birthdate <- om$ses.50 <- NULL
-om1 <- survival::survSplit(om, cut = 61:69, start = "enter", end = "exit", 
-                 event = "event", episode = "agegrp")
+om1 <- survival::survSplit(om, cut = 61:69, start = "enter", 
+                           end = "exit", event = "event", 
+                           episode = "agegrp")
 om1$agegrp <- factor(om1$agegrp, labels = 60:69)
 om1 <- om1[order(om1$id, om1$enter), ]
 rownames(om1) <- 1:NROW(om1)
