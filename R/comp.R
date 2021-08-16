@@ -6,7 +6,7 @@ comp <- function(enter, exit, event, start.age = 0){
     ## First, assume that causes are numbered 1, 2, ..., n.
     ##
     par(las = 1)
-    library(eha)
+    ##library(eha)
     if (is.factor(event)){
         event <- as.numeric(event) - 1 # codes - 1 (0, 1, ...)
     }
@@ -15,10 +15,10 @@ comp <- function(enter, exit, event, start.age = 0){
     ## First, S(), "total" survival:
     rs.tot <- risksets(Surv(enter, exit, event > 0.5))
     haz.tot <- rs.tot$n.events / rs.tot$size
-    n.times <- length(haz.tot) + 1
-    S <- numeric(n.times)
+    n.t <- length(haz.tot) + 1
+    S <- numeric(n.t)
     S[1] <- 1  # I.e. S(0) = 1
-    for (i in 2:n.times) S[i] <- S[i-1] * (1 - haz.tot[i-1])
+    for (i in 2:n.t) S[i] <- S[i-1] * (1 - haz.tot[i-1])
     ##
     haz <- matrix(0, nrow = n, ncol = length(haz.tot))
     P <- matrix(0, nrow = n, ncol = length(haz.tot) + 1)
@@ -26,11 +26,10 @@ comp <- function(enter, exit, event, start.age = 0){
     for (row in 1:n){
         rs <- risksets(Surv(enter, exit, event == row))
         haz.row <- rs$n.events / rs$size
-        tmp <- 0
         cols <- which(rs.tot$risktimes %in% rs$risktimes)
         haz[row, cols] <- haz.row
         ## Given hazards, now get P[row, ]:
-        P[row, 2:NCOL(P)] <- cumsum(S[1:(n.times - 1)] * haz[row, ])
+        P[row, 2:NCOL(P)] <- cumsum(S[1:(n.t - 1)] * haz[row, ])
     }
     plot(c(start.age, rs.tot$risktimes), S, ylim = c(0, 1),
          xlim = c(start.age, max(rs.tot$risktimes)), xlab = "Age",
@@ -42,6 +41,6 @@ comp <- function(enter, exit, event, start.age = 0){
     legend("left", lty = 1:(n+1), ##col = 1:(n+1),
            legend = c("Survival", "Dead", "Other parish",
            "Scandinavia", "Off Scandinavia"), cex = 0.8)
-    invisible(list(P = P, S = S))
+    ##invisible(list(P = P, S = S))
 }
 

@@ -7,6 +7,7 @@ fit.out <- function(fit, caption = "", label){
         }
         dr <- drop1(fit, test = "Chisq")
         if (inherits(fit, "tpchreg")) fit <- summary(fit) ## Hideous hack!!
+        
         ltx(fit, dr = dr, caption = caption, label = label)
     }else{ # HTML
         sf <- summary(fit)
