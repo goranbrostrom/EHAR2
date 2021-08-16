@@ -77,15 +77,15 @@ hazards in that case. It would mean that the female *relative*
 advantage is equally large in all ages. See Example \@ref(exm:sw192) for an
 investigation of this statement. 
 
-```{example, sw192, name = "Male and female mortality, Sweden 2001--2019", echo = TRUE}
+```{example, sw192, name = "Male and female mortality, Sweden 2001--2020", echo = TRUE}
 ```
 This is a continuation of Example \@ref(exm:sw19), and here we involve the male 
 mortality alongside with the female, see Figure \@ref(fig:twosex2). We also 
-expand the calendar time period to the years 2001--2019.
+expand the calendar time period to the years 2001--2020.
 The reason for this is that random fluctuations in low ages, caused by the 
 extremely low mortality rates, blur the picture.
 
-```{r twosex2, echo = FALSE, fig.cap = "Female and male mortality by age, Sweden 2001-2020. The right hand panel shows the ratio between the male and female mortality by age.", fig.scap = "Female and male mortality by age, Sweden 2001-2021.", fig.height = 3}
+```{r twosex2, echo = FALSE, fig.cap = "Female and male mortality by age, Sweden 2001-2020. The right hand panel shows the ratio between the male and female mortality by age.", fig.scap = "Female and male mortality by age, Sweden 2001--2021.", fig.height = 3}
 library(eha)
 females <- swepop[swepop$sex == "women" & swepop$year %in% 2001:2020, 
                   c("age", "pop", "year")]
@@ -125,7 +125,7 @@ estimates\index{Nelson-Aalen estimator} for each group in the same plot. The lef
 panel of Figure \@ref(fig:twosex2) would suit this purpose better if drawn on a
 log scale, see Figure \@ref(fig:logtwosex2).
 
-```{r logtwosex2, echo = FALSE, fig.cap = "Female and male mortality by age, Sweden 2001-2019. Log scale.", fig.height = 3}
+```{r logtwosex2, echo = FALSE, fig.cap = "Female and male mortality by age, Sweden 2001--2020. Log scale.", fig.height = 3}
 oldpar <- par(las = 1, cex.axis = 0.8)
 plot(males$age, males$mort, type = "l", lty = 2, xlab = "Age", 
      log = "y", ylab = "Log hazards")
@@ -137,7 +137,7 @@ par(oldpar)
 The advantage of the log scale is twofold: (i) Small numbers are magnified so you 
 can see them, and (ii) on the log scale, proportional hazards implies a constant
 vertical distance between the curves, which is easier to see for the human eye.
-$\ \Box$
+$\Box$
 
 For an example of a perfect fit to the proportional hazards model, see
 Figure \@ref(fig:prophazfig3) (two *Weibull* hazard
@@ -271,11 +271,13 @@ for (i in 1:10){
 The data in Figure \@ref(fig:twosample) can be presented i tabular form, see Table \@ref(tab:exlr3).
 ```{r exlr3, echo = FALSE}
 library(survival)
+source("R/tbl.R")
 ex.data <- data.frame(group = c(rep("numbers", 5), rep("letters", 5)),
                       time = c(4,2,6,1,3.5,5,3,6,1,2.5),
                       event = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, 
                                 TRUE, FALSE, TRUE, FALSE))
-knitr::kable(ex.data, booktabs = TRUE, caption = "Example data for the log-rank test..")
+##knitr::kable(ex.data, booktabs = TRUE, caption = "Example data for the log-rank test..")
+tbl(ex.data, caption = "Example data for the log-rank test.")
 ```
 We are interested in investigating whether `letters` and `numbers`
 have the same survival chances or not. Therefore, the hypothesis
@@ -292,7 +294,8 @@ Table \@ref(tab:lr1), where the the first table, relating to failure time $t_{(1
 xx <- matrix(c(1,1,2,4,4,8,5,5,10), ncol = 3)
 rownames(xx) <- c("numbers", "letters", "Total")
 colnames(xx) <- c("Deaths", "Survivals", "Total")
-knitr::kable(xx, caption = "The 2x2 table for the first event time.", booktabs = TRUE)
+##knitr::kable(xx, caption = "The 2x2 table for the first event time.", booktabs = TRUE)
+tbl(xx, caption = "The 2x2 table for the first event time.")
 ```
 
 
@@ -316,6 +319,7 @@ This procedure is repeated for each of the five tables, and the results are
 summarized in Table \@ref(tab:sumup).
 
 ```{r sumup, echo = FALSE}
+source("R/unicode.R")
 x <- c(1, 0, 1, 0, 1, 3,
        1.0, 0.5, 0.5, 0.3, 0.5, 2.8,
        0.0, -0.5, 0.5, -0.3, 0.5, 0.2,
@@ -323,7 +327,11 @@ x <- c(1, 0, 1, 0, 1, 3,
 x <- matrix(x, ncol = 4)
 colnames(x) <- c("Observed", "Expected", "Difference", "Variance")
 rownames(x) <- c("t(1)", "t(2)", "t(3)", "t(4)", "t(5)", "Sum")
-knitr::kable(x, booktabs = TRUE, caption = "Observed and expected number of deaths for numbers at event times.")
+x <- as.data.frame(x)
+x$Difference <- um(x$Difference)
+##knitr::kable(x, booktabs = TRUE, caption = "Observed and expected number of deaths for numbers at event times.")
+tbl(x, caption = "Observed and expected number of deaths for numbers at event times.", 
+    rownames = TRUE, align = "rrrr")
 ```
 
 
@@ -382,10 +390,12 @@ Let us now look at a real data example, the old age mortality data set
 options(show.signif.stars = FALSE)
 library(eha)
 om <- age.window(oldmort, c(60, 85))
-knitr::kable(head(om[-(1:1000), c("id", "enter", "exit", "event", "sex", "civ")], 5), booktabs=TRUE, caption = "Old age mortality.", row.names = FALSE)
+##knitr::kable(head(om[-(1:1000), c("id", "enter", "exit", "event", "sex", "civ")], 5), booktabs=TRUE, caption = "Old age ##mortality.", row.names = FALSE)
+yy <- head(om[-(1:1000), c("id", "enter", "exit", "event", "sex", "civ")])
+tbl(yy, caption = "Old age mortality.")
 ```
 
-We are interested in comparing male and female mortality in the ages 60--85 with a logrank test, and for that purpose we use the `logrank` function:
+We are interested in comparing male and female mortality in the ages 60--85 with a log-rank test, and for that purpose we use the `logrank` function:
 
 ```{r noevallr, echo = TRUE}
 library(eha)
@@ -393,7 +403,7 @@ fit <- logrank(Surv(enter, exit, event), group = sex, data = om)
 fit
 ```
 
- The result of the logrank test is given by the $p$-value
+ The result of the log-rank test is given by the $p$-value
 `r round(100 * fit$p.value, 4)` per cent, a very small number. Thus, there is a very significant 
 difference in mortality between men and women.
 But *how large* is the difference? The log-rank test has no answer to this question.
@@ -401,7 +411,7 @@ But *how large* is the difference? The log-rank test has no answer to this quest
 Remember that this result depends on the proportional hazards
 assumption. We can graphically check it, see Figure \@ref(fig:logrank3).
 
-```{r logrank3, fig.cap = "Cumulative hazards for women and men in ages 60-85, 19th century Sweden.", echo = FALSE, fig.height = 3}
+```{r logrank3, fig.cap = "Cumulative hazards for women and men in ages 60--85, 19th century Sweden.", echo = FALSE, fig.height = 3}
 par(mfrow = c(1, 2), las = 1)
 plot(fit, main = "Normal scale", xlab = "Age")
 plot(fit, fn = "log", main = "Log scale", xlab = "Age", printLegend = "bottomright")
@@ -455,7 +465,7 @@ plot(fit, xlab = "Age")
 There is obviously nothing much that indicates non-proportionality in this case
 either. Furthermore, the ordering is what one would expect.
 
-We do not go deeper into this matter here, mainly because the logrank test
+We do not go deeper into this matter here, mainly because the log-rank test
 is a special case of *Cox regression*.
 
 <!--
@@ -474,7 +484,7 @@ their own. The interested reader may consult the text books by
 Starting with the definition of proportional hazards in Section \@ref(sec:ph3), the
 concept of Cox regression is introduced in steps.
 
-### Two Groups
+### Two groups
 
 The definition of proportionality, given in equation \@ref(eq:prophaz), can
 equivalently be written as
@@ -510,10 +520,10 @@ but we will now show how it is possible to generalize this to a situation
 with explanatory variables of any form. The first step is to go from the
 two-sample situation to a $k$-sample one.
 
-### Many Groups
+### Many groups
 
-Can we generalize to $(k + 1)$ groups, $k \ge 2$? Yes, by expanding the
-procedure in the previous subsection:
+Can we generalize the results of Section 3.3.1 to $(k + 1)$ groups, $k \ge 2$? 
+Yes, by expanding that procedure as follows:
 
 \begin{eqnarray*}
 h_0(t) &\sim& \mbox{group 0} \\
@@ -566,7 +576,7 @@ x_{k} \beta_k} = h_0(t) e^{\mathbf{x} \boldsymbol{\beta}},
 
 where $\boldsymbol{\beta} = (\beta_1, \beta_2, \ldots, \beta_k)$.
 
-### The General Cox Regression Model
+### The general Cox regression model
 
 We may now generalize \@ref(eq:kgroups) by letting the components of
 $\mathbf{x}_i$ take *any value*. Let data and model take
@@ -594,7 +604,7 @@ h(t; \mathbf{x}_i) = h_0(t) e^{\mathbf{x}_i \boldsymbol{\beta}}, \quad t > 0.
 This is a *regression model* where the *response variable* is $(t_0, t, d)$ (we will call it a *survival object*)
 and the *explanatory variable* is $\mathbf{x}$, possibly (often) vector valued.
 
-In \@ref(eq:pl) there are two components to estimate, the
+In equation \@ref(eq:pl) there are two components to estimate, the
 regression coefficients $\boldsymbol{\beta}$, and the 
 *baseline hazard function*\index{baseline hazard function} $h_0(t),
 \; t > 0$. For the former task, the *partial likelihood* [@cox75]
@@ -622,7 +632,7 @@ reduces to
 (\#eq:km3)
 \end{equation}
 
-the Nelson-Aalen\index{Nelson-Aalen estimator} estimator. In
+the Nelson-Aalen\index{Nelson-Aalen estimator} estimator. In equation
 \@ref(eq:km3), $n_j$ is the size of $R_j$. 
 
 In the **R** package  **eha**, the baseline hazard is estimated at the
@@ -649,15 +659,15 @@ The corresponding survival functions may be estimated by the relation
 \hat{S}(t; \mathbf{x}) = \exp\bigl(-\hat{H}(t; \mathbf{x})\bigr)
 \end{equation*}
 
-It is also possible to use the terms in the sum \@ref(eq:bashaz) to build
-an estimator analogous to the Kaplan-Meier estimator \@ref(eq:km2). In
+It is also possible to use the terms in the sum in equation \@ref(eq:bashaz) to build
+an estimator analogous to the Kaplan-Meier estimator given in equation \@ref(eq:km2). In
 practice, there is no big difference between the two methods. For more on 
 interpretation of parameter estimates and model selection, see the appropriate chapter. 
 \index{baseline hazard function!estimation of|)}
 
 
 
-## Proportional hazards in discrete time
+## Proportional Hazards in Discrete Time
 \index{proportional hazards!discrete time}
 
 In discrete time, the hazard function is, as we saw earlier, a set of
@@ -692,7 +702,7 @@ P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x}) =
 (\#eq:dischaz)
 \end{multline}
 with $h_j = P(t_{j-1} \le T < t_j \mid T \ge t_{j-1}; \; \mathbf{x} =
-\mathbf{0})$, $j = 1, \ldots, k$. We take \@ref(eq:dischaz) as the
+\mathbf{0})$, $j = 1, \ldots, k$. We take equation \@ref(eq:dischaz) as the
 *definition* of proportional hazards in discrete time.
 
 ### Logistic regression
@@ -732,7 +742,7 @@ time (interval). They correspond to the baseline hazard function in continuous t
 and are be estimated simultaneously with the regression parameters.
 
 
-## Doing it in **R**
+## Doing It in **R**
 \index{Functions!\fun{coxreg}|(}
 
 We utilize the *child mortality* data, Skellefteå 1850--1884, to
@@ -803,7 +813,7 @@ statistics that were printed in the previous output below the table of coefficie
 ### The estimated baseline cumulative hazard function
 \index{cumulative hazard function|(} 
 
-The estimated baseline cumulative function (see Equation \@ref(eq:bashaz)) is preferably
+The estimated baseline cumulative function (see equation \@ref(eq:bashaz)) is preferably
 reported by a graph using the `plot` command, see Figure \@ref(fig:basl3).
 
 ```{r basl3,fig=TRUE,echo=FALSE, fig.cap="Estimated cumulative baseline hazard function.", fig.height = 4}
@@ -814,7 +824,7 @@ plot(fit, xlab = "Age")
 The figure shows the baseline cumulative hazard function for an
 individual with the value zero on all covariates. What does it mean here? There are two
 covariates, the first is `ses` with reference value `lower`, and the second is `birthdate`,
-with reference value 0! So Figure \@ref(fig:basl3) shows the the estimated cumulative hazards
+with reference value 0! So Figure \@ref(fig:basl3) shows the estimated cumulative hazards
 function for a man born on January 1 in the year 0 (which does not exist, by the way)
 and who belongs to a lower social class. This is not a reasonable extrapolation, and we
 need to get a new reference value for `birthdate`. It should be within the range of the 
@@ -840,7 +850,7 @@ plot(res3, xlab = "Age")
 ```
 
 The two Figures \@ref(fig:basl3) and \@ref(fig:basl33) are identical, *except* for
-the the numbers on the $y$ axis. This would *not* hold for the corresponding plots
+the numbers on the $y$ axis. This would *not* hold for the corresponding plots
 of the baseline *survival* function (try it!).
 
 \index{cumulative hazard function|)} 

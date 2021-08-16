@@ -29,7 +29,7 @@ studies [@rubin74; @robins86].
 history without an 
 explicit connection to causality. However, as we will see, matching is a
 very important tool in the modern treatment of causality.
-
+<!--
 In the first edition of this book [@ehar12], I wrote
 
 >  "Unfortunately, the models for event history analysis presented here are not
@@ -39,8 +39,9 @@ In the first edition of this book [@ehar12], I wrote
 >   itself, can be performed with ordinary stratified Cox regression."
 
 Since then things have changed.
+-->
 
-## Philosophical aspects on causality
+## Philosophical Aspects on Causality
 
 
 The concept of causality\index{causality} has a long history in philosophy,
@@ -64,7 +65,8 @@ indicates that nothing is to be taken as granted.
 <!--
 %%Hume's concept of causality \citep{hume65}
 -->
-## Causal inference
+
+## Causal Inference
 \index{causal inference}
 According to @abg08, there are three major schools in statistical
 causality, (i) graphical models\index{graphical models}, (ii) predictive
@@ -153,9 +155,9 @@ $
 \end{figure}
 -->
 Here $A$ and $B$ are events, and the superscript ($c$) indicates their
-complements, i.e.\ they have not (yet) occurred if superscripted. This
+complements, i.e.,\ they have not (yet) occurred if superscripted. This
 model is used in the matched data example concerning infant and maternal mortality
-in a nineteenth century environment later in this chapter. There $A$
+in a 19th century environment later in this chapter. There $A$
 stands for *mother dead* and $B$ means *infant dead*. The mother
 and her new-born (alive) infant is followed from the birth to the death of
 the infant (but at most a one-year follow-up). During this follow-up both
@@ -393,7 +395,7 @@ is completely un-testable, and even worse, it never holds in practice.
 %\section{Dynamic path analysis}
 -->
 
-## Aalen's additive hazards model
+## Aalen's Additive Hazards Model
 \index{model!additive hazards}
 
 In certain applications it may be reasonable to assume that risk factors
@@ -475,7 +477,8 @@ par(oldpar)
 % --------------------------- SLIDE ----------------------------------
 -->
 
-## Dynamic path analysis
+## Dynamic Path Analysis
+
 The term *dynamic path analysis* was coined by Odd Aalen and coworkers
 [@abg08]. It is an extension, by explicitly introducing time, of *path analysis*
 described by @wri21.   
@@ -483,7 +486,7 @@ described by @wri21.
 The inclusion of time in the model implies that there are one path analysis
 at each time point, see Figure \@ref(fig:path9).
 
-```{r path9, fig.cap = "Dynamic path analysis", echo = FALSE, fig.align='center'}
+```{r path9, fig.cap = "Dynamic path analysis.", echo = FALSE, fig.align='center'}
 knitr::include_graphics("images/dynpath.png", auto_pdf = TRUE)
 ```
 
@@ -527,10 +530,11 @@ with $dN(t) > 0$.
 
 Then the second equation is inserted in the first:
 
-\begin{equation*}
-dN(t) = \{\beta_0(t) + \beta_2(t) \theta_0(t) + \bigl(\beta_1(t) +
-\theta_1(t) \beta_2(t)\bigr) X_1 + \beta_2(t) \epsilon(t)\}dt + dM(t)
-\end{equation*}
+\begin{multline*}
+dN(t) = \bigl\{\beta_0(t) + \beta_2(t) \theta_0(t) + \\ 
+\bigl(\beta_1(t) + \theta_1(t) \beta_2(t)\bigr) X_1 + \beta_2(t) \epsilon(t)\bigr\}dt 
++ dM(t)
+\end{multline*}
 
 and the *total treatment effect* is $\bigl(\beta_1(t) +
 \theta_1(t)\beta_2(t)\bigr)dt$, so it can be split into two parts according to
@@ -596,7 +600,7 @@ The model is
 \begin{equation}
 h_i(t; x) = h_{0i}(t) e^{\beta x},
 \end{equation}
-where $x$ is treatment (0-1)
+where $x$ is treatment (`r iv(0, 1)`)
 and $i$ is pair No. Note that each pair has its own baseline hazard
 function, which means that the proportional hazards assumption is only
 required within pairs. This is a special form of stratified analysis in
@@ -611,7 +615,7 @@ P(T_{1i} < T_{0i}) = \frac{e^\beta}{1 + e^\beta}, \quad i = 1, \ldots, n,
 and the result of the analysis is simply a study of binomial data; how many
 times did the case die before the control? We can estimate this
 probability, and also test the null hypothesis that it is equal to one
-half, which corresponds to $\beta = 0$ in \@ref(eq:9pair). 
+half, which corresponds to $\beta = 0$ in equation \@ref(eq:9pair). 
 
 ### More than one control
 
@@ -670,7 +674,7 @@ variable `stratum`), see Table \@ref(tab:matchedanal10).
 ```{r matchedanal10, results = "asis"}
 fit <- coxreg(Surv(enter, exit, event) ~ mother + strata(stratum), 
 data = infants)
-cap = "Infant mortality, statified Cox regression."
+cap = "Infant mortality, stratified Cox regression."
 lab = "matchedanal10"
 fit.out(fit, label = lab, caption = cap)
 ```
@@ -693,7 +697,7 @@ by first calculating an interaction term (`mage`):
 infants$mage <- ifelse(infants$mother == "dead", infants$age, 0)
 ```
 \index{Functions!\fun{ifelse}} Note the use of the function `ifelse`:
-It takes three arguments, the first is a logical expression (resulting in
+It takes three arguments, the first is a logical expression resulting in
 a *logical* vector, with values `TRUE` and `FALSE`. Note that
 in this example, the length is the same as the length of `mother` (in
 `infants`). For each component that is `TRUE`, the result is given by
@@ -716,7 +720,7 @@ inclusion of the interaction, the (main) effect of mother's death is now
 measured at mother's age equal to 0 (zero!), which of course is completely
 nonsensical, and second, the construction makes the two covariates strongly
 correlated: When `mother` is `alive`,  `mage` is zero, and
-when `mother` is `dead, `mage` takes a rather large
+when `mother` is `dead`, `mage` takes a rather large
 value. This is a case of *collinearity*\index{collinearity}, however
 not very severe case, because it is very easy to get rid of.
 
@@ -737,7 +741,7 @@ lab <- "matin210"
 fit.out(fit1, caption = cap, label = lab)
 ```
 The two fits are equivalent (look at the Max. log. likelihoods), but with
-different parametrizations. The second, with a centered mother's age, is
+different parameterizations. The second, with a centered mother's age, is
 preferred, because the two covariates are close to uncorrelated there.
 
 A subject-matter conclusion in any case is that mother's age does not
@@ -755,7 +759,7 @@ subsets of the original data set are analyzed.
 
 Finally some thoughts about causality, and the techniques in use for
 "causal inference". As mentioned above, in order to claim causality,
-one must show (or assume) the there are "no unmeasured
+one must show (or assume) that there are "no unmeasured
 confounders". Unfortunately, this is impossible to prove or show from data
 alone, but even worse is the fact that in practice, at least in demographic
 and epidemiological applications, there are *always*

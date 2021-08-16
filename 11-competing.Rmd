@@ -1,4 +1,4 @@
-# Competing risks models {#competing}
+# Competing Risks Models {#competing}
 
 \index{competing risks|(}
 
@@ -28,7 +28,7 @@ simple. The trick is to take one cause at at time and estimate its
 intensity as if the rest of the causes (events) are censorings. The real
 problem starts when we want to have these intensities turned into probabilities.
 
-## Some mathematics
+## Some Mathematics
 
 First we need some strict definitions, so that the correct questions are
 asked, and the correct answers are obtained.
@@ -68,7 +68,7 @@ reason is that it is difficult to define what these probabilities mean in
 the presence of other causes of death. For instance, what would happen if
 one cause was eradicated?
 
-## Meaningful probabilities
+## Meaningful Probabilities
 
 It *is* meaningful to estimate (and calculate)
 \begin{equation*}
@@ -221,7 +221,7 @@ comp(zz$enter, zz$exit, zz$event, start.age = 15)
 
 However, a simpler alternative is to use the function `survfit` in the `survival` package, see Figure \@ref(fig:survfit11), where the analysis is performed separately for men and women.
 
-```{r survfit11, fig.cap = "Mortality and migration, Skellefteå 1820-1935."}
+```{r survfit11, fig.cap = "Mortality and migration, Skellefteå 1820--1935."}
 oldpar = par(mfrow = c(1, 2), las = 1)
 library(survival)
 
@@ -268,10 +268,10 @@ crrtab[4, ] <- c(0.566, 1.76, 0.0229, 24.68, 0.0000)
 crrtab[5, ] <- c(0.222, 1.25, 0.0487, 4.56, 0.0000)
 rownames(crrtab) <- c("sex:female", "soc:official", "soc:business", "soc:worker", "Illegitimate")
 colnames(crrtab) <- c("coef", "exp(coef)", "se(coef)", "z", "p-value")
-tbl(crrtab, rownames = TRUE, caption = "Output from the function 'crr'.")
+tbl(crrtab, rownames = TRUE, caption = "Output from the function crr.")
 ```
 
-The *system time* for this call is one hour and 15 minutes.
+The *system time* for this call is 1 hour and 15 minutes.
 The function `crr` is *very slow* with large data sets. Therefore I have refrained 
 from calculating likelihood ratio *p*-values, so the ones in Table \@ref(tab:fakecrrout11)
 are the *Wald* ones. However, it seems as if all covariates have a high explanatory value,
@@ -311,16 +311,15 @@ fit.out(fit, caption = cap, label = lab)
 Here illegitimacy does not mean much, but it is the *workers* that dominate migration 
 in this case.
 
-```{r world11, fig.cap = "Cumulative hazard functions for males and females, migration outside Scandinavia."}
+```{r world11, fig.cap = "Cumulative hazard functions for males and females, migration outside Scandinavia.", fig.height = 4.5}
 plot(fit, xlab = "Age")
 abline(h = 0)
 ```
 
-Males end up with a double intensity of migrating, but the females start earlier.
+Males end up with a double cumulative intensity of migrating, but the females start earlier.
 
-\eex
 
-## R code for competing risks
+## R Code for Competing Risks
 
 The code that produced Figure \@ref(fig:causespec11) is shown here.
 ```{r showcode9, comment = "", echo = FALSE}

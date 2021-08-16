@@ -34,7 +34,7 @@ precompiled versions for *Linux*, *Mac OS*, and *Microsoft Windows*, as well as
 the full *source code*, which is open. See *Appendix C* for more
 information.
 
-## Survival data
+## Survival Data
 
 Survival data (survival times)\index{survival data} constitute the
 simplest form of event history data\index{event history data}. A survival
@@ -65,11 +65,11 @@ information about this can be found at the web page of the
 ([CEDAR](https://www.umu.se/cedar)).
 
 The sampling was done as follows: Every person who was present and alive
-and 60 years of age or above anytime between 1 January 1860 and 31 December
+and 60 years of age or above anytime between January 1, 1860 and December 31,
 1879 was followed from the entrance age (for most people that would be 60)
 until the age when last seen, determined by death, out-migration, or
-surviving until 31 December 1879. Those born during the
-eighteenth century would enter observation at an age above 60, given that
+surviving until December 31, 1879. Those born during the
+18th century would enter observation at an age above 60, given that
 they lived long enough, that is at least until January 1, 1860.
 
 Two types of finishing the observation of a person are distinguished:
@@ -108,7 +108,7 @@ print(oldmort[1:3, ], row.names = FALSE)
 There are several packages for nice printing of tables available on CRAN.
 In this book, written 
 with the aid of the **R** packages `bookdown` [@bookdown; @bookdown20], 
-`knitr` [@knitr; @knitr20] and `kableExtra` [@kableExtra20], outputs of tables 
+`knitr` [@knitr; @knitr20], and `kableExtra` [@kableExtra20], outputs of tables 
 and regression results are first given "asis", that is, as you will see them
 on the computer screen, but later, depending on circumstances, nice printing 
 is preferred. Code like the following is often used for regression results:
@@ -159,7 +159,7 @@ om <- oldmort[, c(2:5, 8:11, 13)]
 om$ses.50 <- NULL
 om$birthplace <- NULL
 om$birthdate <- toDate(om$birthdate)
-cap <- "Old age mortality, 19th century Sundsvall, Sweden."
+cap <- "\\bf Old age mortality, 19th century Sundsvall, Sweden."
 tbl(head(om[sample(NROW(om), replace = FALSE), ], 10), caption = cap, fs = 11)
 ```
 
@@ -180,7 +180,7 @@ interpretations:
   94; then she had not been in our study at all. This property of our
   sampling procedure introduces a phenomenon known as
   *length-biased sampling*\index{length-biased sampling}. That is,
-  of those born in the eighteenth century, only those who live well beyond
+  of those born in the 18th century, only those who live well beyond
   60 will be included. This bias must be compensated for in the analysis,
   and it is accomplished by conditioning on the fact that these
   persons were alive at January 1, 1860. This technique is called
@@ -229,10 +229,10 @@ individual, the value is *TRUE*, indicating
 Of special interest is the triple `(enter, exit, event)`, because it
 represents the *response variable*, or what can be seen of it. More
 specifically, the sampling frame is all persons observed to be alive and
-above 60 years of age between 1 January 1860 and 31 December 1879. The
+above 60 years of age between January 1, 1860 and December 31, 1879. The
 start event for these individuals is their 60th anniversary and the stop
 event is death. Clearly, many individuals in the data set did not die
-before 1 January 1880, so for them we do not know the full duration
+before January 1, 1880, so for them we do not know the full duration
 between the start and stop events; such individuals are said to be
 *right censored* (the exact meaning of which will be given soon). The
 third component in the survival object `(enter, exit, event)`,
@@ -240,16 +240,16 @@ third component in the survival object `(enter, exit, event)`,
 if `exit` is the true duration (the interval ends with a death) and
 `FALSE` if the individual is still alive at the duration "last seen".
 
-Individuals aged 60 or above between 1 January 1860 and 31 December 1879
+Individuals aged 60 or above between January 1, 1860 and December 31, 1879
 are included in the
 study. Those who are above 60 at this start date are included only if they
 did not die between
-the age of 60 and the age at 1 January 1860. If this is not taken into
+the age of 60 and the age at January 1, 1860. If this is not taken into
 account, a bias in the estimation of mortality will result. The proper way
 of dealing with this problem is to use *left truncation*, which is
 indicated by the variable `enter`. If we look at the first rows of *oldmort* we
 see that the `enter` variable is very large; it is the
-age for each individual at 1 January 1860. You can add `enter` and *birthdate*
+age for each individual at January 1, 1860. You can add `enter` and *birthdate*
 for the first six individuals to see that:
 ```{r add1}
 oldmort$enter[1:6] + oldmort$birthdate[1:6]
@@ -312,12 +312,12 @@ the job, and "death" refers to the event of getting a job. In a clinical
 trial regarding treatment of cancer, the starting event time may be time of
 operation, and the final event time is time of relapse (if any).
 
-## Right censoring
+## Right Censoring
 
 When an individual is lost to follow-up, we say that she is *right censored*,
 \index{censoring!right} see Figure \@ref(fig:rightcensoring).
 
-```{r rightcensoring, fig.cap = "Right censoring", echo = FALSE, fig.height= 3}
+```{r rightcensoring, fig.cap = "Right censoring.", echo = FALSE, fig.height= 3}
 plot(c(0, 10), c(2, 2), type = "l", ylim = c(0, 4),
      xlab = "Duration", xlim = c(0, 20), ylab = "", axes = FALSE)
 axis(1, at = c(0, 6, 10), labels = c("0", "C", "T"))
@@ -344,9 +344,9 @@ to that is that yes, *left censoring*\index{censoring!left} refers to
 a situation where the
 only thing known about a death age is that it is *less than* a certain
 value $C$. Note carefully that this is different from *left
-  truncation*, see the next section.
+  truncation*, see Section 1.3.
 
-## Left truncation
+## Left Truncation
 
 The concept of *left truncation*\index{left truncation|(}, or
 *delayed entry*, is well illustrated by the data set *oldmort*
@@ -360,7 +360,7 @@ It is illustrative to think of the construction of the data set
   *oldmort* as a statistical follow-up study, starting on January 1,
 1860. At that day, all persons present in the parish and 60 years
 of age *or above*, are included in the study. It is decided that the
-study will end at 31 December 1879, that is, the study period (follow-up
+study will end at December 31, 1879, that is, the study period (follow-up
 time) is 20 years. The interesting event in this study is
 *death*. This means that the start event is the sixtieth anniversary
 of birth and the final event is death. Due to the calendar time constraints
@@ -380,7 +380,7 @@ are not left truncated, but will have a higher and higher probability of
 being right censored, the later they enter the study.
 \index{left truncation|)}
 
-## Time scales
+## Time Scales
 
 \index{time scale|(}
 
@@ -411,7 +411,7 @@ Two time scales are nearly always present in demographic research: Age (or
 duration) and calendar time. For instance, an investigation of mortality
 may be limited in these two directions. In Figure \ref{fig:lexis1} this is
 illustrated for a study of old age mortality during the years 1829 and
-1895. ``Old age mortality'' is defined as mortality from age 50 and onwards
+1895. ``Old age mortality'' is defined as mortality from age 50 and onward
 to age 100.
 The Lexis diagram is a way of showing the interplay between the two time
 scales and (human) life lines. Age moves vertically and calendar time
@@ -454,7 +454,7 @@ and here individual No.\ 7 disappeared because she died before January 1,
 74.112 = 1814.625$, or August 17, 1814.
 \index{Lexis diagram|)}
 
-## Event history data
+## Event History Data
 
 Event history data arise, as the name suggests, by following
 subjects over time and making notes about what happens and when. Usually
@@ -618,7 +618,7 @@ Individuals may move back and forth between the states *Healthy* and
 meaning that once in that state, you never leave
 it.\index{illness-death model|)}$\ \Box$
 
-## More data sets
+## More Data Sets
 
 A few examples and data sets will be used repeatedly throughout the book,
 and we give a brief description of them here. They are all available in the
@@ -718,13 +718,13 @@ later chapters.
 
 The data set `child` (in eha) contains follow-up data of children born in 
 Skellefteå, northern Sweden, between January 1, 1850 and December 31, 1884. Each 
-child is followed a maximum of fifteen years, and the follow-up is interrupted by death,
+child is followed up to a maximum of fifteen years, and the follow-up is interrupted by death,
 loss of follow-up (usually out-migration), or the reach of age fifteen.
 
 These data constitute a *cohort* and can be analyzed as such. It may be represented 
 in a *Lexis diagram* as in Figure \@ref(fig:lexis21).
 
-```{r lexis21, fig.cap = "Birth cohort 1850-1884, Skellefteå. A child mortality study.", echo = FALSE, fig.height = 4}
+```{r lexis21, fig.cap = "Birth cohort 1850--1884, Skellefteå. A child mortality study.", echo = FALSE, fig.height = 4}
 plot(1, 1, xlim = c(1850, 1902), ylim = c(0, 17), type = "n", 
      xlab = "Date", ylab = "Age", axes = FALSE)
 axis(1, at = c(1850, 1885), labels = c("1850-01-01", "1884-12-31"))
@@ -800,13 +800,13 @@ controls.
 This data set is discussed and analyzed in Chapter 8.
 \index{Data sets!infant mortality|)}$\ \Box$
 
-```{example, name = "Mortality in Sweden 1969-2020, tabular data", label = "swedtab1"}
+```{example, name = "Mortality in Sweden 1969--2020, tabular data", label = "swedtab1"}
 ```
 \index{Data sets!tabular}
 \index{Data sets!tabular!Swedish mortality|(}
 These data sets (`swepop` and `swedeaths`) are taken from Statistics 
 Sweden\index{Statistics Sweden}, freely available on
-the web site \url{http://www.scb.se}. The aggregated data sets contain yearly
+the web site \url{https://www.scb.se}. The aggregated data sets contain yearly
 information about population size and number of deaths by sex and age for the
 years 1969--2020.
 

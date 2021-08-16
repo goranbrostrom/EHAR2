@@ -7,7 +7,7 @@ source("R/fit.out.R")
 source("R/tbl.R")
 ```
 
-# Basic statistical concepts
+# Basic Statistical Concepts
 
 The statistical concepts that are important for understanding what is
 going on in this book are gathered here, but briefly treated. The
@@ -16,7 +16,7 @@ should have no problems in finding suitable text books. There are for
 instance some recent texts that teaches statistics and how to use it in
 **R** [@pd08]. 
 
-## Statistical inference
+## Statistical Inference
 
 Statistical inference is the science that help us draw conclusions about
 real world phenomena by observing and analyzing samples from them. The
@@ -26,7 +26,7 @@ statements coupled to certain measures of their validity. These measures
 are almost always *probability statements*.
 
 The crucial concept is that of a *model*, despite the fact that the
-present trend in statistical inference is towards nonparametric
+present trend in statistical inference is toward nonparametric
 statistics. It is often stated that with today's huge data sets,
 statistical models are unnecessary, but nothing could be more wrong. 
 
@@ -83,30 +83,54 @@ Table \@ref(tab:lrgen), if the margins are fixed there is only one degree of
 freedom left; for a given value of (say) $d_1$, the three values $d_2$, 
 $(n_1 - d_1)$, and $(n_2 - d_2)$ are determined.
 
+
 ```{r lrgen, echo=FALSE}
-tt <- data.frame(Group = c("I", "II", "Total"), 
-                 Deaths = c("d1", "d2", "d"), 
-                 Survivors = c("n1 - d1", "n2 - d2", "n - d"), 
-                 Total = c("n1", "n2", "n"))
-tbl(tt, caption = "General table in a log rank test.")
+source("R/tbl_html.R")
+if (knitr::is_html_output()){
+    tt <- data.frame(Group = c("I", "II", "Total"), 
+                     Deaths = c("d1", "d2", "d"), 
+                     Survivors = c(paste("n1", "d1", sep = "\u2212"), 
+                                   paste("n2", "d2", sep = "\u2212"), 
+                                   paste("n",  "d", sep = "\u2212")), 
+                    Total = c("n1", "n2", "n"))
+    tbl_html(tt, caption = "General table in a log rank test.")
+}
 ```
 
 
+\begin{table}
+\caption{\label{tab:lrgen}The general table at one event time.}
+\centering
+\fontsize{11}{13}\selectfont
+\begin{tabular}{r|cc|c}
+\toprule
+\textbf{Group} & \textbf{Deaths} & \textbf{Survivors} & \textbf{Total} \\
+\midrule
+I     &   $d_1$    &  $n_1 - d_1$      & $n_1$ \\
+II    &   $d_2$    &  $n_2 - d_2$      & $n_2$ \\ \hline
+Total &   $d$      &    $n - d$        & $n$ \\ 
+\bottomrule
+\end{tabular}
+\end{table}
+
 Utilizing the fact that, under the null, $d_1$ is hyper-geometrically
 distributed, results in the following algorithm for calculating a test
-statistic as follows:
+statistic:
 
 
 1.  Observe $O = d_1$
+
 2.  Calculate the expected value $E$ of $O$ (under the null): 
 
   $$
   E = d \frac{n_1}{n}.
   $$
+  
 3.  Calculate the variance $V$ of $O$ (under the null): 
 
 $$V = \frac{(n - d) d n_1 n_2}{n^2 (n - 1)}.$$
-4.  Repeat 1. - 3. for all tables and aggregate according to
+
+4.  Repeat 1 to 3 for all tables and aggregate according to
   equation \@ref(eq:lorat).
 
 The log rank test statistic $T$ is
@@ -127,10 +151,10 @@ Properties of the log rank test;
 3.  It can be generalized to comparisons of more than two groups.
 4.  For $s$ groups, the test statistic is approximately $\chi^2(s-1)$.
 5.  The test has *high power* against alternatives with
-  *proportional hazards*, but can be weak against non-pro\-por\-tional
+  *proportional hazards*, but can be weak against non-proportional
   alternatives.
 
-## Presentation of results
+## Presentation of Results
 
 The presentation of the results of fitting a regression model to given data is usually
 done both graphically and in tabular form. Some general guidelines that must be 
@@ -139,7 +163,7 @@ a real data, but fictive research project is followed.
 
 ### The project
 
-In a mortality study of the small town of Umeå in twentieth century northern Sweden we
+In a mortality study of the small town of Umeå in 20th century northern Sweden, we
 are investigating the mortality among persons aged 50 and above.
 We are especially interested in whether there were any differences in mortality
 between social branches. For this purpose, the data set `ume`, with selected 
@@ -161,8 +185,10 @@ ume$exit[ume$enter >= ume$exit] <- ume$enter[ume$enter >= ume$exit] + 0.001
 ##ume$cohort <- NULL
 umetab <- toTpch(Surv(enter, exit, event) ~ sex + cohort + civst + socBranch,
                  data = ume, cuts = seq(50, 95, by = 3))
+ut <- umetab
+levels(ut$age) <- sub('-', '\U2013', levels(ut$age), fixed = TRUE)
 ##summary(ume)
-tbl(head(umetab, 5), caption = "Data about adult mortality in Umeå, first half of 20th ccentury.")
+tbl(head(ut, 5), caption = "Data about adult mortality in Umeå, first half of 20th ccentury.")
 ```
 
 As you can see, data is *tabulated*, so a piecewise constant hazard model is 
@@ -202,7 +228,7 @@ fit.out(fit, caption = cap, label = lab)
 
 First, we got rid of the printing of the numerous baseline hazards estimates, and second, the 
 *factor* `socBranch` is presented in full, with all four levels. And finally, 
-the *relevant p-value*. Because, first,  the truth is that *Wald* p-values are 
+the *relevant p-value*. Because, first,  the truth is that Wald *p*-values are 
 notoriously unreliably in nonlinear regression, and second, we want *p*-values for
 *covariates* and *not* for *levels* of covariates.
 
@@ -220,7 +246,7 @@ abline(h = 0)
 
 
 
-## Asymptotic theory
+## Asymptotic Theory
 \index{asymptotic theory|(}
 
 ### Partial likelihood
@@ -309,7 +335,7 @@ may be *highly unreliable*, as in all *non-linear* regression
 test*\index{Tests!likelihood ratio}.
 \index{asymptotic theory|)}
 
-## Model selection {#modsel_A}
+## Model Selection {#modsel_A}
 
 In regression models, there is often several competing models for
 describing data. In general, there are no strict rules for ``correct

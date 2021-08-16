@@ -1,4 +1,4 @@
-# Multivariate survival models
+# Multivariate Survival Models
 
 ```{r settings9, echo = FALSE, include = FALSE}
 knitr::opts_chunk$set(comment = "", message = FALSE, echo = FALSE, cache = FALSE)
@@ -91,7 +91,8 @@ abline(v = 0)
 
 The important point here is that it is *impossible* to tell from
 data alone whether the population is homogeneous, with all
-individuals following the same hazard function (\@ref(eq:mixhaz), or
+individuals following the same hazard function given by equation 
+\@ref(eq:mixhaz), or
 if it in fact consists of two groups, each following a constant
 hazard rate.
 Therefore, individual frailty models like $h_i(t) = Z_i h(t), \quad i = 1,
@@ -110,7 +111,7 @@ population hazard, and the dashed lines represent the two kinds of
 individual hazards present. Of course, in a truly homogeneous population,
 these two concepts coincide.
 
-## Frailty models
+## Frailty Models
 
 Frailty models in survival analysis correspond to *hierarchical*
 models in linear or generalized linear models. They are also called
@@ -150,7 +151,7 @@ h_{i0}(t) = Z_i h_0(t), \quad i = 1, \ldots s;\; t > 0,
 \end{equation}
 the traditional multivariate frailty model emerges. Here it is assumed that
 $Z_1, \ldots, Z_s$ are independent and identically distributed
-(*iid*), usually with a lognormal distribution. From \@ref(eq:strat7)
+(*iid*), usually with a lognormal distribution. From equations \@ref(eq:strat7)
 and \@ref(eq:frail7) we get, with $U_i = \log(Z_i)$,
 \begin{equation*}
 h_i(t; \mathbf{x}) = h_{0}(t) e^{\boldsymbol{\beta}\mathbf{x} + U_i}, \quad i = 1, \ldots, s;\; t > 0.
@@ -197,6 +198,7 @@ at the boundary of the parameter space, the value $\sigma = 0$ is on that bounda
 One way to get a feeling for the impact of the frailty effect is to fit the
 same model but without frailty, i.e., the term `(1 | id)`, see Table \@ref(tab:nofrail9).
 ```{r nofrail9, echo = TRUE, results = "asis"} 
+source("R/unicode.R")
 fit0 <- coxreg(Surv(next.ivl, event) ~ age + ses + parity, 
                data = fe)
 cap = "Fertility data, no-frailty model."
@@ -205,10 +207,10 @@ fit.out(fit0, caption = cap, label = lab)
 ``` 
 \index{Functions!\fun{coxreg}}
 We can compare the two "max log likelihoods", in the frailty model the
-"Integrated" value `r as.integer(round(fit$loglik[2]))`, and in the
+"Integrated" value `r um(as.integer(round(fit$loglik[2])))`, and in the
 fixed effects case 
-`r as.integer(round(fit0$loglik[2]))`. The difference is so large 
-(`r round(fit$loglik[2] - fit0$loglik[2])`)
+`r um(as.integer(round(fit0$loglik[2])))`. The difference is so large 
+(`r um(round(fit$loglik[2] - fit0$loglik[2]))`)
 that 
 we safely can reject the hypothesis that the frailty model is not needed. 
 As an "informal" test, you could take twice that difference and treat it as
@@ -226,9 +228,9 @@ by *missing data*\index{missing data}.
 ```{example, label = "oldmortsib09",  name = "Old age mortality for siblings."}
 ```
 
-Take a look at the variables in `oldmort`:
+Take a look at the variables in `oldmort` (Table \@ref(tab:oldmort7)):
 ```{r oldmortf7} 
-cap = "The old age mortality data."
+cap = "The old age mortality data, selected records."
 tbl(tail(oldmort[, c(2:6, 8:9)], 5), caption = cap)
 ``` 
 The variable `m.id` is *mother's id*. Siblings
@@ -249,8 +251,8 @@ lab = "fixold9"
 fit.out(fit0, caption = cap, label = lab)
 ``` 
 Note that we now got a very much smaller value of the maximized log likelihood,
-`r as.integer(round(fit0$loglik[2]))` compared to 
-`r as.integer(round(fit$loglik[2]))`! Something is wrong, and the big problem is
+`r um(as.integer(round(fit0$loglik[2])))` compared to 
+`r um(as.integer(round(fit$loglik[2])))`! Something is wrong, and the big problem is
 that the two analyzes 
 were performed on different data sets. How is that possible, we used
   `oldmort` on both occasions? The variable `m.id` has a lot of missing
@@ -274,8 +276,8 @@ fit.out(fit0, caption = cap, label = lab)
 ```
 
 This is another story! We now got  very similar values of the maximized log likelihoods,
-`r round(fit0$loglik[2], 1)` compared to 
-`r round(fit$loglik[2], 1)`! The conclusion is that in this case, there
+`r um(round(fit0$loglik[2], 1))` compared to 
+`r um(round(fit$loglik[2], 1))`! The conclusion is that in this case, there
 is no frailty effect whatsoever.
 
 One lesson to learn from this example is that you have to be very cautious
@@ -426,7 +428,7 @@ The estimated scale parameter in the mixing distribution is 0.851 with standard 
 so the conclusion is very much the same as with the nonparametric
 (`coxme`) approach: The clustering effect of *mother* is very
 strong and must be taken into account in the analysis of birth intervals.
-The nonparametric approach is easier to use and recommended, but see the next session. 
+The nonparametric approach is easier to use and recommended, but see Section 9.3. 
 
 
 

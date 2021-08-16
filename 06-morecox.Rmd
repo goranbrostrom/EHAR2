@@ -10,11 +10,11 @@ library(kableExtra)
 
 Vital concepts like
 *time-dependent covariates*, *communal covariates*, handling of
-*ties*, *model checking*, *sensitivity analysis*, etc, 
+*ties*, *model checking*, *sensitivity analysis*, etc., 
 are introduced in this chapter.
 
 
-## Time-varying covariates
+## Time-Varying Covariates
 
 Only a special kind of time-varying covariates can be treated in **R** by the
 packages `eha` and `survival`, and that is so-called
@@ -49,13 +49,14 @@ The data file will contain two records like (with $T = 30$) what you can see
 in Table \@ref(tab:timevar).
 
 ```{r timevar,echo=FALSE}
+source("R/tbl.R")
 x <- data.frame(id = c(23, 23),
                 enter = c(0, 30),
                 exit = c(30, 80),
                 event = c(0, 1),
                 civst = as.factor(c("unmarried", "married"))
                 )
-knitr::kable(x, caption = "The coding of a time-varying covariate.")
+tbl(x, caption = "The coding of a time-varying covariate.")
 ```
 
 
@@ -94,7 +95,7 @@ confounder in the relation between marriage and survival. Generally,
 the use of time dependent internal covariates is dangerous, and one should always think 
 of possible confounding or reverse causality taking place when allowing for it.
 
-## Communal covariates
+## Communal Covariates
 
 Communal\index{communal covariate} (external)\index{external
   covariate} covariates are covariates that vary in time 
@@ -113,8 +114,13 @@ trend in annual rye prices, shown in Figure \@ref(fig:logrye).
 
 ```{r logrye,fig=TRUE,echo=FALSE,fig.cap = "Log rye price deviations from trend, 19th century southern Sweden.", fig.scap="Log rye price deviations from trend", fig.height=3}
 library(eha)
+par(las = 1)
 plot(logrye$year, logrye$foodprices, xlab = "Year", ylab = "Deviation",
-     type = "s")
+     type = "s", axes =  FALSE)
+axis(1)
+ttts <- c(-0.4, 0, 0.4)
+axis(2, at = ttts, labels = um(ttts))
+box()
 abline(h = 0)
 ```
 
@@ -159,9 +165,9 @@ Socio-economic status and sex do not matter much, but food prices do; the
 effect is almost significant at the 5 per cent level. See Table \@ref(tab:analcomm6). $\ \Box$
 
 
-## Tied event times
+## Tied Event Times
 
-Tied event times can in theory not occur with continuous-time data, but it
+Tied event times cannot, in theory, occur with continuous-time data, but it
 is impossible to measure duration and life lengths with infinite
 precision. Data are always more or less rounded, tied event times occur
 frequently in practice. This may cause problems (biased estimates) if
@@ -205,7 +211,7 @@ discrete time methods. One simple way of doing it is to use the option
 `method = "ml"` in
 the `coxreg` function in the **R** package `eha`.
 
-```{example, name = "Birth intervals."}
+```{example, name = "Birth intervals"}
 ```
 	We look at length of birth intervals
   between first and second births for married women in 19th century
@@ -239,7 +245,7 @@ out <- rbind(fit.e$coefficients, fit.b$coefficients,
              fit.mp$coefficients, fit.ml$coefficients)
 rownames(out) <- c("Efron", "Breslow", "MPPL", "ML")
 colnames(out) <- c("year", "age")
-tbl(round(out, 4), fs = 11, rownames = TRUE,
+tbl(um(round(out, 4)), fs = 11, rownames = TRUE,
     caption = "Comparison of four methods of handling ties, estimated coefficients.")
 ##knitr::kable(out, booktabs = TRUE, digits = 4, 
   ##    caption = "Comparison of four methods of handling ties, estimated coefficients.")
@@ -307,7 +313,7 @@ matched data, see Chapter \@ref(competing).
 
 When a *factor* does not produce proportional hazards between
 categories, *stratify* on the categories. For tests of the
-proportionality assumption, see later in this chapter. 
+proportionality assumption, see Section 6.7.1. 
 
 ```{example name = "Birth intervals"}
 ```  
@@ -319,14 +325,16 @@ source("R/fit.out.R")
 fert1 <- fert[fert$parity == 1, ]
 levels(fert1$parish) <- c("Jörn", "Norsjö", "Skellefteå")
 fert1$parish <- relevel(fert1$parish, ref = "Skellefteå")
-fit <- coxreg(Surv(next.ivl, event) ~ strata(ses) + 
-              I(age - 25) + I(year-1860) + prev.ivl + parish, 
+fert1$age.25 <- fert1$age - 25       # Center
+fert1$year.1860 <- fert1$year - 1860 # Center
+fit <- coxreg(Surv(next.ivl, event) ~ age.25 + year.1860 +
+              prev.ivl + parish + strata(ses), 
               data = fert1)
-fit.out(fit,caption = "Birth intervals, 19th century Skellefteå.", 
+fit.out(fit, caption = "Birth intervals, 19th century Skellefteå.", 
         label = "strafr6")
 ```
 
-The results in Table \@ref(tab:strafr6) show that calender time is unimportant, 
+The results in Table \@ref(tab:strafr6) show that calendar time is unimportant, 
 while mother's age and the length of the previous interval, from marriage to 
 first birth, both are important with birth intensity decreasing with both.
 Also, note that the continuous covariates are *centered* around a reasonable value 
@@ -335,7 +343,7 @@ with *interactions* involving either it would.
 
 Next plot the fit, see Figure \@ref(fig:bi25). The non-proportionality
 pattern is clearly visible. Note the line `par(lwd = 1.5)`: It magnifies the
-*line widths* by 50 percent in the plot, compared to default. And the values on 
+*line widths* by 50 per cent in the plot, compared to default. And the values on 
 the $y$ axis refers to a 25-year-old mother giving birth in Skellefteå 1860.
 
 ```{r bi25, fig.cap = "Cumulative hazards by socio-economic status, second birth interval."}
@@ -344,7 +352,7 @@ plot(fit, ylab = "Cumulative hazards", xlab = "Years")
 ```
 
 
-## Sampling of risk sets
+## Sampling of Risk Sets
 
 Some of the work by @bl95 is implemented in **eha**. The idea
 behind sampling of risk sets is that with huge data sets, in each risk sets
@@ -436,7 +444,7 @@ values. An attempt to correct the censored residuals leads to the so-called
 value is 1, and by adding 1 to the *censored* residuals, they become
 predictions (estimates) of the corresponding uncensored values. then
 finally a twist is added: Subtract 1 from *all* values and multiply by
--1, leading to the definition of the martingale residuals.
+$-1$, leading to the definition of the martingale residuals.
 
 \begin{equation}
 r_{Mi} = \delta_i - r_{Ci}, i = 1, \ldots, n.
@@ -467,7 +475,13 @@ martingale residuals from the fit.
 See Figure \@ref(fig:6mres).
 
 ```{r 6mres, fig.cap = "Martingale residuals from a fit of the kidney data.",echo=FALSE}
-plot(residuals(fit), ylab = "Residuals")
+source("R/unicode.R")
+par(las = 1)
+ojs <- c(-2, -1, 0, 1)
+plot(residuals(fit), ylab = "Residuals", axes = FALSE)
+axis(1)
+axis(2, at = ojs, labels = um(ojs))
+box()
 ```
 
 With a large data set, the plot will be hard to interpret, see
@@ -476,8 +490,13 @@ of the *male mortality* (`mort`) data in the package **eha**.
 
 ```{r 6bigdata,fig.cap = "Martingale residuals from a fit of the male mortality data.", echo=FALSE}
 data(mort)
+par(las = 1)
 fit <- coxreg(Surv(enter, exit, event) ~ birthdate + ses, data = mort)
-plot(fit$residuals, ylab = "Residuals")
+plot(fit$residuals, ylab = "Residuals", axes = FALSE)
+axis(1)
+ojs <- c(-0.5, 0.0, 0.5, 1.0)
+axis(2, at = ojs, labels = um(ojs))
+box()
 ```
 
 It is clear that the residuals are grouped in two clusters. The
@@ -488,7 +507,7 @@ used in functions that evaluate goodness-of-fit, for instance the function
 `cox.zph` in the **survival** package. $\ \Box$
 
 
-## Checking model assumptions {#ass_6}
+## Checking Model Assumptions {#ass_6}
 
 ### Proportionality
 
@@ -522,7 +541,7 @@ fit <- survival::coxph(Surv(next.ivl, event) ~ ses + age +
              data = fert2)
 ```
 and check the proportionality assumption. It is done with the function
-`cox.zph`\index{Functions!`cox.zph`} in the **survival** package.
+`cox.zph`\index{Functions!\fun{cox.zph}} in the **survival** package.
 ```{r tabzph}
 prop.full <- survival::cox.zph(fit)
 prop.full
@@ -545,7 +564,7 @@ fit1 <- coxph(Surv(next.ivl, event) ~ strata(ses) +
 and plot the result, see Figure \@ref(fig:6strses).
 
 ```{r 6strses,fig.cap = "Stratification on socio-economic status, third birth interval data.",echo=FALSE}
-par(lwd = 1.5)
+par(lwd = 1.5, las = 1)
 plot(survival::survfit(fit1), fun = "cumhaz", lty = 1:4)
 legend("bottomright", legend = levels(fert2$ses), lty = 1:4)
 ```
@@ -601,28 +620,36 @@ question is then: Should the covariate be transformed in the analysis? A
 graphical test can be done by
 plotting the martingale residuals from a *null fit* against the covariate,
 See Figure \@ref(fig:6loglin). 
-```{r 6loglincal,fig=TRUE,include=FALSE}
+```{r 6loglin,fig.cap = "Plot of residuals against the explanatory variable $x$.",echo=FALSE}
+set.seed(101121)
+par(las = 1)
 x <- rnorm(100)
 tid <- rexp(100, exp(1.5 * x^2))
 event <- rep(1, 100)
 fit <- coxph(Surv(tid, event) ~ 1)
-plot(x, residuals(fit))
+plot(x, residuals(fit), axes = FALSE)
+oj1 <- seq(-3, 2, by = 1)
+axis(1, at = oj1, labels = um(oj1))
+oj2 <- seq(-4, 1, by = 1)
+axis(2, at = oj2, labels = um(oj2))
+box()
 lines(lowess(x, residuals(fit)))
 ```
 
-```{r 6loglin, fig.cap = "Plot of residuals against the explanatory variable $x$.",echo=FALSE}
-plot(x, residuals(fit))
-lines(lowess(x, residuals(fit)))
-```
 
-The function `lowess`\index{Functions!`lowess`} fits a "smooth"
+The function `lowess`\index{Functions!\fun{lowess}} fits a "smooth"
 curve to a scatterplot. 
 The curvature is clearly visible, let us see what happens if we make the
 plot with $x^2$ instead of $x$. (Note that we now are cheating!) See
 Figure \@ref(fig:6loglin2). 
 
 ```{r 6loglin2,fig.cap = "Plot of residuals against the explanatory variable $x^2$."}
-plot(x^2, residuals(fit))
+par(las = 1)
+plot(x^2, residuals(fit), axes = FALSE, xlab = expression(x^2))
+axis(1)
+ah <- seq(-4, 1, by = 1)
+axis(2, at = ah, labels = um(ah))
+box()
 lines(lowess(x^2, residuals(fit)))
 ```
 
@@ -630,7 +657,7 @@ This plot indicates more that an increasing $x$ is associated with an
 increasing risk for the event to occur.
 
 
-## Fixed study period survival
+## Fixed Study Period Survival
 
 Sometimes survival up to some fixed time is of interest. For instance, in
 medicine five-year survival may be used as a measure of the success of a
@@ -645,11 +672,11 @@ right censoring. In that case it is recommended to use ordinary Cox
 regression anyway. Otherwise, logistic regression with a suitable link
 function works well. Of course, as mentioned earlier, the *cloglog*
 link is what gets you closest to the proportional hazards model, but
-usually it makes very little difference. See @kp02, page 334 ff. for
+usually it makes very little difference. See @kp02, pages 334--336, for
 slightly more detail.
 
 
-## Left or right censored data.
+## Left or Right Censored Data.
 
 Sometimes the available data is either left or right censored, i.e.,
 for each individual $i$, we know survival of $t_i$ or not, i.e., data
@@ -668,11 +695,11 @@ S(t_j)$ with the
 \index{Functions!\fun{coxreg}|)}
 \index{Cox regression|)}
 
-## The weird bootstrap
+## The Weird Bootstrap
 
 In small to medium-sized samples, the estimated parameters and their standard
-errors may be not so reliable, and in such cases the bootstrap tehcnique can be
-useful. There are a couple of ways to implement the technique in Cox regression, 
+errors may be not so reliable, and in such cases the bootstrap technique can be
+useful. There are a couple of ways to implement it in Cox regression, 
 and here the *weird bootstrap*\index{weird bootstrap}\index{bootstrap} is presented.
 
 The resampling procedure is done risk set by riskset. If a specific risk set 
@@ -688,7 +715,7 @@ the risk sets are treated as independent entities in this respect. See @abgk93
 for more detail.
 
 The weird bootstrap is implemented in the `coxreg` function in the **eha** package.
-As an example, child mortality in nineteenth century Sweden is analyzed with 
+As an example, child mortality in 19th century Sweden is analyzed with 
 respect to the sex difference in mortality. 
 
 ```r
@@ -720,18 +747,23 @@ For instance, a start could be to get a grip of the distribution of  the bootstr
 sample around the parameter estimate, see Figure \@ref(fig:bootdist6).
 
 ```{r bootdist6, fig.cap = "Bootstrap sample distribution around the estimate."}
+par(las = 1)
 plot(density(b_sample - b_hat, bw = 0.005), 
-     xlab = "bootstrap - beta_hat", main = "")
+     xlab = "Deviation", main = "", axes = FALSE)
+xh <- c(-0.05, 0.00, 0.05)
+axis(1, at = xh, labels = um(xh))
+axis(2)
+box()
 abline(h = 0, v = 0)
 ```
 
-The mean of the bootstrap sample is `r round(mean(b_sample), 4)` and its sample 
-standard deviation is `r round(sd(b_sample), 4)`. We can compare with the output 
+The mean of the bootstrap sample is $-0.084$ and its sample 
+standard deviation is `r round(sd(b_sample), 3)`. We can compare with the output 
 of the standard  Cox regression, see Table \@ref(tab:bootc6).
 
 ```{r bootc6, echo = FALSE, results = 'asis'}
 source("R/fit.out.R")
-fit.out(fit, caption = "Child mortality", label = "bootc6")
+fit.out(fit, caption = "Child mortality, ordinary Cox regression.", label = "bootc6")
 ```
 
 The mean is very close to the actual estimate, but the bootstrap standard error

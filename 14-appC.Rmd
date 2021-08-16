@@ -1,4 +1,4 @@
-# A brief introduction to **R**
+# A Brief Introduction to **R**
 
 ```{r settingsC, echo = FALSE, include = FALSE}
 knitr::opts_chunk$set(comment = "", message = FALSE, echo = TRUE, cache = FALSE)
@@ -14,7 +14,7 @@ When there, look under *Documentation*. The *Task Views* on the home page of
 [CRAN](https://cran.r-project.org) contains a section *Survival* worth examining.
 
 When **R** is installed on a  computer, it is easy to
-access the the documentation that comes with the distribution; start
+access the documentation that comes with the distribution; start
 **R** and read the help page `?help.start`. A good start for a
 beginner is also the book *Introductory Statistics with R* by
 [@pd08]. The book on 
@@ -24,7 +24,7 @@ advanced studies of the topic that its title implies.
 That said, in this chapter we will only look at some aspects of working with **R**,
 aspects that are relevant to our topic.
 
-## R in general
+## R in General
 
 In this section we investigate how to work with **R** in general, without
 special reference to event history analysis, which will be treated
@@ -177,7 +177,7 @@ country <- factor(c("se", "no", "uk", "uk", "us"),
                   levels = c("uk", "us", "se", "no"))
 country
 ```
-The first level often have a special meaning ("reference category") in
+The first level often has a special meaning ("reference category") in
 statistical analyses in **R**.
 
 
@@ -243,7 +243,7 @@ relying on (and remembering) those rules. Compare, for instance
 ```
 For descriptions of specific operators, consult the help system.
 
-## Some standard **R** functions
+## Some Standard **R** Functions
 
 1.   `round`, `floor`, `ceiling`: Rounds to nearest integer,
   downwards, and upwards, respectively.
@@ -333,7 +333,7 @@ x[x > 0]
 *   **Negative integers** Removes the corresponding values.
 *   **Character strings** For named vectors; select the elements with the
   given names.
-*   **Empty** Selects all values. Often used to select rows / columns from a matrix,
+*   **Empty** Selects all values. Often used to select all rows or columns from a matrix,
 ```{r indmat}
 x <- matrix(c(1,2,3,4), nrow = 2)
 x
@@ -341,7 +341,7 @@ x[, 1]
 x[, 1, drop = FALSE]
 ``` 
 
-Note that a dimension is lost when one row /column is selected. This can be
+Note that a dimension is lost when one row or column is selected. This can be
 overridden by the argument `drop = FALSE` (*don't drop dimension(s)*).
 
 ### Vectors and matrices
@@ -427,7 +427,7 @@ vectors. See the documentation of `apply`, `tapply`, `lapply`,
 and `sapply`. 
 
 
-## Writing functions
+## Writing Functions
 
 Functions are created by assignment using the keyword `function`.
 ```{r fun}
@@ -455,7 +455,7 @@ $x$. It throws an error if fed by a negative value. Note that it is
 *vectorized*, i.e., the first argument may be a real-valued
 vector. Also note the function `any`.
 
-In serious function writing, it is very unconvenient to define the function
+In serious function writing, it is very inconvenient to define the function
 at the command prompt. It is much better to write it in a good editor and
 then `source` it into the **R** session as needed. If it will be used
 extensively in the future, the way to go is to write a `package`. This
@@ -498,10 +498,9 @@ function. The rules by which formal and actual are *matched* are
 4.   Remaining unmatced actual arguments are part of the ... argument
   if there is one. Otherwise an error occurs.
 5.   Formal arguments need not be matched.
-\end{enumerate}
-  
 
-### The argument "$\ldots$"
+  
+### The argument `...`
 
 The purpose of the `...` argument is to pass arguments to a
 function call inside the actual function. Read *An Introduction to R* (available 
@@ -524,7 +523,8 @@ mlexp <- function(x, d){
     d <- as.numeric(d != 0)
 
     ## The density function is lambda^d * exp(-lambda * x), x > 0.
-    ## But we prefer a parametrization where the parameter may vary freely.
+    ## But we prefer a parameterization where the 
+    ## parameter may vary freely.
     ## Set lambda = exp(alpha):
     ## The density is exp(d * alpha) * exp(-x * exp(alpha)).
     
@@ -614,7 +614,7 @@ space. This is often *not* the intention!
 the flag `R --vanilla`.
 
 
-## Standard graphics
+## Standard Graphics
 
 The workhorses in standard graphics handling in **R** are the functions 
   `plot` and `par`. Read their respective documentations carefully; you
@@ -631,7 +631,7 @@ plot2
 plot2()
 ``` 
 
-## Useful **R** functions
+## Useful **R** Functions
 
 \subsubsection*{Matching}
 \index{Functions!\fun{match}}
@@ -683,7 +683,7 @@ This is the same as
 ```{r sel2C}
 f13 <- fert[(fert$parity >= 1) & (fert$parity <= 3), ]
 ``` 
-Note that the parantheses in the last line are strictly unnecessary, but
+Note that the parentheses in the last line are strictly unnecessary, but
 their presence increases readability and avoids stupid mistakes about
 precedence between operators. Use parentheses often!
 
@@ -718,7 +718,7 @@ system, type
 > help.start()
 ```
 
-at the prompt (or, find a corresponding menu item on a GUI system). Then a
+at the prompt (or, find a corresponding menu item on a graphical user interface system). Then a
 help window opens up with access to several FAQs, and all the packages that
 are installed.
 
@@ -731,7 +731,7 @@ If you only need to see the syntax and input arguments, use the function \fun{ar
 > args(coxreg)
 ``` 
 
-## Functions for survival analysis 
+## Functions for Survival Analysis 
 
 Here some useful functions in `eha` and `survival` are listed. In most cases the
 description is very sparse, and the reader is recommended to consult the
@@ -763,13 +763,13 @@ library(eha)
 mort18601870 <- cal.window(oldmort, c(1860, 1870))
 ``` 
 limits the study of old age mortality to the time period between 1860 and
-187070, that is, from January 1, 1860 up to and including December 31, 1869.
+1870, that is, from January 1, 1860 up to and including December 31, 1869.
 
 For *rectangular* cuts in the Lexiz diagram, use both `age.window`
 and `cal.window` in succession. The order is unimportant.
 
 *   **cox.zph**\index{Functions!\fun{cox.zph}} Tests the proportionality assumption on fits from
-  `coxreg` and `coxph`. This function is part of the survival package.
+  `coxph`. This function is part of the survival package.
 
 *   **coxreg**\index{Functions!\fun{coxreg}} Fits Cox proportional hazards
   model. It is a wrapper for `coxph` in case of simpler Cox regression
@@ -792,7 +792,7 @@ regression for *tabular data*.
 
 
 
-### Checking the the integrity of survival data
+### Checking the integrity of survival data
 
 In data sources collected through reading and coding old printed
 handwritten sources, many opportunities for making and propagating errors occur. Therefore,
@@ -920,7 +920,7 @@ om[om$id == left, ]
 And we are done.
 
 
-## Reading data into **R**
+## Reading Data into **R**
 
 The first thing you have to do in a statistical analysis (in **R**) is to get
 data into the computing environment. Data may come from different kind of
@@ -931,13 +931,13 @@ data files from other statistical programs, spreadsheet type (think
 
 If anything else fails, it is almost always possible to get data written in
 ASCII format (e.g., *.csv* files). These can be read into **R** with the
-function `read.table`, see the next section.
+function `read.table`.
 
 
 ### Reading data from ASCII files
 
 Ordinary text  (ASCII) files in tabular form can be read into **R** with the
-function `read.table`. For instance, with a file looking this:
+function `read.table`, and the result is a data frame. For instance, with a file looking this:
 ```{r fuskdataC,echo=FALSE}
 xx <- read.table("my.dat", header = TRUE)
 print(xx, row.names = FALSE)

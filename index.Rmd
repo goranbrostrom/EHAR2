@@ -15,7 +15,7 @@ monofont: "Source Code Pro"
 monofontoptions: "Scale=0.7"
 site: bookdown::bookdown_site
 description: "Event history analysis for demographers and epidemiologists."
-url: 'http\://ehar.se/r/ehar2/'
+url: 'https\://ehar.se/r/ehar2/'
 github-repo: goranbrostrom/EHAR2
 cover-image: images/ehar.jpeg
 ---
@@ -44,7 +44,7 @@ The first edition of this book was published in 2012, nine years ago. Since then
 the field of event history and survival analysis has grown and developed rapidly, 
 both in terms of available scientific data and
 of software development for analyzing data, not the least in the **R** environment.
-We have also seen public need of analyzing what is going on around the world, and the 
+We have also seen the public need of analyzing what is going on around the world, and the 
 present (2021) state of the COVID-19 pandemic is a striking example of that.
 
 So the time for a second edition of the book is now. The basic chapters on Cox regression 
@@ -74,7 +74,7 @@ and supported by new summary functions in the **R** package `eha` [@eha].
 The writing of this book has been done in parallel with the development of the **R** package
 `eha`. Almost all the data sets used in the examples in this book are available in `eha`, 
 so you can easily play around with them on your own. Some data sets will also be published 
-on the home page of the package, http://ehar.se/r/eha/.
+on the home page of the package, https://ehar.se/r/eha/.
 
 <!--
 The R session information when last compiling this book is shown below:
@@ -229,7 +229,7 @@ family of survival distributions. Cox regression is in this sense a
 non-parametric method, but correct is perhaps to call it semi-parametric,
 because the proportionality constant is parametrically determined. The
 introduction to Cox regression goes via the log-rank test, which can be
-regarded as a special case of Cox regression.A fairly detailed discussion of
+regarded as a special case of Cox regression. A fairly detailed discussion of
 different kinds of covariates are given, together with an explanation of
 how to interpret regression parameters connected to these
 covariates. Discrete time versions of the proportional hazards assumption
@@ -357,7 +357,7 @@ the book; they include Tommy Bengtsson, Kristina Broström, Bendix
 Carstensen, Renzo Derosas, Sören
 Edvinsson, Kajsa Fröjd, Ingrid Svensson, and students at the
 Departments of Statistics and Mathematical Statistics at the University of
-Umeå. Many errors have been spotted and improvements suggested, ant the
+Umeå. Many errors have been spotted and improvements suggested, and the
 remaining errors and weaknesses are solely my responsibility.
 
 I also had invaluable support from the publisher, CRC Press, Ltd. I

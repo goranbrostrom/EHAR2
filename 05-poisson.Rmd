@@ -99,7 +99,7 @@ round(dpois(0:5, lambda = 0.5), 5)
 As an example where the Poisson distribution may be relevant, we look at
 the number of children born to a woman after marriage. The data frame 
 *fert* in `eha` can be used to calculate the number of births per married
-woman i Skellefteå during the 19th century; however, this data set
+woman in Skellefteå during the 19th century; however, this data set
 contains only marriages with one or more births. Let us instead count the
 number of births beyond one.
 The result is shown in Figure \@ref(fig:b2fig).
@@ -141,7 +141,7 @@ var(kids)
 
 They are not very close, which also is obvious from comparing the graphs. $\ \Box$
 
-## The connection to Cox regression
+## The Connection to Cox Regression
 \index{Cox regression|(}
 
 There is an interesting connection between Cox regression and Poisson
@@ -189,7 +189,7 @@ datB
 
 Note that three new "covariates" are created, `riskset`, `risktime`,
 and `orig.row`. In the Poisson regression to follow, the variable 
-  `riskset` must be included as a *factor*.  The poisson regression is performed
+  `riskset` must be included as a *factor*.  The Poisson regression is performed
 with the `glm` function:
 
 ```{r poisreg}
@@ -233,7 +233,7 @@ rbind(coef(fit.ml),  coef(fit.b)["x"])
  from the Poisson approach). More about discrete time models in Chapter 7, "Parametric models".  
 \index{Cox regression|)}
 
-## The connection to the piecewise constant hazard model
+## The Connection to the Piecewise Constant Hazard Model
 
 For completeness, the connection between the Poisson distribution and the
 *piecewise constant hazard model*
@@ -242,14 +242,14 @@ is mentioned here.  This is explored in detail in
 Chapter 7, where the Poisson formulation is cast into a survival analysis
 costume and very straightforward to use.
 
-## Tabular lifetime data
+## Tabular Lifetime Data
 
 Although it is possible to use Poisson regression in place of Cox
 regression, the most useful application of Poisson regression in survival
 analysis is with tabular data. We have already seen an example of this in 
 Chapter 2, the life and its connection to the survival function.
 
-```{example, name = "Mortality in ages 61--90, Sweden 2019-20."}
+```{example, name = "Mortality in ages 61--90, Sweden 2019--2020."}
 ```
 \label{ex:sw07}
 We create a data set `swe` (a subset and combination of `swepop` 
@@ -257,7 +257,8 @@ and `swedeaths` in `eha`), which contains population size and number of deaths b
 and sex in Sweden 2019 and 2020. The age span is restricted to ages 61--80. 
 One reason for these choices is to get a grip on the effect of the covid-19 
 pandemic on the mortality increase in 2020 compared to 2019, pre-corona. Normally,
-mortality is lowered in all age groups from one year to the next, but 2019 to 2020 is different.
+mortality is lowered in all age groups from one year to the next, but 2019 to 2020 
+is different, see Table \@ref(tab:swe07).
 
 ```{r swe07, echo = FALSE}
 source("R/tbl.R")
@@ -270,7 +271,7 @@ swe$year <- as.factor(swe$year)
 pout <- rbind(head(swe, 5), tail(swe, 5))
 ##knitr::kable(pout, booktabs = TRUE, row.names = FALSE, label = "swe19206180",
 ##             caption = "Swedish population data 2019-2020, ages 61-80.")
-tbl(pout, caption = "Swedish population data 2019-2020, ages 61-80.", fs = 12)
+tbl(pout, caption = "Swedish population data 2019--2020, ages 61--80.", fs = 12)
 ```
 
 The Poisson model is, where $D_{ij}$ is number of deaths and $P_{ij}$
@@ -434,7 +435,7 @@ Figure \@ref(fig:rawplot) are (i) the model-based hazard curves are higher than 
 raw ones, which depends on the fact that the model has *females* as reference category,
 and thus this figure depicts conditions for females, and (ii) we see small deviations 
 from proportionality; the relative difference seems to increase with age. However, as the 
-likelihood ratio implied, this finding is not statistically significant on the 5 percent
+likelihood ratio implied, this finding is not statistically significant on the 5 per cent
 level.
 
 <!--
@@ -451,6 +452,6 @@ that short perspective.
 -->
 
 A final remark: It was quite tedious, although straightforward, to apply raw Poisson 
-regression to this problem. In Chapter 7 it will be shown how to use the function `tpchreg`
-in the **eha** package for a smooth and simple way of analysing tabular data.$\ \Box$
+regression to this problem. In Chapter 7, it will be shown how to use the function `tpchreg`
+in the **eha** package for a smooth and simple way of analyzing tabular data.$\ \Box$
 \index{Distributions!Poisson|)}

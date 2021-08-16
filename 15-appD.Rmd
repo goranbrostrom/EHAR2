@@ -1,4 +1,4 @@
-# Survival packages in **R**
+# Survival Packages in **R**
 
 The basic package for survival analysis in **R** is the `survival` package
 [@tg00]. It is one of the so-called 
@@ -35,7 +35,7 @@ has some features of its own, notably
 `coxreg`.\index{Functions!\fun{coxreg}} It is activated by setting the
 argument `boot` equal to 
 the desired number of bootstrap replicates.
-*   **Time-dependent case weights** 
+*   **Time-dependent case weights**. 
 
 
 Other features of the **eha** package are listed below.
@@ -47,6 +47,7 @@ Other features of the **eha** package are listed below.
   the function `phreg`\index{Functions!\fun{phreg}} fits 
   proportional hazards parametric models. Especially worth mentioning is the
   implementation of the *piecewise constant hazard*\index{model!parametric!pch} (pch) model. 
+*   **Proportional hazards models for register and tabular data**.  
 *   **Lexis diagram cuts** With the aid of the two functions
   `age.window`\index{Functions!\fun{age.window}} and `cal.window` 
 \index{Functions!\fun{cal.window}}
@@ -87,7 +88,7 @@ listed here:
   model\index{model!additive hazards} [@aa89; @aa93] to survival
   regression data.
 
-## Other packages
+## Other Packages
 
 ### coxme
 \index{Packages!coxme|(}
@@ -111,7 +112,7 @@ risks models [@sz11].
 
 This is a competing risks package [@cmprsk11], based on work by
 @gray88 and @figr99. It is used in the chapter on competing risks models 
-(chapter \@ref(competing)).
+(Chapter \@ref(competing)).
 
 
 

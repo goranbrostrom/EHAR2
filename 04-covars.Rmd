@@ -7,7 +7,7 @@ options(show.signif.stars = FALSE)
 library(eha)
 ```
 
-This chapter deals with the various forms explanatory variables can take and
+This chapter deals with the various forms the explanatory variables can take and
 their possible interplay. In principle, this applies to all forms of
 regression analysis, but here we concentrate on survival models.
 
@@ -47,7 +47,7 @@ of distinct values is called a
 *categorical variable*\index{categorical variable}. In **R**
 language, it is called a 
 *factor*\index{factor}. Examples of such variables are
-  *gender*, *socio-economic status*, *birth place*. Students of
+  *gender*, *socio-economic status*, and *birth place*. Students of
 statistics have long been taught to create *dummy variables* in such
 situations, in the following way: 
 
@@ -119,8 +119,8 @@ table(age.group, useNA = "ifany")
 Note that the created intervals by default are closed to the right and open
 to the left. This has consequences for how observations exactly on a
 boundary are treated; they belong to the lower-valued interval. The
-argument `right` in the call to `cut` can be used switch this
-behaviour the other way around. 
+argument `right` in the call to `cut` can be used to switch this
+behavior the other way around. 
 
 Note further that values falling below the smallest value (15 in our
 example) or above the largest value (51) are reported as *missing values*\index{missing values}
@@ -160,7 +160,10 @@ om <- age.window(oldmort, c(60, 85))
 om$farmer <- om$ses.50 == "farmer"
 om$farmer <- factor(om$farmer, labels = c("no", "yes"))
 om <- om[, c("birthdate", "enter", "exit", "event", "sex", "farmer", "imr.birth")]
-knitr::kable(head(om, 5), booktabs = TRUE, caption = "Old age mortality, Sundsvall 1860-1880", row.names = FALSE)
+##knitr::kable(head(om, 5), booktabs = TRUE, caption = "Old age mortality, Sundsvall 1860--1880", row.names = FALSE)
+source("R/tbl.R")
+yy <- head(om, 5)
+tbl(yy, caption = "Old age mortality, Sundsvall 1860--1880.")
 ```
 
 The sampling frame is a rectangle in the Lexis diagram, see Figure \@ref(fig:lexmortfour). It can be described as all persons born between January 1, 1775 and January 1, 1821, and present in the solid rectangle at some moment.
@@ -214,7 +217,7 @@ fit <- coxreg(Surv(enter, exit, event) ~ sex + farmer,
 ```
 
 The output from `coxreg` (the *model fit*) is saved in the object `fit`, which is investigated,
-first by the the function `summary`, which here performs successive $\chi^2$ tests of the significance of 
+first by the function `summary`, which here performs successive $\chi^2$ tests of the significance of 
 the estimated regression coefficients (the null hypothesis in each case is that the true coefficient 
 is zero). 
 
@@ -259,7 +262,7 @@ fit4 <- coxreg(Surv(enter, exit, event) ~ sex * farmer,
 print(x <- summary(fit4), short = TRUE)
 ```
 
-Note first that the output looks different when interactions are present: The first part is a chisquare test of the significance of the interaction(s), then the usual table with parameter coefficients are presented with one difference: The Wald, and not the LR p-values are given. The small LR $p$-value (`r round(x$coefficients[3, 5], 3) * 100` per cent) indicates that there is a *statistically* significant (at the 5 per cent level) interaction effect. The *size* of the interaction effect is seen in the table of estimated coefficients. Note that the reference is a *non-farmer man*,  so the "main" effect for `sex == female` is in fact comparing a non-farming woman to a non-farming man with the result that the woman has a mortality that is $74.3$ per cent of that of a corresponding man. When comparing a farming woman to a farming man, we have to take the interaction into account, and the result is that a farming woman has a risk that is $0.743 \times  1.338 \times 100 = 99.4$ per cent of the risk for the farming man. Conclusion: Among farmers, the sex difference in mortality is negligible, but in the rest of the population it is large. How the *causality* works here is of course a completely different matter. We may guess that farmers are often married, for instance, we do not find any unmarried female farmers in our data.
+Note first that the output looks different when interactions are present: The first part is a chisquare test of the significance of the interaction(s), then the usual table with parameter coefficients are presented with one difference: The Wald, and not the LR $p$-values are given. The small LR $p$-value (`r round(x$coefficients[3, 5], 3) * 100` per cent) indicates that there is a *statistically* significant (at the 5 per cent level) interaction effect. The *size* of the interaction effect is seen in the table of estimated coefficients. Note that the reference is a *non-farmer man*,  so the "main" effect for `sex == female` is in fact comparing a non-farming woman to a non-farming man with the result that the woman has a mortality that is $74.3$ per cent of that of a corresponding man. When comparing a farming woman to a farming man, we have to take the interaction into account, and the result is that a farming woman has a risk that is $0.743 \times  1.338 \times 100 = 99.4$ per cent of the risk for the farming man. Conclusion: Among farmers, the sex difference in mortality is negligible, but in the rest of the population it is large. How the *causality* works here is of course a completely different matter. We may guess that farmers are often married, for instance, we do not find any unmarried female farmers in our data.
 
 In cases like this, it is often best to perform separate analyses for women and men, or, alternatively, for farmers and non-farmers. Do that as an exercise and interpret your results.
 
@@ -311,8 +314,8 @@ sl1 <- sl0 + res[3, 1]
 
 This is more reasonable-looking: At the beginning of the year 1810, woman had a mortality of 76.8 per cent of that of men.
 
-To summarize: The effects can be illustrated by two curves, one for men and one for women. The coefficients for `sex`, 0 and `r int1`, are the respective intercepts, and `r sl0` and 
-`r sl1` are the slopes. See Figure \@ref(fig:figgraphill3) for a graphical illustration.
+To summarize: The effects can be illustrated by two curves, one for men and one for women. The coefficients for `sex`, 0 and 
+$-0.26429$, are the respective intercepts, and $-00327$ and $-00846$ are the slopes. See Figure \@ref(fig:figgraphill3) for a graphical illustration.
 
 ```{r figgraphill3, fig.cap="The effect of birthdate on relative mortality for men and women. Reference: Men, birthdate = 1810.", fig.scap = "The effect of birthdate on relative mortality.", echo=FALSE, fig.height = 4}
 x <- seq(min(om$birthdate), max(om$birthdate), length = 1000)
@@ -346,9 +349,9 @@ The interpretation of the coefficients are: The reference point is `birthdate = 
 $$ \exp(-0.03024 x + 0.02004 y + 0.00158 x y),$$
 analogous to the calculation in the case with one continuous and one factor covariate.
 
-## Interpretation of parameter estimates
+## Interpretation of Parameter Estimates
 
-In the proportional hazards model the parameter estimates are logarithms of
+In the proportional hazards model, the parameter estimates are logarithms of
 risk ratios relative to the baseline hazard. The precise interpretations of
 the coefficients for the two types of covariates are discussed. 
 The conclusion is that $e^\beta$ has a more direct and intuitive
@@ -376,7 +379,7 @@ $e^\beta$ is the relative risk compared to that reference
 category.
 
 
-## Model selection
+## Model Selection
 
 In regression modeling, there is often several competing models for
 describing data. In general, there are no strict rules for ``correct
