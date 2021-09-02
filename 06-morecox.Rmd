@@ -620,6 +620,7 @@ question is then: Should the covariate be transformed in the analysis? A
 graphical test can be done by
 plotting the martingale residuals from a *null fit* against the covariate,
 See Figure \@ref(fig:6loglin). 
+
 ```{r 6loglin,fig.cap = "Plot of residuals against the explanatory variable $x$.",echo=FALSE}
 set.seed(101121)
 par(las = 1)

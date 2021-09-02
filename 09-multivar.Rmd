@@ -229,7 +229,7 @@ by *missing data*\index{missing data}.
 ```
 
 Take a look at the variables in `oldmort` (Table \@ref(tab:oldmort7)):
-```{r oldmortf7} 
+```{r oldmort7} 
 cap = "The old age mortality data, selected records."
 tbl(tail(oldmort[, c(2:6, 8:9)], 5), caption = cap)
 ``` 
